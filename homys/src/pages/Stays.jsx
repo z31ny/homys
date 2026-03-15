@@ -12,7 +12,6 @@ const Stays = () => {
         <StaysHero/>
         <Homes/>
         <Partners/>
-        {/* Style added to ensure it covers the full width and removes any bottom spacing */}
         <img 
             src={framehomes} 
             alt="Featured" 
