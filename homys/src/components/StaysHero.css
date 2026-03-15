@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Expanded:wght@600&display=swap');
+
+.stays-hero-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 120px; 
+}
+
+.stays-separator {
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 40px;
+  padding: 0 20px;
+}
+
+.stays-separator img {
+  width: 100%;
+  height: auto;
+}
+
+.filter-bar {
+  width: 95%;
+  max-width: 1250px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+  gap: 20px;
+}
+
+.filter-group-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.filter-group-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.star-icon {
+  width: 22px;
+  height: auto;
+}
+
+.filter-pill {
+  background: transparent;
+  border: 1.5px solid #112a3d;
+  color: #112a3d;
+  padding: 10px 45px;
+  border-radius: 50px;
+  font-family: 'Encode Sans Expanded', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.filter-pill:hover,
+.filter-pill.active {
+  background-color: #112a3d;
+  color: #f6f3eb;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 50px;
+}
+
+/* HERO IMAGE 100% WIDTH FIX */
+.hero-image-container {
+  width: 100%;
+  max-width: 100%; /* Changed from 1300px to 100% */
+  padding: 0; /* Removed side padding for edge-to-edge look */
+  margin-bottom: 0; 
+}
+
+.hero-main-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* Removed border for a true full-width clean look */
+  border: none; 
+}
+
+@media (max-width: 1100px) {
+  .filter-bar {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .filter-pill {
+    padding: 10px 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .stays-hero-section {
+    padding-top: 100px; /* Still need clear space for nav on mobile */
+  }
+
+  .filter-group-left {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .star-icon {
+    display: none;
+  }
+
+  .filter-group-right {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .filter-pill {
+    font-size: 0.85rem;
+    padding: 8px 20px;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../imgs/logo.png';
 import './Nav.css';
 
@@ -9,32 +10,32 @@ const Nav = () => {
     useEffect(() => {
         const handleScroll = () => {
             setIsOpen(false);
-            
             if (window.scrollY > 50) {
                 setIsScrolled(true);
             } else {
                 setIsScrolled(false);
             }
         };
-
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const closeMenu = () => setIsOpen(false);
 
     return (
         <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
             <div className="nav-left">
                 <div className="nav-logo">
-                    <img src={logo} alt="Logo" />
+                    <Link to="/"><img src={logo} alt="Logo" /></Link>
                 </div>
             </div>
 
             <div className={`nav-center ${isScrolled ? 'hide' : ''}`}>
                 <div className="nav-links">
-                    <a href="#home">Home</a>
-                    <a href="#about">About</a>
-                    <a href="#stays">Stays</a>
-                    <a href="#contact">Contact</a>
+                    <Link to="/">Home</Link>
+                    <Link to="/about">About</Link>
+                    <Link to="/stays">Stays</Link>
+                    <Link to="/contact">Contact</Link>
                 </div>
             </div>
 
@@ -54,7 +55,7 @@ const Nav = () => {
                     onMouseEnter={() => setIsOpen(true)}
                     onMouseLeave={() => setIsOpen(false)}
                 >
-                    <div className={`hamburger-container`}>
+                    <div className="hamburger-container">
                         <div className={`burger-lines ${isOpen ? 'open' : ''}`}>
                             <span></span>
                             <span></span>
@@ -64,10 +65,10 @@ const Nav = () => {
 
                     <div className={`dropdown-panel ${isOpen ? 'active' : ''}`}>
                         <div className="dropdown-links">
-                            <a href="#home">Home</a>
-                            <a href="#about">About</a>
-                            <a href="#stays">Stays</a>
-                            <a href="#contact">Contact</a>
+                            <Link to="/" onClick={closeMenu}>Home</Link>
+                            <Link to="/about" onClick={closeMenu}>About</Link>
+                            <Link to="/stays" onClick={closeMenu}>Stays</Link>
+                            <Link to="/contact" onClick={closeMenu}>Contact</Link>
                         </div>
                         <div className="dropdown-actions">
                             <button className="book-btn">Book Now</button>

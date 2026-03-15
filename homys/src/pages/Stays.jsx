@@ -1,22 +1,26 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './Stays.css';
-import Nav from '../common/Nav';
-import Whatsapp from '../common/Whatsapp';
 import FaqHero from '../components/FaqHero';
-import Footer from '../common/Footer';
+import StaysHero from './../components/StaysHero';
+import Homes from './../components/Homes';
+import Partners from './../components/Partners';
+import framehomes from '../imgs/framehomes.png';
 
 const Stays = () => {
     return ( 
-        <>
-        <Nav/>
-        <Whatsapp/>
-
+       <>
+        <StaysHero/>
+        <Homes/>
+        <Partners/>
+        {/* Style added to ensure it covers the full width and removes any bottom spacing */}
+        <img 
+            src={framehomes} 
+            alt="Featured" 
+            style={{ width: '100%', height: 'auto', display: 'block' }} 
+        />
         <FaqHero/>
-        <Footer/>
-        
-        
         </>
-     );
+    );
 }
  
 export default Stays;
