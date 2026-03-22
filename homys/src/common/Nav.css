@@ -1,5 +1,4 @@
 :root {
-    --bg: #FFFAE7;
     --blue: #123042;
     --main-font: 'Encode Sans Expanded', sans-serif;
 }
@@ -124,11 +123,10 @@
     stroke: var(--bg);
 }
 
-/* Hover Menu Area Logic */
 .menu-hover-area {
     display: none;
     position: relative;
-    padding: 10px; /* buffer to keep menu open while moving mouse */
+    padding: 10px; 
 }
 
 .menu-hover-area.show {

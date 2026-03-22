@@ -12,6 +12,8 @@ import AboutUs from './components/AboutUs';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import ForgetPassword from './pages/ForgetPassword';
+import ContactUs from './pages/ContactUs';
+import Profile from './pages/Profile';
 
 const Routing = () => {
   return (
@@ -26,7 +28,9 @@ const Routing = () => {
         <Route path="/AboutUs" element={<AboutUs />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/forgetpassword" element={<ForgetPassword />} />
+        <Route path="/contactus" element={<ContactUs />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
 
         <Route path="*" element={<Error />} /> 
       </Routes>

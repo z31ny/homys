@@ -35,19 +35,20 @@ const Nav = () => {
                     <Link to="/">Home</Link>
                     <Link to="/AboutUs">About</Link>
                     <Link to="/stays">Stays</Link>
-                    <Link to="/contact">Contact</Link>
+                    <Link to="/contactus">Contact</Link>
                 </div>
             </div>
 
             <div className="nav-right">
                 <div className={`nav-actions ${isScrolled ? 'hide' : ''}`}>
                     <button className="book-btn">Book Now</button>
-                    <div className="profile-circle">
+                    {/* Desktop Profile Link */}
+                    <Link to="/profile" className="profile-circle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="user-icon">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                    </div>
+                    </Link>
                 </div>
 
                 <div 
@@ -66,18 +67,19 @@ const Nav = () => {
                     <div className={`dropdown-panel ${isOpen ? 'active' : ''}`}>
                         <div className="dropdown-links">
                             <Link to="/" onClick={closeMenu}>Home</Link>
-                            <Link to="/about" onClick={closeMenu}>About</Link>
+                            <Link to="/AboutUs" onClick={closeMenu}>About</Link>
                             <Link to="/stays" onClick={closeMenu}>Stays</Link>
-                            <Link to="/contact" onClick={closeMenu}>Contact</Link>
+                            <Link to="/contactus" onClick={closeMenu}>Contact</Link>
                         </div>
                         <div className="dropdown-actions">
                             <button className="book-btn">Book Now</button>
-                            <div className="profile-circle">
+                            {/* Dropdown Profile Link */}
+                            <Link to="/profile" onClick={closeMenu} className="profile-circle">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="user-icon">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
-                            </div>
+                            </Link>
                         </div>
                     </div>
                 </div>
