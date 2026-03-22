@@ -79,9 +79,10 @@
   font-size: clamp(1.2rem, 1.8vw, 2rem);
   text-transform: uppercase;
   text-align: center;
+  letter-spacing: 2.3px;
   padding: 0 10px;
   pointer-events: none;
-  font-weight: 700;
+  font-weight: 1200;
 }
 
 .stay-footer {

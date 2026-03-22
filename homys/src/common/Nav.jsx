@@ -33,7 +33,7 @@ const Nav = () => {
             <div className={`nav-center ${isScrolled ? 'hide' : ''}`}>
                 <div className="nav-links">
                     <Link to="/">Home</Link>
-                    <Link to="/about">About</Link>
+                    <Link to="/AboutUs">About</Link>
                     <Link to="/stays">Stays</Link>
                     <Link to="/contact">Contact</Link>
                 </div>

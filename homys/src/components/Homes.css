@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Expanded:wght@400;500;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
 .homes-section {
-  padding: 60px 40px;
+  padding: 80px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,8 +12,8 @@
   align-self: flex-start;
   max-width: 1300px;
   width: 100%;
-  margin: 0 auto 40px auto;
-  font-size: 2.2rem;
+  margin: 0 auto 50px auto;
+  font-size: 2.5rem;
   color: #112a3d;
 }
 
@@ -28,52 +28,124 @@
 .home-card {
   background: white;
   border: 1.5px solid #112a3d;
-  border-radius: 60px 0 60px 0;
+  border-radius: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: box-shadow 0.3s ease;
 }
 
+.home-card:nth-child(3n+1) {
+  border-radius: 80px 0 0 80px;
+}
+
+.home-card:nth-child(3n) {
+  border-radius: 0 80px 80px 0;
+}
+
 .home-card:hover {
-  box-shadow: 0 10px 30px rgba(17, 42, 61, 0.1);
+  box-shadow: 0 15px 40px rgba(17, 42, 61, 0.12);
 }
 
 .home-img-wrapper {
   position: relative;
   width: 100%;
-  height: 250px;
+  height: 280px;
   overflow: hidden;
   border-bottom: 1.5px solid #112a3d;
+}
+
+.carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .home-main-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s ease;
+  flex-shrink: 0;
+  transition: transform 0.8s ease;
 }
 
 .home-card:hover .home-main-img {
-  transform: scale(1.15);
+  transform: scale(1.1);
+}
+
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 10;
+  color: #112a3d;
+}
+
+.nav-arrow.left { left: 15px; }
+.nav-arrow.right { right: 15px; }
+
+.home-card:hover .nav-arrow {
+  opacity: 1;
+}
+
+.nav-arrow:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  background: white;
+  width: 18px;
+  border-radius: 10px;
 }
 
 .check-house-btn {
   position: absolute;
-  bottom: 15px;
-  right: 15px;
-  background-color: rgba(255, 255, 255, 0.9);
+  bottom: 25px;
+  right: 20px;
+  background-color: white;
   border: 1px solid #112a3d;
-  padding: 8px 15px;
-  border-radius: 30px;
+  padding: 10px 20px;
+  border-radius: 40px;
   font-family: 'Encode Sans Expanded', sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
   color: #112a3d;
   cursor: pointer;
   opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s ease;
+  transform: translateY(15px);
+  transition: all 0.4s ease;
+  z-index: 11;
 }
 
 .home-card:hover .check-house-btn {
@@ -87,58 +159,58 @@
 }
 
 .home-card-content {
-  padding: 25px;
+  padding: 30px;
   font-family: 'Encode Sans Expanded', sans-serif;
   color: #112a3d;
 }
 
 .home-title {
   font-family: 'Libre Baskerville', serif;
-  font-size: 1.1rem;
-  margin-bottom: 10px;
+  font-size: 1.25rem;
+  margin-bottom: 12px;
   font-weight: 600;
 }
 
 .home-location {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.8rem;
+  gap: 8px;
+  font-size: 0.85rem;
   opacity: 0.7;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .home-specs {
   display: flex;
   align-items: center;
-  gap: 20px;
-  border-top: 1px solid #e0e0e0;
-  padding-top: 15px;
-  margin-bottom: 15px;
-  font-size: 0.85rem;
+  gap: 25px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 20px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
 }
 
 .spec-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   opacity: 0.8;
 }
 
 .home-price {
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 700;
+  font-size: 1.1rem;
   margin-top: auto;
 }
 
 .explore-more-homes {
-  margin-top: 60px;
+  margin-top: 70px;
   background: transparent;
   border: 1.5px solid #112a3d;
-  padding: 15px 100px;
-  border-radius: 50px;
+  padding: 18px 120px;
+  border-radius: 60px;
   font-family: 'Encode Sans Expanded', sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #112a3d;
   cursor: pointer;
@@ -154,20 +226,26 @@
   .homes-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .home-card:nth-child(n) {
+    border-radius: 40px;
+  }
 }
 
 @media (max-width: 768px) {
   .homes-section {
-    padding: 40px 20px;
+    padding: 50px 20px;
   }
   .homes-grid {
     grid-template-columns: 1fr;
   }
   .homes-count-title {
-    font-size: 1.8rem;
+    font-size: 2rem;
+  }
+  .home-card:nth-child(n) {
+    border-radius: 30px;
   }
   .explore-more-homes {
     width: 100%;
-    padding: 15px 0;
+    padding: 18px 0;
   }
 }

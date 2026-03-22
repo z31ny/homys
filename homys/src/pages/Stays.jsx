@@ -15,7 +15,7 @@ const Stays = () => {
         <img 
             src={framehomes} 
             alt="Featured" 
-            style={{ width: '100%', height: 'auto', display: 'block' }} 
+            style={{ width: '100%', height: 'auto', display: 'block', marginTop: '20px' }} 
         />
         <FaqHero/>
         </>

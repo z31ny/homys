@@ -7,6 +7,11 @@ import Nav from './common/Nav';
 import Footer from './common/Footer';
 import Whatsapp from './common/Whatsapp';
 import Error from './pages/Error';
+import PropertyDetails from './pages/PropertyDetails';
+import AboutUs from './components/AboutUs';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import ForgetPassword from './pages/ForgetPassword';
 
 const Routing = () => {
   return (
@@ -16,7 +21,13 @@ const Routing = () => {
       
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/stays" element={<Stays />} />
+        <Route path="/Stays" element={<Stays />} />
+        <Route path="/PropertyDetails" element={<PropertyDetails />} />
+        <Route path="/AboutUs" element={<AboutUs />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgetpassword" element={<ForgetPassword />} />
+
         <Route path="*" element={<Error />} /> 
       </Routes>
 
