@@ -8,6 +8,7 @@ import team3 from '../imgs/Rectangle 10.png';
 import team4 from '../imgs/Rectangle 11.png';
 import team5 from '../imgs/Rectangle 6.png';
 import team6 from '../imgs/Rectangle 9.png';
+import reccc from '../imgs/recc.png';
 
 const Counter = ({ end, duration = 2000, suffix = "" }) => {
   const [count, setCount] = useState(0);
@@ -16,7 +17,6 @@ const Counter = ({ end, duration = 2000, suffix = "" }) => {
     let start = 0;
     const endValue = parseInt(end.replace(/,/g, ''));
     if (start === endValue) return;
-    let totalMiliseconds = duration;
     let timer = setInterval(() => {
       start += Math.ceil(endValue / 50);
       if (start >= endValue) {
@@ -113,7 +113,7 @@ const AboutUs = () => {
             <div className="founder-info">
               <h4 className="libre">Mohamed Magdy</h4>
               <span className="encode">Co-Founder & CEO</span>
-              <p className="encode">A visionary leader with over a decade of experience in real estate and hospitality, Mohamed is dedicated to creating seamless living experiences that feel like home.</p>
+              <p className="encode">A visionary leader with over a decade of experience in real estate and hospitality, Mohamed is dedicated to creating seamless living experiences.</p>
             </div>
           </div>
           <div className="founder-card">
@@ -123,7 +123,7 @@ const AboutUs = () => {
             <div className="founder-info">
               <h4 className="libre">Korashy</h4>
               <span className="encode">Co-Founder & COO</span>
-              <p className="encode">With an eye for detail and a passion for operational excellence, Korashy ensures that every Homys property operates with the highest level of care and precision.</p>
+              <p className="encode">With an eye for detail and a passion for excellence, Korashy ensures that every Homys property operates with the highest level of care.</p>
             </div>
           </div>
         </div>
@@ -168,18 +168,59 @@ const AboutUs = () => {
         </div>
       </section>
 
-      <section className="about-team">
-        <h2 className="libre section-title">Know more about our properties</h2>
-        <div className="team-grid">
-          {[team1, team2, team3, team4, team5, team6].map((member, i) => (
-            <div key={i} className="team-card">
-              <div className="team-img-wrapper">
-                <img src={member} alt="Team" />
-              </div>
-              <h6 className="encode">Team Member</h6>
-              <p className="encode">Executive Leader</p>
+      <section className="style-gallery-section">
+        <div className="style-gallery-header">
+          <h2 className="libre">The Newest Style for Your Home</h2>
+          <div className="separator-line"></div>
+          <p className="encode subtext">
+            Blending coastal aesthetics with modern luxury to create spaces that feel both exotic and familiar.
+          </p>
+        </div>
+
+        <div className="mosaic-container">
+          <div className="mosaic-top-grid">
+            <div className="mosaic-item tall">
+              <img src={team4} alt="Pool View" />
             </div>
-          ))}
+            <div className="mosaic-right-column">
+              <div className="mosaic-item small">
+                <img src={missionImg} alt="Living Area" />
+              </div>
+              <div className="mosaic-item small">
+                <img src={team2} alt="Bedroom" />
+              </div>
+            </div>
+          </div>
+          <div className="mosaic-item wide">
+            <img src={reccc} alt="Beach Umbrellas" />
+          </div>
+        </div>
+      </section>
+
+      <section className="testimonials-section">
+        <h2 className="libre section-title">What Our Guests Say</h2>
+        <div className="testimonial-grid">
+            <div className="testimonial-card">
+                <p className="encode">"The attention to detail in every Homys home is unmatched. It truly felt like a home away from home."</p>
+                <div className="guest-info">
+                    <h6 className="libre">Sarah J.</h6>
+                    <span className="encode">Guest from UK</span>
+                </div>
+            </div>
+            <div className="testimonial-card">
+                <p className="encode">"Clean, safe, and beautifully designed. The booking process was seamless and the concierge was helpful."</p>
+                <div className="guest-info">
+                    <h6 className="libre">Ahmed M.</h6>
+                    <span className="encode">Guest from Cairo</span>
+                </div>
+            </div>
+            <div className="testimonial-card">
+                <p className="encode">"Homys has redefined what coastal stays should be. The Fouka Bay property was stunning."</p>
+                <div className="guest-info">
+                    <h6 className="libre">Elena R.</h6>
+                    <span className="encode">Guest from Italy</span>
+                </div>
+            </div>
         </div>
       </section>
 

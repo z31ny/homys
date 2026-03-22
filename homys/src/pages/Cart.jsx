@@ -45,17 +45,13 @@ const Cart = () => {
                 <div className="adjuster-group">
                   <label className="encode">Adults</label>
                   <div className="counter-controls">
-                    <button onClick={() => setAdults(Math.max(1, adults - 1))}>-</button>
                     <span>{adults}</span>
-                    <button onClick={() => setAdults(adults + 1)}>+</button>
                   </div>
                 </div>
                 <div className="adjuster-group">
                   <label className="encode">Rooms</label>
                   <div className="counter-controls">
-                    <button onClick={() => setRooms(Math.max(1, rooms - 1))}>-</button>
                     <span>{rooms}</span>
-                    <button onClick={() => setRooms(rooms + 1)}>+</button>
                   </div>
                 </div>
               </div>

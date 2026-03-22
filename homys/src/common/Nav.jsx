@@ -41,8 +41,11 @@ const Nav = () => {
 
             <div className="nav-right">
                 <div className={`nav-actions ${isScrolled ? 'hide' : ''}`}>
-                    <button className="book-btn">Book Now</button>
-                    {/* Desktop Profile Link */}
+                    {/* Desktop Book Now Link */}
+                    <Link to="/stays">
+                        <button className="book-btn">Book Now</button>
+                    </Link>
+                    
                     <Link to="/profile" className="profile-circle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="user-icon">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -72,8 +75,11 @@ const Nav = () => {
                             <Link to="/contactus" onClick={closeMenu}>Contact</Link>
                         </div>
                         <div className="dropdown-actions">
-                            <button className="book-btn">Book Now</button>
-                            {/* Dropdown Profile Link */}
+                            {/* Mobile Dropdown Book Now Link */}
+                            <Link to="/stays" onClick={closeMenu}>
+                                <button className="book-btn">Book Now</button>
+                            </Link>
+                            
                             <Link to="/profile" onClick={closeMenu} className="profile-circle">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="user-icon">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>

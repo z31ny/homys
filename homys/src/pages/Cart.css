@@ -119,7 +119,6 @@
 .summary-sticky {
   position: sticky;
   top: 140px;
-  background: white;
   border: 1.5px solid #112a3d;
   padding: 40px;
   border-radius: 0 60px 0 60px;

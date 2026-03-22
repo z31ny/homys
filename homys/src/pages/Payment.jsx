@@ -27,7 +27,7 @@ const Payment = () => {
             className={`method-pill ${method === 'paypal' ? 'active' : ''}`} 
             onClick={() => setMethod('paypal')}
           >
-            PayPal
+            PayMob
           </button>
         </div>
 
