@@ -3,6 +3,7 @@
 .quiz-page, .results-page {
   min-height: 100vh;
   padding: 140px 40px 100px;
+  padding-top: 15%;
   color: #112a3d;
   display: flex;
   flex-direction: column;

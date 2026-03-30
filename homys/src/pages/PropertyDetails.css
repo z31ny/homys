@@ -227,6 +227,7 @@
   top: 100px;
   border: 1.5px solid #112a3d;
   padding: 45px;
+  top: 18%;
   border-radius: 0 100px 0 100px;
   box-shadow: 0 30px 60px rgba(17, 42, 61, 0.08);
 }

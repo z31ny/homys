@@ -1,5 +1,4 @@
 import React from 'react';
-import './Stays.css';
 import FaqHero from '../components/FaqHero';
 import StaysHero from './../components/StaysHero';
 import Homes from './../components/Homes';
