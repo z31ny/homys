@@ -114,7 +114,7 @@ const Homes = () => {
         ))}
       </div>
       
-      <button className="explore-more-homes" onClick={() => navigate('/stays')}>
+      <button className="explore-more-homes" onClick={() => navigate('/MoreHomes')}>
         Explore More
       </button>
     </section>

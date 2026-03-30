@@ -1,0 +1,104 @@
+.fast-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.split-left, .split-right {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #f6f3eba1; /* Homys Cream */
+  transition: transform 0.6s cubic-bezier(0.87, 0, 0.13, 1);
+  z-index: -1;
+}
+
+.split-left { left: 0; }
+.split-right { right: 0; }
+
+.fast-preloader.exit .split-left { transform: translateX(-100%); }
+.fast-preloader.exit .split-right { transform: translateX(100%); }
+.fast-preloader.exit .kinetic-container { opacity: 0; transform: scale(1.2); }
+
+/* --- KINETIC LOCK --- */
+.kinetic-container {
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.lock-snap {
+  position: relative;
+  width: 60px;
+  height: 50px;
+  background: #112a3d;
+  border-radius: 8px;
+  margin: 0 auto 20px;
+  animation: jitter 0.1s infinite alternate;
+}
+
+.shackle {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 40px;
+  border: 6px solid #112a3d;
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  animation: snapOpen 0.8s forwards cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation-delay: 0.5s;
+}
+
+.key-flash {
+  position: absolute;
+  inset: 0;
+  background: #d1a67a;
+  opacity: 0;
+  animation: flash 0.2s forwards;
+  animation-delay: 0.4s;
+  border-radius: 6px;
+}
+
+/* --- TEXT --- */
+.status-text {
+  font-size: 0.8rem;
+  letter-spacing: 5px;
+  color: #112a3d;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+  animation-delay: 0.2s;
+}
+
+/* --- PURE SPEED ANIMATIONS --- */
+
+@keyframes snapOpen {
+  0% { transform: translateX(-50%) translateY(0); }
+  100% { transform: translateX(-50%) translateY(-15px); }
+}
+
+@keyframes flash {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+@keyframes jitter {
+  0% { transform: translate(0,0); }
+  100% { transform: translate(1px, 1px); }
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* Hide the whole component once animation ends */
+.fast-preloader.exit {
+  visibility: hidden;
+  transition-delay: 0.6s;
+}

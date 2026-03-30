@@ -21,13 +21,16 @@ import ListProperty from './pages/ListProperty';
 import Questionnaire from './pages/Questionnaire';
 import ChatBot from './common/ChatBot';
 import BookNow from './pages/BookNow';
+import MoreHomes from './pages/MoreHomes';
+import Preloader from './common/Preloader';
 
 const Routing = () => {
   return (
     <Router>
+       <Preloader/>
        <Nav/>
        <ChatBot/>
-      <Whatsapp />
+       <Whatsapp />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/stays" element={<Stays />} />
@@ -44,6 +47,7 @@ const Routing = () => {
         <Route path="/list-property" element={<ListProperty />} />
         <Route path="/questionnaire" element={<Questionnaire />} />
         <Route path="/booknow" element={<BookNow />} />
+        <Route path="/morehomes" element={<MoreHomes />} />
         <Route path="*" element={<Error />} /> 
       </Routes>
       <Footer />

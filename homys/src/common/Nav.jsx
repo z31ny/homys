@@ -6,19 +6,29 @@ import './Nav.css';
 const Nav = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [lastScrollY, setLastScrollY] = useState(0); // Track previous scroll position
 
     useEffect(() => {
         const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Close dropdown if it's open when scrolling
             setIsOpen(false);
-            if (window.scrollY > 50) {
+            
+            if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                // SCROLLING DOWN: Show Burger Menu
                 setIsScrolled(true);
             } else {
+                // SCROLLING UP: Show Normal Nav
                 setIsScrolled(false);
             }
+
+            setLastScrollY(currentScrollY);
         };
+
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [lastScrollY]); // Depend on lastScrollY to calculate direction
 
     const closeMenu = () => setIsOpen(false);
 
