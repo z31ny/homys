@@ -7,12 +7,14 @@ import AboutHero from '../components/AboutHero';
 import Separator from '../common/Separator';
 import FaqHero from '../components/FaqHero';
 import SeaSection from '../components/SeaSection';
+import QandA from '../components/QandA';
 
 const Home = () => {
   return (
     <>
       <Hero />
       <HeroBody />
+      <QandA/>
       <SeaSection />
       <NextStay />
       <AboutHero />

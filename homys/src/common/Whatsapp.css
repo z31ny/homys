@@ -1,88 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Expanded:wght@600&display=swap');
-
-.whatsapp-container {
+.whatsapp-fixed-tab {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 9999;
+  bottom: 50px; 
+  right: 0;
+  z-index: 100000;
 }
 
-.whatsapp-link {
+.wa-anchor {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   text-decoration: none;
-  gap: 15px;
+  position: relative;
 }
 
-.whatsapp-button {
+.wa-hover-label {
+  position: absolute;
+  right: 80px;
+  background: white;
+  color: #112a3d;
+  padding: 11px 16px;
+  margin-top: 15px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+.wa-anchor:hover .wa-hover-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wa-icon-tab {
   width: 65px;
   height: 65px;
   background-color: #112a3d;
-  border-radius: 50%;
+  color: white;
+  border-radius: 40px 0 0 40px;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, background-color 0.3s ease;
-  flex-shrink: 0;
+  box-shadow: -5px 5px 15px rgba(0,0,0,0.1);
+  transition: 0.3s ease;
 }
 
-.whatsapp-button svg {
-  width: 35px;
-  height: 35px;
-  fill: #ffffff;
+.wa-icon-tab svg {
+  width: 32px;
+  height: 32px;
+  fill: white;
 }
 
-.whatsapp-text {
-  font-family: 'Encode Sans Expanded', sans-serif;
-  font-weight: 600;
-  color: #112a3d;
-  background-color: #ffffff;
-  padding: 10px 20px;
-  border-radius: 30px;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  transform: translateX(20px);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.whatsapp-link:hover .whatsapp-text {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.whatsapp-link:hover .whatsapp-button {
-  transform: scale(1.1);
+.wa-anchor:hover .wa-icon-tab {
   background-color: #1a3c55;
-}
-
-@media (max-width: 768px) {
-  .whatsapp-container {
-    bottom: 20px;
-    right: 20px;
-  }
-  
-  .whatsapp-button {
-    width: 55px;
-    height: 55px;
-  }
-
-  .whatsapp-button svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  .whatsapp-text {
-    padding: 8px 15px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .whatsapp-text {
-    display: none; 
-  }
+  width: 75px;
 }

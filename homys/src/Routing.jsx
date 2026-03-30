@@ -19,11 +19,13 @@ import FAQPage from './pages/FAQPage';
 import AllStays from './pages/AllStays';
 import ListProperty from './pages/ListProperty';
 import Questionnaire from './pages/Questionnaire';
+import ChatBot from './common/ChatBot';
 
 const Routing = () => {
   return (
     <Router>
-      <Nav />
+       <Nav/>
+       <ChatBot/>
       <Whatsapp />
       <Routes>
         <Route path="/" element={<Home />} />
