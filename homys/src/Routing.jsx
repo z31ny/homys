@@ -23,6 +23,9 @@ import ChatBot from './common/ChatBot';
 import BookNow from './pages/BookNow';
 import MoreHomes from './pages/MoreHomes';
 import Preloader from './common/Preloader';
+import Login from './pages/Login';
+import Signup from './pages/SignUp';
+import ForgetPassword from './pages/ForgetPassword';
 
 const Routing = () => {
   return (
@@ -37,6 +40,9 @@ const Routing = () => {
         <Route path="/propertydetails" element={<PropertyDetails />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/contactus" element={<ContactUs />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/payment" element={<Payment />} />
