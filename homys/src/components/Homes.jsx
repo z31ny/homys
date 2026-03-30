@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import './Homes.css';
 
 import frame125 from '../imgs/Frame 125.png';
@@ -53,8 +53,7 @@ const HomeCard = ({ home }) => {
           ))}
         </div>
 
-        {/* Updated "Check Out House" to go to Property Details */}
-        <button className="check-house-btn" onClick={() => navigate('/propertydetails')}>
+       <button className="check-house-btn" onClick={() => navigate('/propertydetails')}>
           Check Out House
         </button>
       </div>
@@ -92,7 +91,7 @@ const HomeCard = ({ home }) => {
 };
 
 const Homes = () => {
-  const navigate = useNavigate(); // Initialize navigate here
+  const navigate = useNavigate(); 
 
   const propertyData = [
     { id: 1, images: [frame125, rect6, rect9, rect10], title: 'Modern Downtown Apartment', location: 'Downtown, New York', beds: 2, baths: 2, sqft: '1200 sqft', price: '$2,500/month' },

@@ -15,13 +15,16 @@ import Checkout from './pages/Checkout';
 import Payment from './pages/Payment';
 import Success from './pages/Success';
 import Cart from './pages/Cart';
+import FAQPage from './pages/FAQPage';
+import AllStays from './pages/AllStays';
+import ListProperty from './pages/ListProperty';
+import Questionnaire from './pages/Questionnaire';
 
 const Routing = () => {
   return (
     <Router>
       <Nav />
       <Whatsapp />
-      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/stays" element={<Stays />} />
@@ -33,9 +36,12 @@ const Routing = () => {
         <Route path="/payment" element={<Payment />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/success" element={<Success />} />
+        <Route path="/faq-page" element={<FAQPage />} />
+        <Route path="/all-stays" element={<AllStays />} />
+        <Route path="/list-property" element={<ListProperty />} />
+        <Route path="/questionnaire" element={<Questionnaire />} />
         <Route path="*" element={<Error />} /> 
       </Routes>
-
       <Footer />
     </Router>
   );

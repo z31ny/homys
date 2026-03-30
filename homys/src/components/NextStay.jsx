@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './NextStay.css';
 import frame109 from '../imgs/Frame 109.png';
 import frame110 from '../imgs/Frame 110.png';
@@ -7,6 +8,8 @@ import frame112 from '../imgs/Frame 112.png';
 import houseIcon from '../imgs/house-icon.png';
 
 const NextStay = () => {
+  const navigate = useNavigate();
+
   const destinations = [
     { id: 1, title: 'Gouna', homes: '3 Homes', image: frame109 },
     { id: 2, title: 'Fouka Bay', homes: '15 Homes', image: frame110 },
@@ -43,7 +46,9 @@ const NextStay = () => {
         ))}
       </div>
 
-      <button className="explore-button">Explore More</button>
+      <button className="explore-button" onClick={() => navigate('/all-stays')}>
+        Explore More
+      </button>
     </section>
   );
 };

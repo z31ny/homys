@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './AboutUs.css';
 
 import missionImg from '../imgs/Group 14.png';
@@ -17,6 +18,7 @@ const Counter = ({ end, duration = 2000, suffix = "" }) => {
     let start = 0;
     const endValue = parseInt(end.replace(/,/g, ''));
     if (start === endValue) return;
+    let totalMiliseconds = duration;
     let timer = setInterval(() => {
       start += Math.ceil(endValue / 50);
       if (start >= endValue) {
@@ -33,6 +35,8 @@ const Counter = ({ end, duration = 2000, suffix = "" }) => {
 };
 
 const AboutUs = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="about-us-page">
       <section className="about-hero">
@@ -113,7 +117,7 @@ const AboutUs = () => {
             <div className="founder-info">
               <h4 className="libre">Mohamed Magdy</h4>
               <span className="encode">Co-Founder & CEO</span>
-              <p className="encode">A visionary leader with over a decade of experience in real estate and hospitality, Mohamed is dedicated to creating seamless living experiences.</p>
+              <p className="encode">A visionary leader with over a decade of experience in real estate and hospitality.</p>
             </div>
           </div>
           <div className="founder-card">
@@ -123,7 +127,7 @@ const AboutUs = () => {
             <div className="founder-info">
               <h4 className="libre">Korashy</h4>
               <span className="encode">Co-Founder & COO</span>
-              <p className="encode">With an eye for detail and a passion for excellence, Korashy ensures that every Homys property operates with the highest level of care.</p>
+              <p className="encode">Ensuring every Homys property operates with the highest level of care and precision.</p>
             </div>
           </div>
         </div>
@@ -176,7 +180,6 @@ const AboutUs = () => {
             Blending coastal aesthetics with modern luxury to create spaces that feel both exotic and familiar.
           </p>
         </div>
-
         <div className="mosaic-container">
           <div className="mosaic-top-grid">
             <div className="mosaic-item tall">
@@ -208,14 +211,14 @@ const AboutUs = () => {
                 </div>
             </div>
             <div className="testimonial-card">
-                <p className="encode">"Clean, safe, and beautifully designed. The booking process was seamless and the concierge was helpful."</p>
+                <p className="encode">"Clean, safe, and beautifully designed. The booking process was seamless."</p>
                 <div className="guest-info">
                     <h6 className="libre">Ahmed M.</h6>
                     <span className="encode">Guest from Cairo</span>
                 </div>
             </div>
             <div className="testimonial-card">
-                <p className="encode">"Homys has redefined what coastal stays should be. The Fouka Bay property was stunning."</p>
+                <p className="encode">"Homys has redefined what coastal stays should be. Stunning properties."</p>
                 <div className="guest-info">
                     <h6 className="libre">Elena R.</h6>
                     <span className="encode">Guest from Italy</span>
@@ -228,8 +231,8 @@ const AboutUs = () => {
         <h2 className="libre">Ready to find your Homys?</h2>
         <p className="encode">Join our community and discover a new way of staying.</p>
         <div className="cta-btns">
-          <button className="cta-dark encode">Get Started</button>
-          <button className="cta-light encode">Stays</button>
+          <button className="cta-dark encode" onClick={() => navigate('/questionnaire')}>Get Started</button>
+          <button className="cta-light encode" onClick={() => navigate('/stays')}>Stays</button>
         </div>
       </section>
     </div>

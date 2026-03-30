@@ -41,7 +41,6 @@ const Nav = () => {
 
             <div className="nav-right">
                 <div className={`nav-actions ${isScrolled ? 'hide' : ''}`}>
-                    {/* Desktop Book Now Link */}
                     <Link to="/stays">
                         <button className="book-btn">Book Now</button>
                     </Link>
@@ -75,7 +74,6 @@ const Nav = () => {
                             <Link to="/contactus" onClick={closeMenu}>Contact</Link>
                         </div>
                         <div className="dropdown-actions">
-                            {/* Mobile Dropdown Book Now Link */}
                             <Link to="/stays" onClick={closeMenu}>
                                 <button className="book-btn">Book Now</button>
                             </Link>

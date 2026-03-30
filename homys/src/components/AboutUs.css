@@ -70,7 +70,6 @@
   display: flex;
   justify-content: space-around;
   padding: 100px 40px;
-  background-color: #f1ede3;
   text-align: center;
 }
 
@@ -219,11 +218,13 @@
 
 .mosaic-item img:hover { transform: scale(1.05); }
 
-.testimonials-section { padding: 120px 40px; background-color: #f1ede3; }
+.testimonials-section { padding: 120px 40px; }
 .testimonial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1300px; margin: 0 auto; }
-.testimonial-card { background: white; padding: 40px; border-radius: 20px; }
+.testimonial-card { background: rgb(255, 255, 255); padding: 40px; border-radius: 20px; }
 
-.about-cta { background-color: #f6f3eb; padding: 120px 20px; text-align: center; }
+.about-cta h2{font-size: 2.5rem;}
+.about-cta p{font-size: 1.1rem;}
+.about-cta { padding: 120px 20px; text-align: center; }
 .cta-btns { display: flex; justify-content: center; gap: 20px; }
 .cta-dark, .cta-light {
   padding: 16px 55px; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.3s;

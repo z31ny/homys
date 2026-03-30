@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './FaqHero.css';
 
 const FaqHero = () => {
   const [activeIndex, setActiveIndex] = useState(null);
+  const navigate = useNavigate();
 
   const faqs = [
     { id: '01', question: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit ?', answer: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.' },
@@ -42,7 +44,9 @@ const FaqHero = () => {
           </div>
         ))}
       </div>
-      <button className="show-more-btn">Show More</button>
+      <button className="show-more-btn" onClick={() => navigate('/faq-page')}>
+        Show More
+      </button>
     </section>
   );
 };
