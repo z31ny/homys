@@ -1,27 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { bookingsAPI } from '../services/api';
 import './Profile.css';
-import frame125 from '../imgs/Frame 125.png';
-import frame130 from '../imgs/Frame 130.png';
 
 const Profile = () => {
+  const { user, isAuthenticated, loading: authLoading, logout, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('bookings');
   const navigate = useNavigate();
 
-  const bookings = [
-    { id: 1, title: 'Executive Ocean Suite', date: '12 Oct - 15 Oct, 2023', price: '$840', status: 'Completed', img: frame125 },
-    { id: 2, title: 'Modern Downtown Apartment', date: '20 Jan - 22 Jan, 2024', price: '$500', status: 'Upcoming', img: frame130 }
-  ];
+  // Profile form state
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [country, setCountry] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
 
-    const handleLogout = () => {
+  // Bookings state
+  const [bookings, setBookings] = useState([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [authLoading, isAuthenticated, navigate]);
+
+  // Populate form when user loads
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName || '');
+      setPhone(user.phone || '');
+      setCountry(user.country || '');
+    }
+  }, [user]);
+
+  // Fetch bookings when tab switches
+  useEffect(() => {
+    if (activeTab === 'bookings' && isAuthenticated) {
+      setBookingsLoading(true);
+      bookingsAPI.list()
+        .then((res) => setBookings(res.data.bookings || []))
+        .catch(() => setBookings([]))
+        .finally(() => setBookingsLoading(false));
+    }
+  }, [activeTab, isAuthenticated]);
+
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    setSaveMsg('');
+    try {
+      await updateProfile({ fullName, phone, country });
+      setSaveMsg('Profile updated successfully!');
+      setTimeout(() => setSaveMsg(''), 3000);
+    } catch (err) {
+      setSaveMsg(err.message || 'Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
     navigate('/login');
   };
+
+  if (authLoading) {
+    return <div className="profile-page"><p style={{ textAlign: 'center', padding: '100px 20px' }}>Loading...</p></div>;
+  }
+
+  if (!user) return null;
 
   return (
     <div className="profile-page">
       <section className="profile-hero">
         <h1 className="libre">My Sanctuary</h1>
-        <p className="encode">Welcome back, Mariam. Manage your stays and personal details.</p>
+        <p className="encode">Welcome back, {user.fullName?.split(' ')[0]}. Manage your stays and personal details.</p>
       </section>
 
       <div className="profile-container">
@@ -38,59 +93,75 @@ const Profile = () => {
           >
             Previous Bookings
           </button>
- <button className="sidebar-link encode logout" onClick={handleLogout}>
+          <button className="sidebar-link encode logout" onClick={handleLogout}>
             Logout
           </button>
-                  </aside>
+        </aside>
 
         <main className="profile-content">
           {activeTab === 'info' ? (
             <div className="info-section animate-fade">
               <h2 className="libre">Personal Info</h2>
-              <form className="profile-form">
+              <form className="profile-form" onSubmit={(e) => e.preventDefault()}>
                 <div className="input-row">
                   <div className="input-group">
                     <label className="encode">Full Name</label>
-                    <input type="text" defaultValue="Mariam Waleed" className="encode" />
+                    <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="encode" />
                   </div>
                   <div className="input-group">
                     <label className="encode">Email Address</label>
-                    <input type="email" defaultValue="mariam@example.com" className="encode" />
+                    <input type="email" value={user.email || ''} className="encode" disabled style={{ opacity: 0.6 }} />
                   </div>
                 </div>
                 <div className="input-row">
                   <div className="input-group">
                     <label className="encode">Phone Number</label>
-                    <input type="text" defaultValue="+20 123 456 789" className="encode" />
+                    <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="encode" placeholder="+20 123 456 789" />
                   </div>
                   <div className="input-group">
                     <label className="encode">Country</label>
-                    <input type="text" defaultValue="Egypt" className="encode" />
+                    <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className="encode" placeholder="Egypt" />
                   </div>
                 </div>
-                <button type="button" className="save-btn encode">Update Profile</button>
+                {saveMsg && (
+                  <p style={{ color: saveMsg.includes('success') ? '#2e7d32' : '#c0392b', fontWeight: '700', fontSize: '0.9rem', marginTop: '10px' }} className="encode">
+                    {saveMsg}
+                  </p>
+                )}
+                <button type="button" className="save-btn encode" onClick={handleSaveProfile} disabled={saving}>
+                  {saving ? 'Saving...' : 'Update Profile'}
+                </button>
               </form>
             </div>
           ) : (
             <div className="bookings-section animate-fade">
               <h2 className="libre">My Bookings</h2>
-              <div className="bookings-list">
-                {bookings.map(stay => (
-                  <div key={stay.id} className="booking-card">
-                    <div className="booking-img">
-                      <img src={stay.img} alt={stay.title} />
-                    </div>
-                    <div className="booking-details">
-                      <h4 className="libre">{stay.title}</h4>
-                      <p className="encode">{stay.date}</p>
-                      <div className="booking-footer">
-                        <span className="price encode">{stay.price}</span>
-                        <span className={`status encode ${stay.status.toLowerCase()}`}>{stay.status}</span>
+              {bookingsLoading ? (
+                <p className="encode" style={{ opacity: 0.6 }}>Loading bookings...</p>
+              ) : bookings.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <p className="encode" style={{ opacity: 0.6, marginBottom: '20px' }}>You haven't made any bookings yet.</p>
+                  <button className="save-btn encode" onClick={() => navigate('/stays')} style={{ maxWidth: '250px' }}>
+                    Explore Stays
+                  </button>
+                </div>
+              ) : (
+                <div className="bookings-list">
+                  {bookings.map(stay => (
+                    <div key={stay.id} className="booking-card">
+                      <div className="booking-details" style={{ flex: 1 }}>
+                        <h4 className="libre">{stay.propertyTitle || 'Property'}</h4>
+                        <p className="encode">{stay.propertyLocation || ''}</p>
+                        <p className="encode">{stay.checkIn} — {stay.checkOut}</p>
+                        <div className="booking-footer">
+                          <span className="price encode">${stay.totalPrice}</span>
+                          <span className={`status encode ${stay.status}`}>{stay.status}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </main>

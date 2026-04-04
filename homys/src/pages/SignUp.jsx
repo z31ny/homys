@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [isHovered, setIsHovered] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  
   const [gender, setGender] = useState('');
-  const [ageRange, setAgeRange] = useState(''); // Changed from age to ageRange
+  const [ageRange, setAgeRange] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const validations = [
     { label: '8+ Characters', test: password.length >= 8 },
@@ -17,13 +22,20 @@ const Signup = () => {
     { label: 'Special (!@#$)', test: /[!@#$%^&*]/.test(password) },
   ];
 
-  // Button is enabled only if password is valid AND gender is picked AND age range is picked
-  const allValid = validations.every(v => v.test) && gender !== '' && ageRange !== '';
+  const allValid = validations.every(v => v.test) && gender !== '' && ageRange !== '' && fullName.length >= 2 && email.includes('@');
 
-  const handleCreateAccount = (e) => {
+  const handleCreateAccount = async (e) => {
     e.preventDefault();
-    if (allValid) {
-      navigate('/');
+    if (!allValid) return;
+    setError('');
+    setLoading(true);
+    try {
+      await register({ fullName, email, password, gender, ageRange });
+      navigate('/profile');
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,8 +47,6 @@ const Signup = () => {
     inputGroup: { textAlign: 'left', marginBottom: '25px', position: 'relative' },
     label: { display: 'block', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '12px', color: '#112a3d', letterSpacing: '1.5px' },
     input: { width: '100%', padding: '15px 40px 15px 0', border: 'none', borderBottom: '2px solid #112a3d', background: 'transparent', outline: 'none', fontSize: '1.1rem', color: '#112a3d', fontWeight: '600' },
-    
-    // Unified Pill Styling for Gender and Age
     pillContainer: { display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '5px' },
     pill: (selected) => ({
       flex: '1 1 auto',
@@ -52,13 +62,13 @@ const Signup = () => {
       transition: '0.3s',
       fontFamily: "'Encode Sans Expanded', sans-serif"
     }),
-
     toggleBtn: { position: 'absolute', right: '0', top: '42px', background: 'none', border: 'none', cursor: 'pointer', color: '#112a3d', opacity: 0.6 },
     grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' },
     req: (met) => ({ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: '700', color: met ? '#2e7d32' : '#112a3d', opacity: met ? 1 : 0.4, transition: '0.3s' }),
-    btn: { width: '100%', padding: '18px', backgroundColor: !allValid ? '#ccc' : (isHovered ? '#1a3d58' : '#112a3d'), color: '#f6f3eb', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: '800', cursor: allValid ? 'pointer' : 'not-allowed', transition: '0.3s', marginTop: '30px', textTransform: 'uppercase', letterSpacing: '2px' },
+    btn: { width: '100%', padding: '18px', backgroundColor: !allValid || loading ? '#ccc' : (isHovered ? '#1a3d58' : '#112a3d'), color: '#f6f3eb', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: '800', cursor: allValid && !loading ? 'pointer' : 'not-allowed', transition: '0.3s', marginTop: '30px', textTransform: 'uppercase', letterSpacing: '2px' },
     footer: { marginTop: '40px', fontSize: '1rem', color: '#112a3d', fontWeight: '600' },
-    link: { color: '#d1a67a', fontWeight: '800', textDecoration: 'none', marginLeft: '5px' }
+    link: { color: '#d1a67a', fontWeight: '800', textDecoration: 'none', marginLeft: '5px' },
+    error: { color: '#c0392b', fontSize: '0.9rem', fontWeight: '700', marginTop: '15px', padding: '12px', background: '#fdeaea', borderRadius: '8px', textAlign: 'left' },
   };
 
   return (
@@ -70,15 +80,14 @@ const Signup = () => {
         <form onSubmit={handleCreateAccount}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Full Name</label>
-            <input type="text" style={styles.input} required />
+            <input type="text" style={styles.input} value={fullName} onChange={(e) => setFullName(e.target.value)} required />
           </div>
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email Address</label>
-            <input type="email" style={styles.input} required />
+            <input type="email" style={styles.input} value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           
-          {/* GENDER SELECTION */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Gender</label>
             <div style={styles.pillContainer}>
@@ -88,7 +97,6 @@ const Signup = () => {
             </div>
           </div>
 
-          {/* AGE RANGE SELECTION */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Age Group</label>
             <div style={styles.pillContainer}>
@@ -105,7 +113,6 @@ const Signup = () => {
             </div>
           </div>
 
-          {/* PASSWORD SECTION */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <input 
@@ -137,14 +144,16 @@ const Signup = () => {
             </div>
           </div>
 
+          {error && <div style={styles.error}>{error}</div>}
+
           <button 
             type="submit"
-            disabled={!allValid}
+            disabled={!allValid || loading}
             style={styles.btn}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            Create Account
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 

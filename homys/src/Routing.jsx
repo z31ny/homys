@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 
 import Home from './pages/Home';
 import Stays from './pages/Stays'; 
@@ -31,6 +32,7 @@ import Furnish from './pages/Furnish';
 const Routing = () => {
   return (
     <Router>
+      <AuthProvider>
        <Preloader/>
        <Nav/>
        <ChatBot/>
@@ -59,6 +61,7 @@ const Routing = () => {
         <Route path="*" element={<Error />} /> 
       </Routes>
       <Footer />
+      </AuthProvider>
     </Router>
   );
 };

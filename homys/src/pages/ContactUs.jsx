@@ -1,7 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { contactAPI } from '../services/api';
 import './ContactUs.css';
 
 const ContactUs = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await contactAPI.submit({
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+        message,
+      });
+      setSuccess(true);
+      setFirstName(''); setLastName(''); setEmail(''); setMessage('');
+    } catch (err) {
+      setError(err.message || 'Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="contact-page">
       <section className="contact-hero">
@@ -12,27 +40,42 @@ const ContactUs = () => {
       <div className="contact-grid">
         <div className="contact-form-side">
           <h2 className="libre">Send us a Message</h2>
-          <form className="main-contact-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label className="encode">First Name</label>
-                <input type="text" className="encode" />
+          {success ? (
+            <div style={{ padding: '30px', background: '#e8f5e9', borderRadius: '12px', textAlign: 'center' }}>
+              <p className="encode" style={{ color: '#2e7d32', fontWeight: '700', fontSize: '1.1rem' }}>
+                ✓ Your message has been sent successfully!
+              </p>
+              <p className="encode" style={{ opacity: 0.7, marginTop: '10px' }}>We'll get back to you shortly.</p>
+              <button className="contact-submit encode" style={{ marginTop: '20px' }} onClick={() => setSuccess(false)}>
+                Send Another Message
+              </button>
+            </div>
+          ) : (
+            <form className="main-contact-form" onSubmit={handleSubmit}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="encode">First Name</label>
+                  <input type="text" className="encode" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                </div>
+                <div className="form-group">
+                  <label className="encode">Last Name</label>
+                  <input type="text" className="encode" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                </div>
               </div>
               <div className="form-group">
-                <label className="encode">Last Name</label>
-                <input type="text" className="encode" />
+                <label className="encode">Email Address</label>
+                <input type="email" className="encode" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
-            </div>
-            <div className="form-group">
-              <label className="encode">Email Address</label>
-              <input type="email" className="encode" />
-            </div>
-            <div className="form-group">
-              <label className="encode">Message</label>
-              <textarea rows="6" className="encode" placeholder="How can we assist you?"></textarea>
-            </div>
-            <button type="submit" className="contact-submit encode">Send Message</button>
-          </form>
+              <div className="form-group">
+                <label className="encode">Message</label>
+                <textarea rows="6" className="encode" placeholder="How can we assist you?" value={message} onChange={(e) => setMessage(e.target.value)} required></textarea>
+              </div>
+              {error && <p style={{ color: '#c0392b', fontWeight: '700', fontSize: '0.9rem' }} className="encode">{error}</p>}
+              <button type="submit" className="contact-submit encode" disabled={loading}>
+                {loading ? 'Sending...' : 'Send Message'}
+              </button>
+            </form>
+          )}
         </div>
 
         <div className="contact-info-side">

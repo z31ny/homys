@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import logo from '../imgs/logo.png';
 import './Nav.css';
 
@@ -8,6 +9,7 @@ const Nav = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
     const location = useLocation();
+    const { isAuthenticated } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -27,6 +29,10 @@ const Nav = () => {
     }, [lastScrollY]);
 
     const closeMenu = () => setIsOpen(false);
+
+    // Dynamic link — show Profile if logged in, Login if not
+    const profileLink = isAuthenticated ? '/profile' : '/login';
+    const profileLabel = isAuthenticated ? 'Profile' : 'Login';
 
     return (
         <nav className={`nav-wrapper ${isScrolled ? 'scrolled' : ''}`}>
@@ -66,7 +72,7 @@ const Nav = () => {
                         <Link to="/booknow">
                             <button className="book-btn">Book Now</button>
                         </Link>
-                        <Link to="/profile" className="profile-circle">
+                        <Link to={profileLink} className="profile-circle" title={profileLabel}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="user-icon">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
@@ -85,7 +91,6 @@ const Nav = () => {
                             </div>
                         </div>
 
-                        {/* YOUR ORIGINAL DROPDOWN DESIGN */}
                         <div className={`dropdown-panel ${isOpen ? 'active' : ''}`}>
                             <div className="dropdown-links">
                                 <Link to="/" onClick={closeMenu}>Home</Link>
@@ -95,7 +100,7 @@ const Nav = () => {
                             </div>
                             <div className="dropdown-actions">
                                 <Link to="/booknow" onClick={closeMenu}><button className="book-btn">Book Now</button></Link>
-                                <Link to="/profile" onClick={closeMenu} className="profile-circle">
+                                <Link to={profileLink} onClick={closeMenu} className="profile-circle">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="user-icon">
                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="12" cy="7" r="4"></circle>
