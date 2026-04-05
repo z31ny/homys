@@ -1,3 +1,3 @@
-import app from '../lib/app';
+import app from './_app';
 
 export default app;
