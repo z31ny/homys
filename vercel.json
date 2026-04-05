@@ -1,13 +1,10 @@
 {
   "version": 2,
   "framework": "create-react-app",
-  "functions": {
-    "api/index.ts": {
-      "maxDuration": 30
-    }
-  },
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "CI=false npm run build",
+  "outputDirectory": "build",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
