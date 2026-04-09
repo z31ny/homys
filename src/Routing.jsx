@@ -40,6 +40,7 @@ const Routing = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/stays" element={<Stays />} />
+        <Route path="/stays/:id" element={<PropertyDetails />} />
         <Route path="/propertydetails" element={<PropertyDetails />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/profile" element={<Profile />} />
