@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { eq } from 'drizzle-orm';
+import crypto from 'crypto';
+import { eq, and, gt } from 'drizzle-orm';
 import { db } from '../db';
-import { users } from '../db/schema';
+import { users, passwordResetTokens } from '../db/schema';
 import { config } from '../config';
 import { AppError } from '../middleware/errorHandler';
-import type { RegisterInput, LoginInput } from '../validators/auth';
+import type { RegisterInput, LoginInput, ResetPasswordInput } from '../validators/auth';
 import type { JwtPayload } from '../middleware/auth';
 
 const SALT_ROUNDS = 12;
@@ -131,30 +132,145 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 /**
  * POST /api/auth/forgot-password
- * For MVP: just acknowledges the request.
- * Phase 3 will add Resend email integration.
+ * Checks if email exists, generates a reset token, and sends an email via Resend.
  */
 export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
 
-    // Check if user exists (don't reveal whether email exists for security)
+    // Check if user exists
     const [user] = await db
-      .select({ id: users.id })
+      .select({ id: users.id, email: users.email })
       .from(users)
       .where(eq(users.email, email.toLowerCase()))
       .limit(1);
 
-    // Always return success (prevents email enumeration)
+    if (!user) {
+      // Don't reveal whether email exists — return generic success
+      return res.json({
+        status: 'success',
+        message: 'If an account with that email exists, a reset link has been sent.',
+      });
+    }
+
+    // Generate a secure random token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Token expires in 1 hour
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Store the hashed token in the database
+    await db.insert(passwordResetTokens).values({
+      userId: user.id,
+      token: tokenHash,
+      expiresAt,
+    });
+
+    // Build the reset link
+    const frontendUrl = config.frontendUrl || 'https://homys-eta.vercel.app';
+    const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+    // Send email via Resend
+    if (config.resend.apiKey) {
+      try {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${config.resend.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: config.resend.fromEmail,
+            to: [user.email],
+            subject: 'Reset Your Homys Password',
+            html: `
+              <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                <h1 style="color: #112a3d; font-size: 28px; margin-bottom: 20px;">Password Reset</h1>
+                <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                  You requested a password reset for your Homys account. Click the button below to set a new password.
+                  This link will expire in <strong>1 hour</strong>.
+                </p>
+                <a href="${resetLink}" style="display: inline-block; background-color: #112a3d; color: #f6f3eb; padding: 16px 40px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;">
+                  Reset Password
+                </a>
+                <p style="color: #999; font-size: 13px; margin-top: 30px; line-height: 1.6;">
+                  If you didn't request this, you can safely ignore this email. Your password will remain unchanged.
+                </p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+                <p style="color: #bbb; font-size: 12px;">© Homys — Your Sanctuary Awaits</p>
+              </div>
+            `,
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          console.error('[Resend] Failed to send email:', await emailResponse.text());
+        }
+      } catch (emailError) {
+        console.error('[Resend] Email sending error:', emailError);
+        // Don't fail the request — the token is saved, user can retry
+      }
+    } else {
+      console.log(`[DEV] Password reset link for ${email}: ${resetLink}`);
+    }
+
     res.json({
       status: 'success',
       message: 'If an account with that email exists, a reset link has been sent.',
     });
+  } catch (error) {
+    next(error);
+  }
+};
 
-    // TODO (Phase 3): If user exists, generate reset token and send via Resend
-    if (user) {
-      console.log(`[TODO] Send password reset email to ${email}`);
+/**
+ * POST /api/auth/reset-password
+ * Validates the token and sets a new password.
+ */
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token, password } = req.body as ResetPasswordInput;
+
+    // Hash the incoming token to match what's stored
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Find valid, unused, non-expired token
+    const [resetRecord] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(
+        and(
+          eq(passwordResetTokens.token, tokenHash),
+          eq(passwordResetTokens.used, false),
+          gt(passwordResetTokens.expiresAt, new Date())
+        )
+      )
+      .limit(1);
+
+    if (!resetRecord) {
+      throw new AppError('Invalid or expired reset token. Please request a new password reset.', 400);
     }
+
+    // Hash the new password
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+
+    // Update user's password
+    await db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, resetRecord.userId));
+
+    // Mark token as used
+    await db
+      .update(passwordResetTokens)
+      .set({ used: true })
+      .where(eq(passwordResetTokens.id, resetRecord.id));
+
+    res.json({
+      status: 'success',
+      message: 'Password has been reset successfully. You can now log in with your new password.',
+    });
   } catch (error) {
     next(error);
   }
@@ -180,6 +296,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
         ageRange: users.ageRange,
         country: users.country,
         profileImageUrl: users.profileImageUrl,
+        isAdmin: users.isAdmin,
         createdAt: users.createdAt,
       })
       .from(users)

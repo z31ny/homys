@@ -52,6 +52,12 @@ export const paymentStatusEnum = pgEnum('payment_status', [
   'refunded',
 ]);
 
+export const reviewStatusEnum = pgEnum('review_status', [
+  'pending',
+  'approved',
+  'rejected',
+]);
+
 // ─── Users ───────────────────────────────────────────────
 
 export const users = pgTable('users', {
@@ -64,8 +70,22 @@ export const users = pgTable('users', {
   ageRange: ageRangeEnum('age_range'),
   country: varchar('country', { length: 100 }),
   profileImageUrl: text('profile_image_url'),
+  isAdmin: boolean('is_admin').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// ─── Password Reset Tokens ──────────────────────────────
+
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  token: varchar('token', { length: 255 }).notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  used: boolean('used').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 // ─── Properties ──────────────────────────────────────────
@@ -89,9 +109,7 @@ export const properties = pgTable('properties', {
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
   nearbyEssentials: jsonb('nearby_essentials').$type<string[]>().default([]),
   maxGuests: integer('max_guests').default(2),
-  bedType: varchar('bed_type', { length: 100 }),
   viewType: viewTypeEnum('view_type'),
-  climateInfo: varchar('climate_info', { length: 255 }),
   status: propertyStatusEnum('status').default('pending_review').notNull(),
   propertyIdDisplay: varchar('property_id_display', { length: 20 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -119,6 +137,22 @@ export const propertyFeatures = pgTable('property_features', {
     .references(() => properties.id, { onDelete: 'cascade' })
     .notNull(),
   featureName: varchar('feature_name', { length: 100 }).notNull(),
+});
+
+// ─── Reviews ─────────────────────────────────────────────
+
+export const reviews = pgTable('reviews', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  propertyId: uuid('property_id')
+    .references(() => properties.id, { onDelete: 'cascade' })
+    .notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  rating: integer('rating').notNull(),
+  comment: text('comment'),
+  status: reviewStatusEnum('review_status').default('pending').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 // ─── Bookings ────────────────────────────────────────────
@@ -203,6 +237,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   properties: many(properties),
   bookings: many(bookings),
   questionnaireResponses: many(questionnaireResponses),
+  reviews: many(reviews),
+  passwordResetTokens: many(passwordResetTokens),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -213,6 +249,7 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   images: many(propertyImages),
   features: many(propertyFeatures),
   bookings: many(bookings),
+  reviews: many(reviews),
 }));
 
 export const propertyImagesRelations = relations(propertyImages, ({ one }) => ({
@@ -226,6 +263,24 @@ export const propertyFeaturesRelations = relations(propertyFeatures, ({ one }) =
   property: one(properties, {
     fields: [propertyFeatures.propertyId],
     references: [properties.id],
+  }),
+}));
+
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+  property: one(properties, {
+    fields: [reviews.propertyId],
+    references: [properties.id],
+  }),
+  user: one(users, {
+    fields: [reviews.userId],
+    references: [users.id],
+  }),
+}));
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [passwordResetTokens.userId],
+    references: [users.id],
   }),
 }));
 

@@ -4,6 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { propertiesAPI } from '../services/api';
 import './ListProperty.css';
 
+const CLOUDINARY_CLOUD_NAME = 'dzpswgjsm';
+const CLOUDINARY_UPLOAD_PRESET = 'homys_unsigned';
+
 const ListProperty = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -11,7 +14,7 @@ const ListProperty = () => {
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
 
-  // Form state
+  // Form state — removed bedType and climateInfo
   const [formData, setFormData] = useState({
     projectName: '',
     title: '',
@@ -26,15 +29,15 @@ const ListProperty = () => {
     latitude: '',
     longitude: '',
     maxGuests: 2,
-    bedType: '',
     viewType: '',
-    climateInfo: '',
   });
 
-  const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]); // Actual File objects
+  const [previewUrls, setPreviewUrls] = useState([]); // blob URLs for preview
   const [nearby, setNearby] = useState([]);
   const [furnished, setFurnished] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -170,15 +173,42 @@ const ListProperty = () => {
 
   const handleImageChange = (e) => {
     if (e.target.files) {
-      const filesArray = Array.from(e.target.files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setSelectedImages((prevImages) => prevImages.concat(filesArray));
+      const newFiles = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+      setPreviewUrls((prev) => [...prev, ...newPreviews]);
     }
   };
 
   const removeImage = (index) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => {
+      // Revoke the old blob URL to free memory
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  /**
+   * Upload a single file to Cloudinary using unsigned upload preset.
+   */
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'homys/properties');
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    );
+
+    if (!res.ok) {
+      throw new Error('Failed to upload image');
+    }
+
+    const data = await res.json();
+    return data.secure_url;
   };
 
   const essentials = [
@@ -220,12 +250,24 @@ const ListProperty = () => {
     setSubmitting(true);
 
     try {
+      // Upload images to Cloudinary
+      let imageUrls = [];
+      if (selectedFiles.length > 0) {
+        setUploadProgress(`Uploading images (0/${selectedFiles.length})...`);
+        for (let i = 0; i < selectedFiles.length; i++) {
+          setUploadProgress(`Uploading images (${i + 1}/${selectedFiles.length})...`);
+          const url = await uploadToCloudinary(selectedFiles[i]);
+          imageUrls.push(url);
+        }
+        setUploadProgress('');
+      }
+
       const payload = {
         ...formData,
         isFurnished: furnished === 'yes',
         nearbyEssentials: nearby,
         features: nearby,
-        imageUrls: [], // Images would need to be uploaded to Cloudinary first in a real flow
+        imageUrls,
         heroImageIndex: 0,
       };
 
@@ -234,6 +276,7 @@ const ListProperty = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       setError(err.message || 'Failed to submit property. Please try again.');
+      setUploadProgress('');
     } finally {
       setSubmitting(false);
     }
@@ -483,12 +526,20 @@ const ListProperty = () => {
               <input id="property-upload" type="file" multiple onChange={handleImageChange} accept="image/*" style={{ display: 'none' }} />
 
               <div className="image-preview-flex">
-                {selectedImages.map((image, index) => (
+                {previewUrls.map((image, index) => (
                   <div key={index} className="image-preview-card">
                     <img src={image} alt={`Property preview ${index}`} />
                     <button type="button" className="remove-img-btn" onClick={() => removeImage(index)}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                     </button>
+                    {index === 0 && (
+                      <span style={{
+                        position: 'absolute', bottom: '8px', left: '8px',
+                        background: '#112a3d', color: '#f6f3eb', padding: '3px 10px',
+                        borderRadius: '12px', fontSize: '0.65rem', fontWeight: '800',
+                        textTransform: 'uppercase', letterSpacing: '1px',
+                      }}>Cover</span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -496,6 +547,11 @@ const ListProperty = () => {
           </div>
 
           <div className="lp-action-footer">
+            {uploadProgress && (
+              <p className="encode" style={{ textAlign: 'center', color: '#112a3d', fontWeight: '700', marginBottom: '16px' }}>
+                {uploadProgress}
+              </p>
+            )}
             <button type="submit" className="lp-submit-final encode" disabled={submitting}>
               {submitting ? 'Submitting...' : 'Submit Property For Review'}
             </button>

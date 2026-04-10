@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { propertiesAPI } from '../services/api';
+import { propertiesAPI, reviewsAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import './PropertyDetails.css';
 
 import fallbackImg from '../imgs/StaysHero.png';
@@ -8,6 +9,7 @@ import fallbackImg from '../imgs/StaysHero.png';
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
 
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,6 +23,17 @@ const PropertyDetails = () => {
   const [checkOut, setCheckOut] = useState('');
   const [numGuests, setNumGuests] = useState(1);
 
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [avgRating, setAvgRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [hoverStar, setHoverStar] = useState(0);
+
   useEffect(() => {
     if (!id) {
       setError('No property selected.');
@@ -31,7 +44,40 @@ const PropertyDetails = () => {
       .then((res) => setProperty(res.data.property))
       .catch((err) => setError(err.message || 'Property not found.'))
       .finally(() => setLoading(false));
+
+    // Fetch reviews
+    reviewsAPI.getByProperty(id)
+      .then((res) => {
+        setReviews(res.data.reviews || []);
+        setAvgRating(res.data.averageRating || 0);
+        setTotalReviews(res.data.totalReviews || 0);
+      })
+      .catch(() => {});
   }, [id]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      setReviewError('Please log in to submit a review.');
+      return;
+    }
+    setReviewError('');
+    setReviewSubmitting(true);
+    try {
+      await reviewsAPI.create({
+        propertyId: id,
+        rating: reviewRating,
+        comment: reviewComment,
+      });
+      setReviewSuccess(true);
+      setReviewComment('');
+      setReviewRating(5);
+    } catch (err) {
+      setReviewError(err.message || 'Failed to submit review.');
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -90,6 +136,30 @@ const PropertyDetails = () => {
         basePrice,
       },
     });
+  };
+
+  const renderStars = (rating, interactive = false) => {
+    return (
+      <div style={{ display: 'flex', gap: '4px' }}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <svg
+            key={star}
+            width={interactive ? "28" : "16"}
+            height={interactive ? "28" : "16"}
+            viewBox="0 0 24 24"
+            fill={star <= (interactive ? (hoverStar || reviewRating) : rating) ? '#d1a67a' : 'none'}
+            stroke={star <= (interactive ? (hoverStar || reviewRating) : rating) ? '#d1a67a' : '#ccc'}
+            strokeWidth="1.5"
+            style={interactive ? { cursor: 'pointer', transition: 'transform 0.15s' } : {}}
+            onClick={interactive ? () => setReviewRating(star) : undefined}
+            onMouseEnter={interactive ? () => setHoverStar(star) : undefined}
+            onMouseLeave={interactive ? () => setHoverStar(0) : undefined}
+          >
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -156,10 +226,10 @@ const PropertyDetails = () => {
                   <span>{property.bathrooms} Bath{property.bathrooms !== 1 ? 's' : ''}</span>
                 </div>
               )}
-              {property.sizeSqft && (
+              {property.sqft && (
                 <div className="pd-spec-box">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#112a3d" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h14a2 2 0 002-2zM7 21h10" /></svg>
-                  <span>{property.sizeSqft} sqft</span>
+                  <span>{property.sqft} sqft</span>
                 </div>
               )}
             </div>
@@ -252,6 +322,139 @@ const PropertyDetails = () => {
           </div>
         </section>
       )}
+
+      {/* REVIEWS SECTION */}
+      <section className="pd-reviews-section" style={{
+        padding: '60px 40px',
+        maxWidth: '900px',
+        margin: '0 auto 60px',
+      }}>
+        <div style={{ marginBottom: '40px' }}>
+          <h2 className="libre" style={{ color: '#112a3d', fontSize: 'clamp(1.5rem, 3vw, 2rem)', marginBottom: '8px' }}>
+            Guest Reviews
+          </h2>
+          {totalReviews > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              {renderStars(Math.round(avgRating))}
+              <span style={{ fontWeight: '700', color: '#112a3d', fontSize: '1.1rem' }}>{avgRating}</span>
+              <span style={{ color: '#999', fontSize: '0.9rem' }}>({totalReviews} review{totalReviews !== 1 ? 's' : ''})</span>
+            </div>
+          )}
+        </div>
+
+        {/* Existing Reviews */}
+        {reviews.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '50px' }}>
+            {reviews.map((rev) => (
+              <div key={rev.id} style={{
+                padding: '24px',
+                borderRadius: '16px',
+                background: '#f9f6f1',
+                border: '1px solid #e8e0d4',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      width: '40px', height: '40px', borderRadius: '50%',
+                      background: '#112a3d', color: '#f6f3eb',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: '800', fontSize: '0.85rem',
+                    }}>
+                      {(rev.userName || 'U').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: '700', color: '#112a3d', margin: 0, fontSize: '0.95rem' }}>
+                        {rev.userName || 'Anonymous'}
+                      </p>
+                      <p style={{ color: '#999', margin: 0, fontSize: '0.75rem' }}>
+                        {new Date(rev.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                  {renderStars(rev.rating)}
+                </div>
+                {rev.comment && (
+                  <p style={{ color: '#333', lineHeight: '1.7', margin: 0, fontSize: '0.95rem' }}>{rev.comment}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ color: '#999', marginBottom: '40px', fontStyle: 'italic' }}>No reviews yet. Be the first to share your experience!</p>
+        )}
+
+        {/* Write a Review */}
+        <div style={{
+          padding: '32px',
+          borderRadius: '16px',
+          background: '#f9f6f1',
+          border: '1px solid #e8e0d4',
+        }}>
+          <h3 className="libre" style={{ color: '#112a3d', marginBottom: '24px', fontSize: '1.2rem' }}>
+            Write a Review
+          </h3>
+          {reviewSuccess ? (
+            <div style={{
+              color: '#2e7d32', fontWeight: '700', padding: '16px', background: '#e8f5e9',
+              borderRadius: '8px', textAlign: 'center',
+            }}>
+              ✓ Your review has been submitted and is pending admin approval. Thank you!
+            </div>
+          ) : (
+            <form onSubmit={handleReviewSubmit}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block', fontSize: '0.75rem', fontWeight: '800',
+                  textTransform: 'uppercase', marginBottom: '10px', color: '#112a3d', letterSpacing: '1.5px',
+                }}>Your Rating</label>
+                {renderStars(reviewRating, true)}
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block', fontSize: '0.75rem', fontWeight: '800',
+                  textTransform: 'uppercase', marginBottom: '10px', color: '#112a3d', letterSpacing: '1.5px',
+                }}>Your Review</label>
+                <textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Share your experience at this property..."
+                  rows="4"
+                  style={{
+                    width: '100%', padding: '14px', border: '2px solid #e8e0d4',
+                    borderRadius: '8px', background: '#fff', outline: 'none',
+                    fontSize: '0.95rem', color: '#112a3d', resize: 'vertical',
+                    fontFamily: "'Encode Sans Expanded', sans-serif",
+                  }}
+                />
+              </div>
+              {reviewError && (
+                <div style={{
+                  color: '#c0392b', fontSize: '0.85rem', fontWeight: '700',
+                  padding: '10px', background: '#fdeaea', borderRadius: '8px', marginBottom: '16px',
+                }}>{reviewError}</div>
+              )}
+              <button
+                type="submit"
+                disabled={reviewSubmitting || !isAuthenticated}
+                style={{
+                  padding: '14px 40px',
+                  backgroundColor: reviewSubmitting ? '#ccc' : '#112a3d',
+                  color: '#f6f3eb', border: 'none', borderRadius: '50px',
+                  fontSize: '0.85rem', fontWeight: '800', cursor: reviewSubmitting ? 'not-allowed' : 'pointer',
+                  transition: '0.3s', textTransform: 'uppercase', letterSpacing: '1.5px',
+                }}
+              >
+                {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+              </button>
+              {!isAuthenticated && (
+                <p style={{ color: '#999', fontSize: '0.8rem', marginTop: '12px' }}>
+                  You must be <a href="/login" style={{ color: '#d1a67a', fontWeight: '700' }}>logged in</a> to submit a review.
+                </p>
+              )}
+            </form>
+          )}
+        </div>
+      </section>
     </div>
   );
 };

@@ -37,6 +37,7 @@ export const authAPI = {
   register: (body) => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
   login: (body) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
   forgotPassword: (email) => request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (token, password) => request('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) }),
   getMe: () => request('/auth/me'),
   updateProfile: (body) => request('/auth/profile', { method: 'PATCH', body: JSON.stringify(body) }),
 };
@@ -60,6 +61,15 @@ export const bookingsAPI = {
   list: () => request('/bookings'),
   getById: (id) => request(`/bookings/${id}`),
   cancel: (id) => request(`/bookings/${id}/cancel`, { method: 'PATCH' }),
+};
+
+// ─── Reviews ─────────────────────────────────────────────
+export const reviewsAPI = {
+  getByProperty: (propertyId) => request(`/reviews/property/${propertyId}`),
+  create: (body) => request('/reviews', { method: 'POST', body: JSON.stringify(body) }),
+  getPending: () => request('/reviews/pending'),
+  approve: (id) => request(`/reviews/${id}/approve`, { method: 'PATCH' }),
+  reject: (id) => request(`/reviews/${id}/reject`, { method: 'PATCH' }),
 };
 
 // ─── Contact ─────────────────────────────────────────────

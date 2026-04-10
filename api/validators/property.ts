@@ -15,9 +15,7 @@ export const createPropertySchema = z.object({
   longitude: z.string().optional(),
   nearbyEssentials: z.array(z.string()).default([]),
   maxGuests: z.number().int().min(1).default(2),
-  bedType: z.string().max(100).optional(),
   viewType: z.enum(['sea', 'pool', 'garden', 'city']).optional(),
-  climateInfo: z.string().max(255).optional(),
   features: z.array(z.string().max(100)).default([]),
   imageUrls: z.array(z.string().url()).default([]),
   heroImageIndex: z.number().int().min(0).default(0),
@@ -38,9 +36,7 @@ export const updatePropertySchema = z.object({
   longitude: z.string().optional(),
   nearbyEssentials: z.array(z.string()).optional(),
   maxGuests: z.number().int().min(1).optional(),
-  bedType: z.string().max(100).optional(),
   viewType: z.enum(['sea', 'pool', 'garden', 'city']).optional(),
-  climateInfo: z.string().max(255).optional(),
   features: z.array(z.string().max(100)).optional(),
 });
 

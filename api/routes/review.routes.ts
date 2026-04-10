@@ -1,0 +1,28 @@
+import { Router } from 'express';
+import {
+  createReview,
+  getPropertyReviews,
+  getPendingReviews,
+  approveReview,
+  rejectReview,
+} from '../controllers/review.controller';
+import { authenticate } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { createReviewSchema } from '../validators/review';
+
+const router = Router();
+
+// Public — get approved reviews for a property
+router.get('/property/:propertyId', getPropertyReviews);
+
+// Protected — submit a review
+router.post('/', authenticate, validate(createReviewSchema), createReview);
+
+// Admin — get pending reviews
+router.get('/pending', authenticate, getPendingReviews);
+
+// Admin — approve / reject
+router.patch('/:id/approve', authenticate, approveReview);
+router.patch('/:id/reject', authenticate, rejectReview);
+
+export default router;

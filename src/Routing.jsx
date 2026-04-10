@@ -27,6 +27,7 @@ import Preloader from './common/Preloader';
 import Login from './pages/Login';
 import Signup from './pages/SignUp';
 import ForgetPassword from './pages/ForgetPassword';
+import ResetPassword from './pages/ResetPassword';
 import Furnish from './pages/Furnish';
 
 const Routing = () => {
@@ -47,6 +48,7 @@ const Routing = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/contactus" element={<ContactUs />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/payment" element={<Payment />} />
