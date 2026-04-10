@@ -46,6 +46,42 @@
   opacity: 1;
 }
 
+/* Error & Success banners */
+.lp-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 24px;
+  background: #fff0f0;
+  border: 2px solid #e74c3c;
+  border-radius: 8px;
+  color: #c0392b;
+  font-weight: 600;
+  margin-bottom: 40px;
+  font-size: 1rem;
+}
+
+.lp-success-card {
+  text-align: center;
+  padding: 120px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.lp-success-card h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 500;
+}
+
+.lp-success-card p {
+  font-size: 1.2rem;
+  font-weight: 600;
+  opacity: 0.7;
+  max-width: 500px;
+}
+
 .form-section {
   margin-bottom: 120px;
 }
@@ -89,8 +125,8 @@
   margin-bottom: 15px;
 }
 
-.lp-group input, 
-.lp-group select, 
+.lp-group input,
+.lp-group select,
 .lp-group textarea {
   width: 100%;
   padding: 20px 0;
@@ -109,14 +145,29 @@
   color: rgba(8, 22, 33, 0.3);
 }
 
+/* Map styles */
 .map-container-box {
   position: relative;
   width: 100%;
 }
 
+#leaflet-map {
+  z-index: 1;
+}
+
+.map-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
 .pin-loc-btn {
-  margin-top: 25px;
-  padding: 15px 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 30px;
   background: #081621;
   color: #f6f3eb;
   border: none;
@@ -125,6 +176,51 @@
   text-transform: uppercase;
   border-radius: 4px;
   transition: 0.3s;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.pin-loc-btn:hover:not(:disabled) {
+  background: #1a3a52;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(8, 22, 33, 0.2);
+}
+
+.pin-loc-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.coords-display {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #081621;
+  opacity: 0.7;
+}
+
+.location-name-display {
+  margin-top: 15px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #081621;
+  opacity: 0.8;
+  line-height: 1.5;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(8, 22, 33, 0.1);
+}
+
+.loc-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #f6f3eb;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .essentials-grid {
@@ -197,6 +293,11 @@
   transition: 0.3s;
 }
 
+.image-drop-zone:hover {
+  background: rgba(8, 22, 33, 0.06);
+  border-color: #1a3a52;
+}
+
 .upload-ui {
   display: flex;
   flex-direction: column;
@@ -219,12 +320,40 @@
   aspect-ratio: 1;
   border: 3px solid #081621;
   overflow: hidden;
+  position: relative;
 }
 
 .image-preview-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.remove-img-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background: rgba(8, 22, 33, 0.85);
+  border: none;
+  border-radius: 50%;
+  color: #f6f3eb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  opacity: 0;
+}
+
+.image-preview-card:hover .remove-img-btn {
+  opacity: 1;
+}
+
+.remove-img-btn:hover {
+  background: #e74c3c;
+  transform: scale(1.1);
 }
 
 .lp-action-footer {
@@ -269,9 +398,14 @@
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.lp-submit-final:hover {
+.lp-submit-final:hover:not(:disabled) {
   transform: translateY(-8px);
   box-shadow: 0 30px 60px rgba(8, 22, 33, 0.3);
+}
+
+.lp-submit-final:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .terms-hint {
@@ -286,4 +420,5 @@
   .back-btn-global { top: 90px; left: 20px; }
   .form-section h2 { font-size: 2rem; }
   .lp-header { margin-bottom: 60px; }
+  .lp-group.full { grid-column: span 1; }
 }

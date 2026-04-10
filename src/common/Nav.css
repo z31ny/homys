@@ -73,7 +73,18 @@
 
 .nav-logo img { height: 35px; }
 .nav-links { display: flex; gap: 50px; }
-.nav-links a { text-decoration: none; color: var(--blue); font-weight: 600; font-size: 15px; }
+.nav-links a {
+    text-decoration: none;
+    color: var(--blue);
+    font-weight: 600;
+    font-size: 15px;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s;
+    display: inline-block;
+}
+.nav-links a:hover {
+    transform: scale(1.12);
+    color: #1a3a52;
+}
 
 .nav-actions { display: flex; align-items: center; gap: 25px; }
 
@@ -144,7 +155,19 @@
 
 .dropdown-panel.active { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
 .dropdown-links { display: flex; flex-direction: column; gap: 20px; }
-.dropdown-links a { text-decoration: none; color: var(--blue); font-size: 18px; font-weight: 500; }
+.dropdown-links a {
+    text-decoration: none;
+    color: var(--blue);
+    font-size: 18px;
+    font-weight: 500;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s;
+    display: inline-block;
+    transform-origin: left center;
+}
+.dropdown-links a:hover {
+    transform: scale(1.1);
+    color: #1a3a52;
+}
 
 .dropdown-actions {
     display: flex;
