@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { propertiesAPI } from '../services/api';
 import './AllStays.css';
@@ -7,7 +7,7 @@ import fallbackImg from '../imgs/Frame 125.png';
 
 const AllStays = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,13 +15,16 @@ const AllStays = () => {
   const [total, setTotal] = useState(0);
   const limit = 12;
 
-  // Filters
-  const [propertyType, setPropertyType] = useState('');
-  const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
+  // Mobile filter toggle (edge case 10.4)
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const fetchProperties = (page = 1) => {
+  // Read initial filter state from URL params (edge case 10.10)
+  const [propertyType, setPropertyType] = useState(searchParams.get('propertyType') || '');
+  const [location, setLocation] = useState(searchParams.get('location') || '');
+  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
+  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
+
+  const fetchProperties = useCallback((page = 1) => {
     setLoading(true);
     const params = { page, limit };
     if (propertyType) params.propertyType = propertyType;
@@ -38,16 +41,43 @@ const AllStays = () => {
       })
       .catch(() => setProperties([]))
       .finally(() => setLoading(false));
-  };
+  }, [propertyType, location, minPrice, maxPrice]);
+
+  // Sync filters to URL params (edge case 10.10)
+  const syncFiltersToUrl = useCallback(() => {
+    const params = {};
+    if (propertyType) params.propertyType = propertyType;
+    if (location) params.location = location;
+    if (minPrice) params.minPrice = minPrice;
+    if (maxPrice) params.maxPrice = maxPrice;
+    setSearchParams(params, { replace: true });
+  }, [propertyType, location, minPrice, maxPrice, setSearchParams]);
+
+  // Restore filters from URL on mount & browser back/forward (edge case 10.10)
+  useEffect(() => {
+    setPropertyType(searchParams.get('propertyType') || '');
+    setLocation(searchParams.get('location') || '');
+    setMinPrice(searchParams.get('minPrice') || '');
+    setMaxPrice(searchParams.get('maxPrice') || '');
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProperties(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchProperties]);
 
   const handleSearch = (e) => {
     e.preventDefault();
+    syncFiltersToUrl();
     fetchProperties(1);
+    setFiltersOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setPropertyType('');
+    setLocation('');
+    setMinPrice('');
+    setMaxPrice('');
+    setSearchParams({}, { replace: true });
   };
 
   return (
@@ -63,8 +93,20 @@ const AllStays = () => {
           {loading ? 'Loading...' : `${total} propert${total !== 1 ? 'ies' : 'y'} available`}
         </p>
 
+        {/* Mobile Filter Toggle (edge case 10.4) */}
+        <button
+          className="as-filter-toggle encode"
+          onClick={() => setFiltersOpen(!filtersOpen)}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+            <circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/>
+          </svg>
+          {filtersOpen ? 'Hide Filters' : 'Show Filters'}
+        </button>
+
         {/* Filter Bar */}
-        <form className="as-filter-bar" onSubmit={handleSearch}>
+        <form className={`as-filter-bar ${filtersOpen ? 'open' : ''}`} onSubmit={handleSearch}>
           <div className="as-filter-item">
             <label className="encode">Location</label>
             <input
@@ -120,7 +162,7 @@ const AllStays = () => {
             <p className="encode" style={{ opacity: 0.6, fontSize: '1.1rem', marginBottom: '20px' }}>
               No properties match your search criteria.
             </p>
-            <button className="as-search-btn encode" onClick={() => { setPropertyType(''); setLocation(''); setMinPrice(''); setMaxPrice(''); fetchProperties(1); }}>
+            <button className="as-search-btn encode" onClick={handleClearFilters}>
               Clear Filters
             </button>
           </div>

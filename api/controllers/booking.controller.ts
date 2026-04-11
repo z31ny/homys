@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { eq, and, sql, desc } from 'drizzle-orm';
+import { eq, and, sql, desc, lt, count } from 'drizzle-orm';
 import { db } from '../db';
 import { bookings, bookingAddons, properties, payments } from '../db/schema';
 import { AppError } from '../middleware/errorHandler';
@@ -61,6 +61,18 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
     const serviceFee = (parseFloat(basePrice) * 0.08).toFixed(2); // 8% service fee
     const totalPrice = (parseFloat(basePrice) + addonTotal + parseFloat(serviceFee)).toFixed(2);
 
+    // Auto-cancel stale pending bookings older than 30 minutes (edge case 3.14)
+    await db
+      .update(bookings)
+      .set({ status: 'cancelled' })
+      .where(
+        and(
+          eq(bookings.propertyId, propertyId),
+          eq(bookings.status, 'pending'),
+          sql`${bookings.createdAt} < NOW() - INTERVAL '30 minutes'`
+        )
+      );
+
     // Atomic insert with overlap check to prevent concurrent double-booking (edge case 3.13)
     // This uses a single SQL statement so concurrent requests can't both pass the check
     const insertResult = await db.execute(sql`
@@ -119,13 +131,24 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
 
 /**
  * GET /api/bookings
- * Authenticated — list current user's bookings.
+ * Authenticated — list current user's bookings with pagination (edge case 3.15).
  */
 export const getMyBookings = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
       throw new AppError('Not authenticated.', 401);
     }
+
+    // Pagination
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(bookings)
+      .where(eq(bookings.userId, req.user.userId));
 
     const items = await db
       .select({
@@ -147,11 +170,21 @@ export const getMyBookings = async (req: Request, res: Response, next: NextFunct
       .from(bookings)
       .leftJoin(properties, eq(bookings.propertyId, properties.id))
       .where(eq(bookings.userId, req.user.userId))
-      .orderBy(desc(bookings.createdAt));
+      .orderBy(desc(bookings.createdAt))
+      .limit(limit)
+      .offset(offset);
 
     res.json({
       status: 'success',
-      data: { bookings: items },
+      data: {
+        bookings: items,
+        pagination: {
+          page,
+          limit,
+          total: Number(total),
+          totalPages: Math.ceil(Number(total) / limit),
+        },
+      },
     });
   } catch (error) {
     next(error);
@@ -250,6 +283,18 @@ export const cancelBooking = async (req: Request, res: Response, next: NextFunct
 
     if (!['pending', 'confirmed', 'upcoming'].includes(booking.status)) {
       throw new AppError(`Cannot cancel a booking with status "${booking.status}".`, 400);
+    }
+
+    // Cancellation policy: reject if check-in is within 48 hours (edge case 3.9)
+    if (booking.status === 'confirmed' || booking.status === 'upcoming') {
+      const checkInDate = new Date(booking.checkIn);
+      const hoursUntilCheckIn = (checkInDate.getTime() - Date.now()) / (1000 * 60 * 60);
+      if (hoursUntilCheckIn < 48) {
+        throw new AppError(
+          'Cancellation is not allowed within 48 hours of check-in. Please contact support for assistance.',
+          400
+        );
+      }
     }
 
     const [updated] = await db

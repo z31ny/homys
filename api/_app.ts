@@ -3,6 +3,7 @@ import cors from 'cors';
 import { config } from './config';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { sanitizeInput } from './middleware/sanitize';
 
 const app = express();
 
@@ -31,6 +32,9 @@ app.use(express.json({ limit: '10mb' }));
 
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
+
+// Sanitize all request body strings to strip HTML tags (edge case 8.8 — XSS prevention)
+app.use(sanitizeInput);
 
 // ─── API Routes ──────────────────────────────────────────
 

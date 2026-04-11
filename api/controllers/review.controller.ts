@@ -198,13 +198,28 @@ export const approveReview = async (req: Request, res: Response, next: NextFunct
 
     // Check current status — make idempotent (edge case 4.5)
     const [existingReview] = await db
-      .select({ id: reviews.id, status: reviews.status })
+      .select({ id: reviews.id, status: reviews.status, propertyId: reviews.propertyId })
       .from(reviews)
       .where(eq(reviews.id, id))
       .limit(1);
 
     if (!existingReview) {
       throw new AppError('Review not found.', 404);
+    }
+
+    // Guard: warn if property is archived/deleted (edge case 4.8)
+    if (existingReview.propertyId) {
+      const [prop] = await db
+        .select({ status: properties.status })
+        .from(properties)
+        .where(eq(properties.id, existingReview.propertyId))
+        .limit(1);
+      if (!prop) {
+        throw new AppError('Cannot approve — the associated property has been deleted.', 400);
+      }
+      if (prop.status === 'archived') {
+        throw new AppError('Cannot approve — the associated property is archived.', 400);
+      }
     }
 
     if (existingReview.status === 'approved') {
@@ -283,6 +298,50 @@ export const rejectReview = async (req: Request, res: Response, next: NextFuncti
       status: 'success',
       message: 'Review rejected.',
       data: { review: updated },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * DELETE /api/reviews/:id
+ * Authenticated — user deletes their own pending review (edge case 4.12).
+ */
+export const deleteMyReview = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      throw new AppError('Not authenticated.', 401);
+    }
+
+    const { id } = req.params;
+
+    // Find the review
+    const [review] = await db
+      .select({ id: reviews.id, userId: reviews.userId, status: reviews.status })
+      .from(reviews)
+      .where(eq(reviews.id, id))
+      .limit(1);
+
+    if (!review) {
+      throw new AppError('Review not found.', 404);
+    }
+
+    // Only the author can delete
+    if (review.userId !== req.user.userId) {
+      throw new AppError('You can only delete your own reviews.', 403);
+    }
+
+    // Only pending reviews can be deleted by the user
+    if (review.status !== 'pending') {
+      throw new AppError('Only pending reviews can be deleted. Approved or rejected reviews cannot be removed.', 400);
+    }
+
+    await db.delete(reviews).where(eq(reviews.id, id));
+
+    res.json({
+      status: 'success',
+      message: 'Review deleted successfully.',
     });
   } catch (error) {
     next(error);

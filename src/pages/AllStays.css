@@ -93,8 +93,41 @@
   cursor: not-allowed;
 }
 
+/* Mobile Filter Toggle (edge case 10.4) */
+.as-filter-toggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 16px;
+  padding: 12px 24px;
+  background: #f9f6f1;
+  border: 1.5px solid #e8e0d4;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #112a3d;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  transition: 0.3s;
+}
+.as-filter-toggle:hover {
+  background: #112a3d;
+  color: #f6f3eb;
+}
+.as-filter-toggle svg {
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .stays-grid-container { grid-template-columns: 1fr; }
-  .as-filter-bar { flex-direction: column; }
+  .as-filter-toggle { display: flex; }
+  .as-filter-bar {
+    display: none;
+    flex-direction: column;
+  }
+  .as-filter-bar.open {
+    display: flex;
+  }
   .as-filter-item { min-width: 100%; }
 }

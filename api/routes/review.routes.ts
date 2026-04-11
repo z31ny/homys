@@ -5,6 +5,7 @@ import {
   getPendingReviews,
   approveReview,
   rejectReview,
+  deleteMyReview,
 } from '../controllers/review.controller';
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
@@ -17,6 +18,9 @@ router.get('/property/:propertyId', getPropertyReviews);
 
 // Protected — submit a review
 router.post('/', authenticate, validate(createReviewSchema), createReview);
+
+// Protected — delete own pending review (edge case 4.12)
+router.delete('/:id', authenticate, deleteMyReview);
 
 // Admin — get pending reviews
 router.get('/pending', authenticate, getPendingReviews);

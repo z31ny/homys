@@ -55,7 +55,7 @@ const ListProperty = () => {
 
     // Load Leaflet JS
     const loadLeaflet = () => {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         if (window.L) {
           resolve(window.L);
           return;
@@ -63,30 +63,43 @@ const ListProperty = () => {
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
         script.onload = () => resolve(window.L);
+        script.onerror = () => reject(new Error('Failed to load map library'));
         document.head.appendChild(script);
       });
     };
 
     loadLeaflet().then((L) => {
-      if (mapRef.current && !mapInstanceRef.current) {
-        const map = L.map(mapRef.current).setView([30.044, 31.235], 12);
+      try {
+        if (mapRef.current && !mapInstanceRef.current) {
+          const map = L.map(mapRef.current).setView([30.044, 31.235], 12);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-          maxZoom: 19,
-        }).addTo(map);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19,
+          }).addTo(map);
 
-        // Click on map to set pin
-        map.on('click', (e) => {
-          const { lat, lng } = e.latlng;
-          setPin(L, map, lat, lng);
-          reverseGeocode(lat, lng);
-        });
+          // Click on map to set pin
+          map.on('click', (e) => {
+            const { lat, lng } = e.latlng;
+            setPin(L, map, lat, lng);
+            reverseGeocode(lat, lng);
+          });
 
-        mapInstanceRef.current = map;
+          mapInstanceRef.current = map;
 
-        // Fix tile rendering issue when map is in a hidden/flexed container
-        setTimeout(() => map.invalidateSize(), 300);
+          // Fix tile rendering issue when map is in a hidden/flexed container
+          setTimeout(() => map.invalidateSize(), 300);
+        }
+      } catch (err) {
+        // Show fallback message in map container (edge case 10.6)
+        if (mapRef.current) {
+          mapRef.current.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#112a3d;opacity:0.6;font-family:\'Encode Sans Expanded\',sans-serif;text-align:center;padding:20px"><p>Map could not be loaded. Please enter coordinates manually or try refreshing the page.</p></div>';
+        }
+      }
+    }).catch(() => {
+      // CDN failure fallback (edge case 10.6)
+      if (mapRef.current) {
+        mapRef.current.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#112a3d;opacity:0.6;font-family:\'Encode Sans Expanded\',sans-serif;text-align:center;padding:20px"><p>Map could not be loaded. You can still enter your location coordinates manually below.</p></div>';
       }
     });
 

@@ -119,6 +119,7 @@ export const bookingsAPI = {
 export const reviewsAPI = {
   getByProperty: (propertyId) => request(`/reviews/property/${propertyId}`),
   create: (body) => request('/reviews', { method: 'POST', body: JSON.stringify(body) }),
+  delete: (id) => request(`/reviews/${id}`, { method: 'DELETE' }),
   getPending: () => request('/reviews/pending'),
   approve: (id) => request(`/reviews/${id}/approve`, { method: 'PATCH' }),
   reject: (id) => request(`/reviews/${id}/reject`, { method: 'PATCH' }),
