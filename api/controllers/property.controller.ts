@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, gte, lte, like, sql, desc } from 'drizzle-orm';
 import { db } from '../db';
-import { properties, propertyImages, propertyFeatures } from '../db/schema';
+import { properties, propertyImages, propertyFeatures, bookings } from '../db/schema';
 import { AppError } from '../middleware/errorHandler';
 import type { CreatePropertyInput, UpdatePropertyInput } from '../validators/property';
 
@@ -102,11 +102,18 @@ export const getProperties = async (req: Request, res: Response, next: NextFunct
     if (location) {
       conditions.push(like(properties.locationName, `%${location}%`));
     }
-    if (minPrice) {
-      conditions.push(gte(properties.pricePerNight, minPrice));
+    // Swap minPrice/maxPrice if inverted (edge case 2.11)
+    let effectiveMinPrice = minPrice;
+    let effectiveMaxPrice = maxPrice;
+    if (minPrice && maxPrice && parseFloat(minPrice) > parseFloat(maxPrice)) {
+      effectiveMinPrice = maxPrice;
+      effectiveMaxPrice = minPrice;
     }
-    if (maxPrice) {
-      conditions.push(lte(properties.pricePerNight, maxPrice));
+    if (effectiveMinPrice) {
+      conditions.push(gte(properties.pricePerNight, effectiveMinPrice));
+    }
+    if (effectiveMaxPrice) {
+      conditions.push(lte(properties.pricePerNight, effectiveMaxPrice));
     }
     if (bedrooms) {
       conditions.push(gte(properties.bedrooms, parseInt(bedrooms, 10)));
@@ -334,6 +341,24 @@ export const deleteProperty = async (req: Request, res: Response, next: NextFunc
 
     if (existing.ownerId !== req.user.userId) {
       throw new AppError('You can only delete your own properties.', 403);
+    }
+
+    // Soft-delete: check for future non-cancelled bookings first (edge case 2.9)
+    const today = new Date().toISOString().split('T')[0];
+    const futureBookings = await db
+      .select({ id: bookings.id })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.propertyId, id),
+          sql`${bookings.status} NOT IN ('cancelled')`,
+          sql`${bookings.checkOut} > ${today}::date`
+        )
+      )
+      .limit(1);
+
+    if (futureBookings.length > 0) {
+      throw new AppError('Cannot archive this property — it has upcoming bookings. Cancel or complete them first.', 400);
     }
 
     // Soft-delete: set status to archived

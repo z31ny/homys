@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { questionnaireAPI } from '../services/api';
 import './Questionnaire.css';
 
 import frame125 from '../imgs/Frame 125.png';
@@ -10,11 +11,14 @@ import rect6 from '../imgs/Rectangle 6.png';
 import reccc from '../imgs/recc.png';
 import group14 from '../imgs/Group 14.png';
 
+const fallbackImg = frame125;
+
 const Questionnaire = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [matchedProperties, setMatchedProperties] = useState([]);
   const [formData, setFormData] = useState({
     location: '',
     purpose: '',
@@ -46,12 +50,27 @@ const Questionnaire = () => {
     setFormData({ ...formData, amenities: updated });
   };
 
-  const startSyncing = () => {
+  const startSyncing = async () => {
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await questionnaireAPI.submit({
+        locationPref: formData.location || undefined,
+        purpose: formData.purpose || undefined,
+        guests: formData.guests,
+        roomsPref: formData.rooms?.toString() || undefined,
+        budgetRange: formData.budget || undefined,
+        durationPref: formData.duration || undefined,
+        viewPref: formData.view || undefined,
+        amenities: formData.amenities.length > 0 ? formData.amenities : undefined,
+      });
+      setMatchedProperties(res.data.matches || []);
+    } catch (err) {
+      console.error('Questionnaire error:', err);
+      setMatchedProperties([]);
+    } finally {
       setIsLoading(false);
       setShowResults(true);
-    }, 3500);
+    }
   };
 
   if (isLoading) {
@@ -67,32 +86,51 @@ const Questionnaire = () => {
   }
 
   if (showResults) {
-    const matches = [
-      { id: 1, title: 'Executive Ocean Suite', loc: 'Sahel, North Coast', price: '$280/night', img: frame125 },
-      { id: 2, title: 'Modern City Loft', loc: 'New Cairo, Egypt', price: '$150/night', img: frame130 },
-      { id: 3, title: 'Lagoon Front Villa', loc: 'El Gouna, Red Sea', price: '$450/night', img: rect10 }
-    ];
-
     return (
       <div className="results-page">
         <h1 className="libre">Your Top Matches</h1>
-        <div className="results-grid">
-          {matches.map(item => (
-            <div key={item.id} className="res-card" onClick={() => navigate('/propertydetails')}>
-              <div className="res-img"><img src={item.img} alt="Stay" /></div>
-              <div className="res-info">
-                <h3 className="libre">{item.title}</h3>
-                <p className="encode">{item.loc}</p>
-                <span className="price">{item.price}</span>
-                <button className="view-btn encode">View Details</button>
-              </div>
+        {matchedProperties.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <p className="encode" style={{ fontSize: '1.1rem', opacity: 0.7, marginBottom: '30px' }}>
+              No exact matches found for your preferences yet. As we grow our collection, your perfect sanctuary will appear!
+            </p>
+            <div className="res-actions">
+              <button className="cta-dark encode" onClick={() => navigate('/stays')}>Explore All Stays</button>
+              <button className="cta-light encode" onClick={() => {setShowResults(false); setStep(1); setMatchedProperties([]); }}>Start Over</button>
             </div>
-          ))}
-        </div>
-        <div className="res-actions">
-          <button className="cta-dark encode" onClick={() => navigate('/all-stays')}>Explore All Stays</button>
-          <button className="cta-light encode" onClick={() => {setShowResults(false); setStep(1);}}>Start Over</button>
-        </div>
+          </div>
+        ) : (
+          <>
+            <div className="results-grid">
+              {matchedProperties.map(item => (
+                <div key={item.id} className="res-card" onClick={() => navigate(`/stays/${item.id}`)}>
+                  <div className="res-img">
+                    <img
+                      src={item.heroImageUrl || fallbackImg}
+                      alt={item.title}
+                      onError={(e) => { e.target.src = fallbackImg; }}
+                    />
+                  </div>
+                  <div className="res-info">
+                    <h3 className="libre">{item.title}</h3>
+                    <p className="encode">{item.locationName}</p>
+                    <div className="encode" style={{ display: 'flex', gap: '12px', marginTop: '8px', fontSize: '0.8rem', opacity: 0.7 }}>
+                      {item.bedrooms && <span>{item.bedrooms} Bed{item.bedrooms !== 1 ? 's' : ''}</span>}
+                      {item.propertyType && <span>{item.propertyType}</span>}
+                      {item.viewType && <span>{item.viewType} view</span>}
+                    </div>
+                    <span className="price">${item.pricePerNight}/night</span>
+                    <button className="view-btn encode">View Details</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="res-actions">
+              <button className="cta-dark encode" onClick={() => navigate('/stays')}>Explore All Stays</button>
+              <button className="cta-light encode" onClick={() => {setShowResults(false); setStep(1); setMatchedProperties([]); }}>Start Over</button>
+            </div>
+          </>
+        )}
       </div>
     );
   }

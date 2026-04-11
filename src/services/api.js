@@ -1,9 +1,20 @@
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 /**
- * Core fetch wrapper with auth header injection.
+ * Listeners for auth state changes (401 interceptor pattern).
+ * The AuthContext registers a callback so api.js can trigger logout.
  */
-async function request(endpoint, options = {}) {
+let onUnauthorizedCallback = null;
+
+export function setOnUnauthorized(callback) {
+  onUnauthorizedCallback = callback;
+}
+
+/**
+ * Core fetch wrapper with auth header injection, 401 interception,
+ * timeout, and retry logic.
+ */
+async function request(endpoint, options = {}, retries = 1) {
   const token = localStorage.getItem('homys_token');
   
   const headers = {
@@ -15,21 +26,62 @@ async function request(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  // Add timeout (15 seconds) — edge case 10.12
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  const data = await response.json();
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    const error = new Error(data.message || 'Something went wrong');
-    error.status = response.status;
-    error.data = data;
-    throw error;
+    clearTimeout(timeoutId);
+
+    // Global 401 interceptor — edge cases 1.6, 1.7
+    if (response.status === 401) {
+      localStorage.removeItem('homys_token');
+      if (onUnauthorizedCallback) {
+        onUnauthorizedCallback();
+      }
+      const error = new Error('Session expired. Please log in again.');
+      error.status = 401;
+      throw error;
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const error = new Error(data.message || 'Something went wrong');
+      error.status = response.status;
+      error.data = data;
+      throw error;
+    }
+
+    return data;
+  } catch (err) {
+    clearTimeout(timeoutId);
+
+    // Retry on network errors (not on 4xx/5xx) — edge case 10.12
+    if (err.name === 'AbortError') {
+      if (retries > 0) {
+        return request(endpoint, options, retries - 1);
+      }
+      const error = new Error('Request timed out. Please check your connection and try again.');
+      error.status = 0;
+      throw error;
+    }
+
+    // Network failure (offline, DNS, etc.)
+    if (!err.status && err.name === 'TypeError' && retries > 0) {
+      // Wait 1 second then retry
+      await new Promise((r) => setTimeout(r, 1000));
+      return request(endpoint, options, retries - 1);
+    }
+
+    throw err;
   }
-
-  return data;
 }
 
 // ─── Auth ────────────────────────────────────────────────

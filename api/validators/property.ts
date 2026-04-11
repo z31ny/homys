@@ -7,7 +7,10 @@ export const createPropertySchema = z.object({
   bedrooms: z.number().int().min(0).default(1),
   bathrooms: z.number().int().min(0).default(1),
   sqft: z.number().int().positive().optional(),
-  pricePerNight: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Price must be a valid decimal'),
+  pricePerNight: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, 'Price must be a valid decimal')
+    .refine((val) => parseFloat(val) > 0, 'Price must be greater than zero'),
   isFurnished: z.boolean().default(false),
   description: z.string().max(5000).optional(),
   locationName: z.string().max(255).optional(),

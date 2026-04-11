@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, setOnUnauthorized } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -12,6 +12,15 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Register the 401 interceptor so expired tokens auto-logout (edge cases 1.6, 1.7)
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      setUser(null);
+      // Navigation to /login happens via the 401 error thrown in api.js
+      // Individual pages already handle errors and can redirect
+    });
+  }, []);
 
   // On mount, check if we have a stored token and fetch the user
   useEffect(() => {

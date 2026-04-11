@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { bookingsAPI } from '../services/api';
@@ -8,8 +8,23 @@ import fallbackImg from '../imgs/Frame 125.png';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state: routerState } = useLocation();
   const { user } = useAuth();
+
+  // Restore booking data from sessionStorage if router state is lost (edge case 10.2)
+  const bookingData = routerState || (() => {
+    try {
+      const saved = sessionStorage.getItem('homys_checkout_data');
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  })();
+
+  // Persist booking data to sessionStorage on mount
+  useEffect(() => {
+    if (routerState?.propertyId) {
+      sessionStorage.setItem('homys_checkout_data', JSON.stringify(routerState));
+    }
+  }, [routerState]);
 
   const {
     propertyId,
@@ -24,7 +39,7 @@ const Checkout = () => {
     addons = [],
     addonTotal = 0,
     finalTotal = 0,
-  } = state || {};
+  } = bookingData;
 
   // Split user's full name into first/last
   const nameParts = (user?.fullName || '').split(' ');
@@ -84,7 +99,7 @@ const Checkout = () => {
   };
 
   // Guard: redirect if no booking context
-  if (!state?.propertyId) {
+  if (!propertyId) {
     return (
       <div className="checkout-page" style={{ padding: '120px 40px', textAlign: 'center' }}>
         <h2>No booking in progress</h2>

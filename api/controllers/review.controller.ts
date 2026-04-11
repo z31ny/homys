@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../db';
-import { reviews, users, properties } from '../db/schema';
+import { reviews, users, properties, bookings } from '../db/schema';
 import { AppError } from '../middleware/errorHandler';
 import type { CreateReviewInput } from '../validators/review';
 
@@ -42,6 +42,23 @@ export const createReview = async (req: Request, res: Response, next: NextFuncti
 
     if (existing) {
       throw new AppError('You have already reviewed this property.', 409);
+    }
+
+    // Verify user has a completed/confirmed booking for this property (edge case 4.1)
+    const [completedBooking] = await db
+      .select({ id: bookings.id })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.propertyId, propertyId),
+          eq(bookings.userId, req.user.userId),
+          sql`${bookings.status} IN ('completed', 'confirmed')`
+        )
+      )
+      .limit(1);
+
+    if (!completedBooking) {
+      throw new AppError('You can only review properties where you have completed a stay.', 403);
     }
 
     const [newReview] = await db
@@ -179,15 +196,30 @@ export const approveReview = async (req: Request, res: Response, next: NextFunct
 
     const { id } = req.params;
 
+    // Check current status — make idempotent (edge case 4.5)
+    const [existingReview] = await db
+      .select({ id: reviews.id, status: reviews.status })
+      .from(reviews)
+      .where(eq(reviews.id, id))
+      .limit(1);
+
+    if (!existingReview) {
+      throw new AppError('Review not found.', 404);
+    }
+
+    if (existingReview.status === 'approved') {
+      return res.json({
+        status: 'success',
+        message: 'Review is already approved.',
+        data: { review: existingReview },
+      });
+    }
+
     const [updated] = await db
       .update(reviews)
       .set({ status: 'approved' })
       .where(eq(reviews.id, id))
       .returning();
-
-    if (!updated) {
-      throw new AppError('Review not found.', 404);
-    }
 
     res.json({
       status: 'success',
@@ -222,15 +254,30 @@ export const rejectReview = async (req: Request, res: Response, next: NextFuncti
 
     const { id } = req.params;
 
+    // Check current status — make idempotent (edge case 4.6)
+    const [existingReview] = await db
+      .select({ id: reviews.id, status: reviews.status })
+      .from(reviews)
+      .where(eq(reviews.id, id))
+      .limit(1);
+
+    if (!existingReview) {
+      throw new AppError('Review not found.', 404);
+    }
+
+    if (existingReview.status === 'rejected') {
+      return res.json({
+        status: 'success',
+        message: 'Review is already rejected.',
+        data: { review: existingReview },
+      });
+    }
+
     const [updated] = await db
       .update(reviews)
       .set({ status: 'rejected' })
       .where(eq(reviews.id, id))
       .returning();
-
-    if (!updated) {
-      throw new AppError('Review not found.', 404);
-    }
 
     res.json({
       status: 'success',

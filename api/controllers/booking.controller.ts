@@ -40,65 +40,52 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
       throw new AppError('Property not found or not available.', 404);
     }
 
+    // Reject bookings with check-in in the past (edge case 3.2)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (new Date(checkIn) < today) {
+      throw new AppError('Check-in date cannot be in the past.', 400);
+    }
+
     // Check guest count
     if (numGuests > (property.maxGuests || 99)) {
       throw new AppError(`This property allows a maximum of ${property.maxGuests} guests.`, 400);
-    }
-
-    // Check for overlapping bookings
-    const overlapping = await db
-      .select({ id: bookings.id })
-      .from(bookings)
-      .where(
-        and(
-          eq(bookings.propertyId, propertyId),
-          sql`${bookings.status} NOT IN ('cancelled')`,
-          sql`${bookings.checkIn} < ${checkOut}`,
-          sql`${bookings.checkOut} > ${checkIn}`
-        )
-      )
-      .limit(1);
-
-    if (overlapping.length > 0) {
-      throw new AppError('These dates are already booked. Please choose different dates.', 409);
     }
 
     // Calculate pricing
     const nights = Math.ceil(
       (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
     );
-    const basePrice = (parseFloat(property.pricePerNight) * nights * numRooms).toFixed(2);
+    const basePrice = (parseFloat(property.pricePerNight) * nights * (numRooms || 1)).toFixed(2);
     const addonTotal = addons.reduce((sum, a) => sum + parseFloat(a.price), 0);
     const serviceFee = (parseFloat(basePrice) * 0.08).toFixed(2); // 8% service fee
     const totalPrice = (parseFloat(basePrice) + addonTotal + parseFloat(serviceFee)).toFixed(2);
 
-    // Insert booking
-    const [newBooking] = await db
-      .insert(bookings)
-      .values({
-        userId: req.user.userId,
-        propertyId,
-        checkIn,
-        checkOut,
-        numGuests,
-        numRooms,
-        basePrice,
-        serviceFee,
-        totalPrice,
-        status: 'pending',
-        specialRequests: specialRequests || null,
-        guestFirstName,
-        guestLastName,
-        guestEmail,
-        guestPhone: guestPhone || null,
-      })
-      .returning();
+    // Atomic insert with overlap check to prevent concurrent double-booking (edge case 3.13)
+    // This uses a single SQL statement so concurrent requests can't both pass the check
+    const insertResult = await db.execute(sql`
+      INSERT INTO bookings (id, user_id, property_id, check_in, check_out, num_guests, num_rooms, base_price, service_fee, total_price, status, special_requests, guest_first_name, guest_last_name, guest_email, guest_phone, created_at)
+      SELECT gen_random_uuid(), ${req.user.userId}, ${propertyId}, ${checkIn}::date, ${checkOut}::date, ${numGuests}, ${numRooms || 1}, ${basePrice}::numeric, ${serviceFee}::numeric, ${totalPrice}::numeric, 'pending', ${specialRequests || null}, ${guestFirstName}, ${guestLastName}, ${guestEmail}, ${guestPhone || null}, now()
+      WHERE NOT EXISTS (
+        SELECT 1 FROM bookings
+        WHERE property_id = ${propertyId}
+          AND status NOT IN ('cancelled')
+          AND check_in < ${checkOut}::date
+          AND check_out > ${checkIn}::date
+      )
+      RETURNING *
+    `);
 
-    // Insert add-ons
+    if (!insertResult.rows || insertResult.rows.length === 0) {
+      throw new AppError('These dates are already booked. Please choose different dates.', 409);
+    }
+
+    const newBooking = insertResult.rows[0] as any;
+
     if (addons.length > 0) {
       await db.insert(bookingAddons).values(
         addons.map((addon) => ({
-          bookingId: newBooking.id,
+          bookingId: newBooking.id as string,
           serviceName: addon.serviceName,
           price: addon.price,
         }))
@@ -107,11 +94,12 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
 
     // Create a pending payment record
     await db.insert(payments).values({
-      bookingId: newBooking.id,
+      bookingId: newBooking.id as string,
       method: 'paymob',
       amount: totalPrice,
       status: 'pending',
     });
+
 
     res.status(201).json({
       status: 'success',

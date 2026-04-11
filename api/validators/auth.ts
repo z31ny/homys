@@ -46,7 +46,12 @@ export const resetPasswordSchema = z.object({
 
 export const updateProfileSchema = z.object({
   fullName: z.string().min(2).max(255).optional(),
-  phone: z.string().max(30).optional(),
+  phone: z
+    .string()
+    .max(30)
+    .regex(/^[+]?[\d\s\-().]{7,30}$/, 'Invalid phone number format')
+    .optional()
+    .or(z.literal('')),
   country: z.string().max(100).optional(),
 });
 

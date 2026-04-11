@@ -122,6 +122,20 @@ const PropertyDetails = () => {
       alert('Please select valid check-in and check-out dates.');
       return;
     }
+
+    // Redirect to login if not authenticated (edge case 10.1)
+    if (!isAuthenticated) {
+      // Store intended booking in sessionStorage so we can restore after login
+      sessionStorage.setItem('homys_pending_booking', JSON.stringify({
+        propertyId: property.id,
+        checkIn,
+        checkOut,
+        numGuests,
+      }));
+      navigate('/login', { state: { returnTo: `/stays/${property.id}` } });
+      return;
+    }
+
     navigate('/cart', {
       state: {
         propertyId: property.id,

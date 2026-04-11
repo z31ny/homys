@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './BookNow.css';
 import rect6 from '../imgs/Rectangle 6.png';
@@ -8,6 +8,9 @@ import rect11 from '../imgs/Rectangle 11.png';
 
 const BookNow = () => {
   const navigate = useNavigate();
+  const [destination, setDestination] = useState('');
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
 
   const locations = [
     { name: 'Sahel', img: rect6, desc: 'North Coast Sanctuaries' },
@@ -15,6 +18,16 @@ const BookNow = () => {
     { name: 'Gouna', img: rect10, desc: 'Lagoon Front Villas' },
     { name: 'Red Sea', img: rect11, desc: 'Crystal Water Escapes' }
   ];
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (destination) params.set('location', destination);
+    navigate(`/all-stays${params.toString() ? `?${params}` : ''}`);
+  };
+
+  const handleLocationClick = (locName) => {
+    navigate(`/all-stays?location=${encodeURIComponent(locName)}`);
+  };
 
   return (
     <div className="book-now-page">
@@ -26,23 +39,40 @@ const BookNow = () => {
       <section className="booking-filter-bar">
         <div className="filter-item">
           <label className="encode">Destination</label>
-          <select className="encode">
-            <option>All Locations</option>
-            <option>Sahel, North Coast</option>
-            <option>New Cairo</option>
-            <option>El Gouna</option>
+          <select className="encode" value={destination} onChange={(e) => setDestination(e.target.value)}>
+            <option value="">All Locations</option>
+            <option value="Sahel">Sahel, North Coast</option>
+            <option value="Cairo">New Cairo</option>
+            <option value="Gouna">El Gouna</option>
+            <option value="Red Sea">Red Sea</option>
           </select>
         </div>
         <div className="filter-item">
-          <label className="encode">Check In - Out</label>
-          <input type="text" placeholder="Select Dates" className="encode" />
+          <label className="encode">Check In</label>
+          <input
+            type="date"
+            className="encode"
+            value={checkIn}
+            min={new Date().toISOString().split('T')[0]}
+            onChange={(e) => setCheckIn(e.target.value)}
+          />
         </div>
-        <button className="search-stays-btn encode" onClick={() => navigate('/stays')}>Search Availability</button>
+        <div className="filter-item">
+          <label className="encode">Check Out</label>
+          <input
+            type="date"
+            className="encode"
+            value={checkOut}
+            min={checkIn || new Date().toISOString().split('T')[0]}
+            onChange={(e) => setCheckOut(e.target.value)}
+          />
+        </div>
+        <button className="search-stays-btn encode" onClick={handleSearch}>Search Availability</button>
       </section>
 
       <section className="location-selection-grid">
         {locations.map((loc, idx) => (
-          <div key={idx} className="location-card" onClick={() => navigate('/stays')}>
+          <div key={idx} className="location-card" onClick={() => handleLocationClick(loc.name)}>
             <div className="loc-img-wrap">
               <img src={loc.img} alt={loc.name} />
               <div className="loc-overlay">

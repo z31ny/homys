@@ -18,6 +18,13 @@ export const createBookingSchema = z.object({
 }).refine(
   (data) => new Date(data.checkOut) > new Date(data.checkIn),
   { message: 'Check-out date must be after check-in date', path: ['checkOut'] }
+).refine(
+  (data) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(data.checkIn) >= today;
+  },
+  { message: 'Check-in date cannot be in the past', path: ['checkIn'] }
 );
 
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;

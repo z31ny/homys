@@ -160,6 +160,17 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     // Token expires in 1 hour
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
+    // Invalidate any previous reset tokens for this user (edge case 9.4)
+    await db
+      .update(passwordResetTokens)
+      .set({ used: true })
+      .where(
+        and(
+          eq(passwordResetTokens.userId, user.id),
+          eq(passwordResetTokens.used, false)
+        )
+      );
+
     // Store the hashed token in the database
     await db.insert(passwordResetTokens).values({
       userId: user.id,
@@ -172,6 +183,9 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
 
     // Send email via Resend
+    let emailSent = false;
+    let emailError = '';
+
     if (config.resend.apiKey) {
       try {
         const emailResponse = await fetch('https://api.resend.com/emails', {
@@ -204,15 +218,26 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
           }),
         });
 
-        if (!emailResponse.ok) {
-          console.error('[Resend] Failed to send email:', await emailResponse.text());
+        if (emailResponse.ok) {
+          emailSent = true;
+        } else {
+          const errBody = await emailResponse.text();
+          console.error('[Resend] Failed to send email:', errBody);
+          emailError = errBody;
         }
-      } catch (emailError) {
-        console.error('[Resend] Email sending error:', emailError);
-        // Don't fail the request — the token is saved, user can retry
+      } catch (err: any) {
+        console.error('[Resend] Email sending error:', err);
+        emailError = err.message || 'Unknown email error';
       }
     } else {
+      emailError = 'RESEND_API_KEY not configured';
       console.log(`[DEV] Password reset link for ${email}: ${resetLink}`);
+    }
+
+    // Always return success to prevent email enumeration
+    // Debug info removed for production security (edge case 10)
+    if (!emailSent && emailError) {
+      console.error('[ForgotPassword] Email not sent:', emailError);
     }
 
     res.json({
@@ -326,12 +351,29 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
       throw new AppError('Not authenticated.', 401);
     }
 
-    const updates = req.body;
+    const rawUpdates = req.body;
+
+    // Strip fields that must not be user-editable (edge case 1.17)
+    const { isAdmin, passwordHash, id, email, createdAt, ...safeUpdates } = rawUpdates;
+
+    // If email change is attempted via a non-stripped path, check uniqueness (edge case 1.15)
+    if (rawUpdates.email && rawUpdates.email !== req.user.email) {
+      const [existing] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, rawUpdates.email.toLowerCase()))
+        .limit(1);
+      if (existing) {
+        throw new AppError('An account with this email already exists.', 409);
+      }
+      // If email is allowed in updateProfileSchema, add it safely
+      (safeUpdates as any).email = rawUpdates.email.toLowerCase();
+    }
 
     const [updatedUser] = await db
       .update(users)
       .set({
-        ...updates,
+        ...safeUpdates,
         updatedAt: new Date(),
       })
       .where(eq(users.id, req.user.userId))
