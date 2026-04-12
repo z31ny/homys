@@ -298,7 +298,7 @@ const PropertyDetails = () => {
               <div className="pd-input-group full-width">
                 <label>Guests</label>
                 <select value={numGuests} onChange={(e) => setNumGuests(Number(e.target.value))}>
-                  {[...Array(property.maxGuests || 6)].map((_, i) => (
+                  {[...Array(Math.max(property.maxGuests || 6, 2))].map((_, i) => (
                     <option key={i + 1} value={i + 1}>{i + 1} Guest{i > 0 ? 's' : ''}</option>
                   ))}
                 </select>
