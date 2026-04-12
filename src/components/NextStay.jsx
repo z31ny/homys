@@ -33,7 +33,7 @@ const NextStay = () => {
         {destinations.map((item) => (
           <div key={item.id} className="stay-card">
             <div className="stay-image-container">
-              <img src={item.image} alt={item.title} className="bg-img" />
+              <img src={item.image} alt={item.title} className="bg-img" loading="lazy" />
               <div className="stay-overlay">
                 <h3 className="destination-name">{item.title}</h3>
               </div>

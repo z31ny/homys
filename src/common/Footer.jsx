@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
 import logo from '../imgs/logowhite.png';
-import footerBg from '../imgs/footer.png';
+const footerBg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/footer.png';
 
 const Footer = () => {
   return (

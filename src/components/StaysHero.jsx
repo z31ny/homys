@@ -1,7 +1,7 @@
 import React from 'react';
 import './StaysHero.css';
 import separator2 from '../imgs/separator2.png';
-import StaysHeroImg from '../imgs/StaysHero.png';
+const StaysHeroImg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/StaysHero.png';
 import star from '../imgs/star.png';
 
 const StaysHero = () => {

@@ -10,7 +10,7 @@ const AboutHero = () => {
       <div className="about-container">
         
         <div className="img-wrapper left-img">
-          <img src={img1} alt="Leisure" />
+          <img src={img1} alt="Leisure" loading="lazy" />
         </div>
 
         <div className="about-content">
@@ -27,7 +27,7 @@ const AboutHero = () => {
         </div>
 
         <div className="img-wrapper right-img">
-          <img src={img2} alt="Relaxation" />
+          <img src={img2} alt="Relaxation" loading="lazy" />
         </div>
 
       </div>

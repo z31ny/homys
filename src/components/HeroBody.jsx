@@ -1,6 +1,6 @@
 import React from 'react';
 import './HeroBody.css';
-import frame1 from '../imgs/Frame 1.png'; 
+const frame1 = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_600/homys-static/Frame_1.png'; 
 import frame2 from '../imgs/Frame 2.png';
 import frame3 from '../imgs/Frame 3.png';
 

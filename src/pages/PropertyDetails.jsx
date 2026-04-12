@@ -4,7 +4,7 @@ import { propertiesAPI, reviewsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './PropertyDetails.css';
 
-import fallbackImg from '../imgs/StaysHero.png';
+const fallbackImg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_800/homys-static/StaysHero.png';
 
 const PropertyDetails = () => {
   const { id } = useParams();

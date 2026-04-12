@@ -33,7 +33,7 @@ const AddPropertyComp = () => {
 
         <div className="add-property-visual">
           <div className="prop-img-wrapper">
-            <img src={promoImg} alt="Luxury Interior" />
+            <img src={promoImg} alt="Luxury Interior" loading="lazy" />
             <div className="img-overlay-badge">
                 <span className="libre">Join Us</span>
             </div>

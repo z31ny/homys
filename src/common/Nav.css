@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Expanded:wght@400;500;600;700;800&display=swap');
 
 :root {
     --blue: #123042;
@@ -13,7 +12,7 @@
     width: 100%;
     z-index: 2000;
     transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-    background-image: url('../imgs/bg.png');
+    background-image: url('https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/bg.jpg');
     background-attachment: fixed;
     background-size: cover;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -139,7 +138,7 @@
     right: 0;
     width: 300px;
     background-color: var(--bg);
-    background-image: url('../imgs/bg.png');
+    background-image: url('https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/bg.jpg');
     padding: 40px;
     border-radius: 20px;
     box-shadow: 0 30px 60px rgba(0,0,0,0.1);

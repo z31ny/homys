@@ -25,7 +25,7 @@ const QandA = () => {
         </div>
         
         <div className="q-visual-side">
-            <img src={rect11} alt="Luxury Stay" className="q-visual-img" />
+            <img src={rect11} alt="Luxury Stay" className="q-visual-img" loading="lazy" />
             <div className="q-icon-overlay">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5">
                     <path d="M9 11l3 3L22 4" />

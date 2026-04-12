@@ -28,7 +28,7 @@ const HomeCard = ({ home }) => {
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {images.map((img, index) => (
-            <img key={index} src={img} alt={home.title} className="home-main-img"
+            <img key={index} src={img} alt={home.title} className="home-main-img" loading="lazy"
               onError={(e) => { e.target.src = fallbackImg; }}
             />
           ))}

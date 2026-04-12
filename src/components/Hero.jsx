@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Hero.css';
-import heroImg from '../imgs/hero.png';
+const heroImg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/hero.png';
 
 const Hero = () => {
   const navigate = useNavigate();

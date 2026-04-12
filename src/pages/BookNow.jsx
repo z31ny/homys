@@ -74,7 +74,7 @@ const BookNow = () => {
         {locations.map((loc, idx) => (
           <div key={idx} className="location-card" onClick={() => handleLocationClick(loc.name)}>
             <div className="loc-img-wrap">
-              <img src={loc.img} alt={loc.name} />
+              <img src={loc.img} alt={loc.name} loading="lazy" />
               <div className="loc-overlay">
                 <h3 className="libre">{loc.name}</h3>
                 <span className="encode">{loc.desc}</span>

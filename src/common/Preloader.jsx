@@ -5,10 +5,23 @@ const Preloader = () => {
   const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsDone(true);
-    }, 1200); 
-    return () => clearTimeout(timer);
+    // Wait for actual page readiness, not a fixed timer
+    const onReady = () => {
+      // Small delay after load to let paint settle
+      setTimeout(() => setIsDone(true), 300);
+    };
+
+    if (document.readyState === 'complete') {
+      onReady();
+    } else {
+      window.addEventListener('load', onReady);
+      // Safety fallback — never show preloader for more than 4 seconds
+      const fallback = setTimeout(() => setIsDone(true), 4000);
+      return () => {
+        window.removeEventListener('load', onReady);
+        clearTimeout(fallback);
+      };
+    }
   }, []);
 
   return (

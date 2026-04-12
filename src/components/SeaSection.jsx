@@ -8,7 +8,7 @@ const SeaSection = () => {
 
   return (
     <section className="sea-section">
-      <video className="sea-video-bg" autoPlay muted loop playsInline>
+      <video className="sea-video-bg" autoPlay muted loop playsInline preload="none">
         <source src={seaVid} type="video/mp4" />
       </video>
       <div className="sea-overlay"></div>

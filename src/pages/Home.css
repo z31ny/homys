@@ -4,12 +4,11 @@
     --main-font: 'Encode Sans Expanded', sans-serif;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Expanded:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 body {
     margin: 0;
     font-family: var(--main-font);
-    background-image: url('../imgs/bg.png'); 
+    background-image: url('https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/bg.jpg'); 
     background-attachment: fixed;
     background-size: cover;
     background-position: center;

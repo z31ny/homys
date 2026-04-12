@@ -8,8 +8,8 @@ import frame130 from '../imgs/Frame 130.png';
 import rect10 from '../imgs/Rectangle 10.png';
 import rect11 from '../imgs/Rectangle 11.png';
 import rect6 from '../imgs/Rectangle 6.png';
-import reccc from '../imgs/recc.png';
-import group14 from '../imgs/Group 14.png';
+const reccc = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1200/homys-static/recc.png';
+const group14 = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_800/homys-static/Group_14.png';
 
 const fallbackImg = frame125;
 

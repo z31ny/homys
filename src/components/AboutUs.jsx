@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AboutUs.css';
 
-import missionImg from '../imgs/Group 14.png';
+const missionImg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_800/homys-static/Group_14.png';
 import team1 from '../imgs/Rectangle 6.png';
 import team2 from '../imgs/Rectangle 9.png';
 import team3 from '../imgs/Rectangle 10.png';
 import team4 from '../imgs/Rectangle 11.png';
 import team5 from '../imgs/Rectangle 6.png';
 import team6 from '../imgs/Rectangle 9.png';
-import reccc from '../imgs/recc.png';
+const reccc = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1200/homys-static/recc.png';
 
 const Counter = ({ end, duration = 2000, suffix = "" }) => {
   const [count, setCount] = useState(0);
