@@ -115,6 +115,33 @@
 .status { font-size: 0.8rem; text-transform: uppercase; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
 .status.completed { background-color: #e8f5e9; color: #2e7d32; }
 .status.upcoming { background-color: #fff3e0; color: #ef6c00; }
+.status.pending { background-color: #fff8e1; color: #f9a825; }
+.status.confirmed { background-color: #e3f2fd; color: #1565c0; }
+.status.cancelled { background-color: #fce4ec; color: #c62828; }
+
+.cancel-booking-btn {
+  padding: 6px 18px;
+  background: transparent;
+  border: 1.5px solid #c62828;
+  color: #c62828;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-booking-btn:hover:not(:disabled) {
+  background: #c62828;
+  color: #fff;
+}
+
+.cancel-booking-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .animate-fade { animation: fadeIn 0.5s ease-in; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

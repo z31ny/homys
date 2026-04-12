@@ -41,6 +41,10 @@ const ListProperty = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const searchTimeoutRef = useRef(null);
 
   // Initialize Leaflet map
   useEffect(() => {
@@ -174,6 +178,42 @@ const ListProperty = () => {
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
+  };
+
+  const handleLocationSearch = (query) => {
+    setSearchQuery(query);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (query.trim().length < 3) {
+      setSearchResults([]);
+      return;
+    }
+    searchTimeoutRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=eg&accept-language=en`
+        );
+        const data = await res.json();
+        setSearchResults(data || []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 400);
+  };
+
+  const handleSelectSearchResult = (result) => {
+    const lat = parseFloat(result.lat);
+    const lng = parseFloat(result.lon);
+    const L = window.L;
+    const map = mapInstanceRef.current;
+    if (L && map) {
+      setPin(L, map, lat, lng);
+    }
+    setFormData((prev) => ({ ...prev, locationName: result.display_name }));
+    setSearchQuery(result.display_name);
+    setSearchResults([]);
   };
 
   const handleInputChange = (e) => {
@@ -475,8 +515,36 @@ const ListProperty = () => {
 
           <div className="form-section">
             <h2 className="libre">Set Location</h2>
-            <p className="encode section-desc">Click on the map to pin your property location, or use the button below to use your current location.</p>
+            <p className="encode section-desc">Search for a location, click on the map, or use current location to pin your property.</p>
             <div className="map-container-box">
+              <div className="map-search-wrapper">
+                <div className="map-search-input-row">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                  <input
+                    type="text"
+                    className="encode map-search-input"
+                    placeholder="Search for a location in Egypt..."
+                    value={searchQuery}
+                    onChange={(e) => handleLocationSearch(e.target.value)}
+                    autoComplete="off"
+                  />
+                  {searching && <span className="loc-spinner" style={{ marginRight: '8px' }}></span>}
+                </div>
+                {searchResults.length > 0 && (
+                  <div className="map-search-dropdown">
+                    {searchResults.map((result, idx) => (
+                      <div
+                        key={idx}
+                        className="map-search-result encode"
+                        onClick={() => handleSelectSearchResult(result)}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                        <span>{result.display_name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div ref={mapRef} id="leaflet-map" style={{ width: '100%', height: '400px', border: '2px solid #081621', borderRadius: '4px' }}></div>
               <div className="map-actions-row">
                 <button type="button" className="pin-loc-btn encode" onClick={handlePinCurrentLocation} disabled={locating}>

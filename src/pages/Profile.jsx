@@ -19,6 +19,7 @@ const Profile = () => {
   // Bookings state
   const [bookings, setBookings] = useState([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState(null);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -64,6 +65,21 @@ const Profile = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleCancelBooking = async (bookingId) => {
+    if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) return;
+    setCancellingId(bookingId);
+    try {
+      await bookingsAPI.cancel(bookingId);
+      setBookings((prev) =>
+        prev.map((b) => (b.id === bookingId ? { ...b, status: 'cancelled' } : b))
+      );
+    } catch (err) {
+      alert(err.message || 'Failed to cancel booking.');
+    } finally {
+      setCancellingId(null);
+    }
   };
 
   if (authLoading) {
@@ -155,7 +171,18 @@ const Profile = () => {
                         <p className="encode">{stay.checkIn} — {stay.checkOut}</p>
                         <div className="booking-footer">
                           <span className="price encode">${stay.totalPrice}</span>
-                          <span className={`status encode ${stay.status}`}>{stay.status}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span className={`status encode ${stay.status}`}>{stay.status}</span>
+                            {['pending', 'confirmed', 'upcoming'].includes(stay.status) && (
+                              <button
+                                className="cancel-booking-btn encode"
+                                onClick={() => handleCancelBooking(stay.id)}
+                                disabled={cancellingId === stay.id}
+                              >
+                                {cancellingId === stay.id ? 'Cancelling...' : 'Cancel'}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
