@@ -8,6 +8,7 @@ import Footer from './common/Footer';
 import Whatsapp from './common/Whatsapp';
 import Preloader from './common/Preloader';
 import ChatBot from './common/ChatBot';
+import ScrollToTop from './common/ScrollToTop';
 
 // Lazy-loaded pages — only downloaded when the user navigates to them
 const Home = lazy(() => import('./pages/Home'));
@@ -37,6 +38,7 @@ const Routing = () => {
   return (
     <Router>
       <AuthProvider>
+       <ScrollToTop />
        <Preloader/>
        <Nav/>
        <ChatBot/>
