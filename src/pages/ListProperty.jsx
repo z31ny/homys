@@ -161,6 +161,7 @@ const ListProperty = () => {
     }
 
     setLocating(true);
+    setError('');
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
@@ -173,34 +174,35 @@ const ListProperty = () => {
         setLocating(false);
       },
       (err) => {
-        setError(`Location error: ${err.message}. Please allow location access or pin manually on the map.`);
+        setError(`Location error: ${err.message}. Try searching for your location instead.`);
         setLocating(false);
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
-  const handleLocationSearch = (query) => {
-    setSearchQuery(query);
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    if (query.trim().length < 3) {
+  const handleLocationSearch = async () => {
+    if (searchQuery.trim().length < 2) return;
+    setSearching(true);
+    setSearchResults([]);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&accept-language=en`
+      );
+      const data = await res.json();
+      setSearchResults(data || []);
+    } catch {
       setSearchResults([]);
-      return;
+    } finally {
+      setSearching(false);
     }
-    searchTimeoutRef.current = setTimeout(async () => {
-      setSearching(true);
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=eg&accept-language=en`
-        );
-        const data = await res.json();
-        setSearchResults(data || []);
-      } catch {
-        setSearchResults([]);
-      } finally {
-        setSearching(false);
-      }
-    }, 400);
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleLocationSearch();
+    }
   };
 
   const handleSelectSearchResult = (result) => {
@@ -523,12 +525,15 @@ const ListProperty = () => {
                   <input
                     type="text"
                     className="encode map-search-input"
-                    placeholder="Search for a location in Egypt..."
+                    placeholder="Search for a location (e.g. Sahel, Gouna, Marassi)..."
                     value={searchQuery}
-                    onChange={(e) => handleLocationSearch(e.target.value)}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
                     autoComplete="off"
                   />
-                  {searching && <span className="loc-spinner" style={{ marginRight: '8px' }}></span>}
+                  <button type="button" className="map-search-btn encode" onClick={handleLocationSearch} disabled={searching || searchQuery.trim().length < 2}>
+                    {searching ? <span className="loc-spinner"></span> : 'Search'}
+                  </button>
                 </div>
                 {searchResults.length > 0 && (
                   <div className="map-search-dropdown">

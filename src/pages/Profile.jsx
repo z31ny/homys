@@ -20,6 +20,8 @@ const Profile = () => {
   const [bookings, setBookings] = useState([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState(null);
+  const [confirmCancelId, setConfirmCancelId] = useState(null);
+  const [cancelError, setCancelError] = useState('');
 
   // Redirect if not logged in
   useEffect(() => {
@@ -67,16 +69,19 @@ const Profile = () => {
     navigate('/login');
   };
 
-  const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) return;
+  const handleCancelBooking = async () => {
+    const bookingId = confirmCancelId;
+    if (!bookingId) return;
     setCancellingId(bookingId);
+    setCancelError('');
     try {
       await bookingsAPI.cancel(bookingId);
       setBookings((prev) =>
         prev.map((b) => (b.id === bookingId ? { ...b, status: 'cancelled' } : b))
       );
+      setConfirmCancelId(null);
     } catch (err) {
-      alert(err.message || 'Failed to cancel booking.');
+      setCancelError(err.message || 'Failed to cancel booking.');
     } finally {
       setCancellingId(null);
     }
@@ -176,10 +181,9 @@ const Profile = () => {
                             {['pending', 'confirmed', 'upcoming'].includes(stay.status) && (
                               <button
                                 className="cancel-booking-btn encode"
-                                onClick={() => handleCancelBooking(stay.id)}
-                                disabled={cancellingId === stay.id}
+                                onClick={() => { setConfirmCancelId(stay.id); setCancelError(''); }}
                               >
-                                {cancellingId === stay.id ? 'Cancelling...' : 'Cancel'}
+                                Cancel
                               </button>
                             )}
                           </div>
@@ -193,6 +197,42 @@ const Profile = () => {
           )}
         </main>
       </div>
+
+      {/* Cancel Confirmation Modal */}
+      {confirmCancelId && (
+        <div className="cancel-modal-overlay" onClick={() => { if (!cancellingId) setConfirmCancelId(null); }}>
+          <div className="cancel-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cancel-modal-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+            <h3 className="libre">Cancel Booking</h3>
+            <p className="encode">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            {cancelError && (
+              <div className="cancel-modal-error encode">{cancelError}</div>
+            )}
+            <div className="cancel-modal-actions">
+              <button
+                className="cancel-modal-btn confirm encode"
+                onClick={handleCancelBooking}
+                disabled={cancellingId}
+              >
+                {cancellingId ? 'Cancelling...' : 'Yes, Cancel Booking'}
+              </button>
+              <button
+                className="cancel-modal-btn dismiss encode"
+                onClick={() => setConfirmCancelId(null)}
+                disabled={cancellingId}
+              >
+                Keep Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
