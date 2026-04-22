@@ -1,135 +1,175 @@
-import React from 'react';
-import { 
-  TrendingUp, DollarSign, BarChart3, Percent, Users, MessageSquare 
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { TrendingUp, DollarSign, Percent, Users } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend
+  LineChart, Line,
 } from 'recharts';
+import { adminAPI } from '../../services/api';
 import './Analytics.css';
 
-// --- Static Data ---
-const barData = [
-  { name: 'Sahel', value: 185000 },
-  { name: 'Cairo', value: 142000 },
-  { name: 'Gouna', value: 98000 },
-  { name: 'Red Sea', value: 125000 },
-];
-
-const pieData = [
-  { name: 'Direct', value: 45, color: '#c4a369' },
-  { name: 'Booking.com', value: 30, color: '#1b2533' },
-  { name: 'Airbnb', value: 25, color: '#4caf82' },
-];
-
-const lineData = [
-  { month: 'Jan', revenue: 380000 },
-  { month: 'Feb', revenue: 410000 },
-  { month: 'Mar', revenue: 440000 },
-  { month: 'Apr', revenue: 470000 },
-  { month: 'May', revenue: 510000 },
-  { month: 'Jun', revenue: 540000 },
-];
-
-const topProperties = [
-  { rank: 1, name: 'Beachfront Villa - Sahel', revenue: 'EGP 95,000', bookings: 38 },
-  { rank: 2, name: 'Luxury Penthouse - Cairo', revenue: 'EGP 88,000', bookings: 28 },
-  { rank: 3, name: 'Marina View - Gouna', revenue: 'EGP 76,000', bookings: 36 },
-  { rank: 4, name: 'Red Sea Resort Chalet', revenue: 'EGP 72,000', bookings: 26 },
-  { rank: 5, name: 'Sahel Chalet Deluxe', revenue: 'EGP 68,000', bookings: 19 },
-];
-
 const Analytics = () => {
+  const [stats, setStats] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      adminAPI.getStats(),
+      adminAPI.getBookings({ limit: 50 }),
+      adminAPI.getProperties({ limit: 50 }),
+    ])
+      .then(([statsRes, bookingsRes, propertiesRes]) => {
+        setStats(statsRes.data);
+        setBookings(bookingsRes.data.bookings || []);
+        setProperties(propertiesRes.data.properties || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="analytics-container">
+        <p style={{ padding: '60px', opacity: 0.6 }}>Loading analytics...</p>
+      </div>
+    );
+  }
+
+  // Revenue by location from real bookings
+  const locationRevMap = {};
+  bookings.forEach((b) => {
+    const loc = b.propertyLocation || 'Other';
+    const key = loc.split(',')[0].trim().slice(0, 14);
+    locationRevMap[key] = (locationRevMap[key] || 0) + parseFloat(b.totalPrice || 0);
+  });
+  const barData = Object.entries(locationRevMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([name, value]) => ({ name, value: Math.round(value) }));
+
+  // Monthly revenue trend from real bookings
+  const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthMap = {};
+  bookings.forEach((b) => {
+    const d = new Date(b.createdAt || b.checkIn);
+    if (!isNaN(d)) {
+      const key = d.toLocaleString('en-US', { month: 'short' });
+      monthMap[key] = (monthMap[key] || 0) + parseFloat(b.totalPrice || 0);
+    }
+  });
+  const lineData = monthOrder
+    .filter((m) => monthMap[m])
+    .map((month) => ({ month, revenue: Math.round(monthMap[month]) }));
+
+  // Top properties by revenue
+  const propMap = {};
+  bookings.forEach((b) => {
+    const title = b.propertyTitle || 'Unknown';
+    if (!propMap[title]) propMap[title] = { bookings: 0, revenue: 0 };
+    propMap[title].bookings += 1;
+    propMap[title].revenue += parseFloat(b.totalPrice || 0);
+  });
+  const topProperties = Object.entries(propMap)
+    .sort((a, b) => b[1].revenue - a[1].revenue)
+    .slice(0, 5)
+    .map(([name, data], idx) => ({
+      rank: idx + 1,
+      name,
+      revenue: `$${Math.round(data.revenue).toLocaleString()}`,
+      bookings: data.bookings,
+    }));
+
+  const totalRevenue = stats?.totalRevenue || 0;
+  const totalBookings = stats?.totalBookings || 0;
+  const totalUsers = stats?.totalUsers || 0;
+  const avgNightly = properties.length
+    ? (properties.reduce((s, p) => s + parseFloat(p.pricePerNight || 0), 0) / properties.length).toFixed(0)
+    : 0;
+
   return (
     <div className="analytics-container">
-      {/* Top Stat Cards */}
       <div className="analytics-stats-grid">
-        <StatCard title="TOTAL REVENUE" value="EGP 485K" trend="+ 15.2%" icon={<DollarSign size={20}/>} />
-        <StatCard title="AVG NIGHTLY RATE" value="EGP 2,450" trend="+ 5.8%" icon={<TrendingUp size={20}/>} />
-        <StatCard title="AVG OCCUPANCY" value="84%" trend="+ 8.5%" icon={<Percent size={20}/>} />
-        <StatCard title="NEW GUESTS" value="142" trend="+ 12.3%" icon={<Users size={20}/>} />
+        <StatCard title="TOTAL REVENUE" value={`$${Math.round(totalRevenue).toLocaleString()}`} sub={`${totalBookings} total bookings`} icon={<DollarSign size={20} />} />
+        <StatCard title="AVG NIGHTLY RATE" value={`$${avgNightly}`} sub="across approved listings" icon={<TrendingUp size={20} />} />
+        <StatCard title="ACTIVE STAYS" value={stats?.activeStays ?? 0} sub="confirmed + upcoming" icon={<Percent size={20} />} />
+        <StatCard title="TOTAL USERS" value={totalUsers} sub="registered accounts" icon={<Users size={20} />} />
       </div>
 
-      {/* Middle Row: Bar & Pie */}
-      <div className="analytics-charts-row">
-        <div className="analytics-chart-box">
-          <h3 className="analytics-chart-title">Revenue by Location</h3>
-          <div className="analytics-chart-wrapper">
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={barData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#999', fontSize: 12}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#999', fontSize: 12}} />
-                <Tooltip cursor={{fill: 'transparent'}} />
-                <Bar dataKey="value" fill="#c4a369" radius={[4, 4, 0, 0]} barSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
+      {barData.length > 0 ? (
+        <div className="analytics-charts-row">
+          <div className="analytics-chart-box">
+            <h3 className="analytics-chart-title">Revenue by Location</h3>
+            <div className="analytics-chart-wrapper">
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={barData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#999', fontSize: 11 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#999', fontSize: 11 }} />
+                  <Tooltip cursor={{ fill: 'transparent' }} formatter={(v) => [`$${v.toLocaleString()}`, 'Revenue']} />
+                  <Bar dataKey="value" fill="#c4a369" radius={[4, 4, 0, 0]} barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
 
-        <div className="analytics-chart-box">
-          <h3 className="analytics-chart-title">Booking Source</h3>
-          <div className="analytics-chart-wrapper">
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={pieData} innerRadius={0} outerRadius={80} paddingAngle={0} dataKey="value">
-                  {pieData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {lineData.length > 1 && (
+            <div className="analytics-chart-box">
+              <h3 className="analytics-chart-title">Revenue Trend</h3>
+              <div className="analytics-chart-wrapper">
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={lineData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#999', fontSize: 12 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#999', fontSize: 12 }} />
+                    <Tooltip formatter={(v) => [`$${v.toLocaleString()}`, 'Revenue']} />
+                    <Line type="monotone" dataKey="revenue" stroke="#1b2533" strokeWidth={3} dot={{ r: 4, fill: '#1b2533' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Monthly Revenue Trend (Full Width) */}
-      <div className="analytics-chart-box full-width">
-        <h3 className="analytics-chart-title">Monthly Revenue Trend</h3>
-        <div className="analytics-chart-wrapper">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={lineData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#999', fontSize: 12}} />
-              <YAxis axisLine={false} tickLine={false} tick={{fill: '#999', fontSize: 12}} />
-              <Tooltip />
-              <Legend verticalAlign="bottom" height={36} iconType="circle" />
-              <Line type="monotone" dataKey="revenue" stroke="#1b2533" strokeWidth={3} dot={{r: 4, fill: '#1b2533'}} />
-            </LineChart>
-          </ResponsiveContainer>
+      ) : (
+        <div className="analytics-chart-box" style={{ padding: '50px', textAlign: 'center' }}>
+          <p style={{ opacity: 0.5 }}>Revenue charts will appear once bookings are recorded.</p>
         </div>
-      </div>
+      )}
 
-      {/* Bottom Table */}
       <div className="analytics-table-card">
-        <h3 className="analytics-chart-title">Top 5 Highest-Earning Properties</h3>
-        <div className="analytics-table-responsive">
-          <table className="analytics-table">
-            <thead>
-              <tr>
-                <th>RANK</th>
-                <th>PROPERTY</th>
-                <th>TOTAL REVENUE</th>
-                <th>TOTAL BOOKINGS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topProperties.map((prop, idx) => (
-                <tr key={prop.rank} className={idx % 2 !== 0 ? 'analytics-alt-row' : ''}>
-                  <td><span className="analytics-rank-badge">{prop.rank}</span></td>
-                  <td className="analytics-prop-name">{prop.name}</td>
-                  <td className="analytics-prop-val">{prop.revenue}</td>
-                  <td>{prop.bookings}</td>
+        <h3 className="analytics-chart-title">Top Highest-Earning Properties</h3>
+        {topProperties.length === 0 ? (
+          <p style={{ padding: '30px', opacity: 0.5 }}>No booking data yet.</p>
+        ) : (
+          <div className="analytics-table-responsive">
+            <table className="analytics-table">
+              <thead>
+                <tr>
+                  <th>RANK</th>
+                  <th>PROPERTY</th>
+                  <th>TOTAL REVENUE</th>
+                  <th>TOTAL BOOKINGS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {topProperties.map((prop, idx) => (
+                  <tr key={prop.rank} className={idx % 2 !== 0 ? 'analytics-alt-row' : ''}>
+                    <td><span className="analytics-rank-badge">{prop.rank}</span></td>
+                    <td className="analytics-prop-name">{prop.name}</td>
+                    <td className="analytics-prop-val">{prop.revenue}</td>
+                    <td>{prop.bookings}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-
     </div>
   );
 };
 
-const StatCard = ({ title, value, trend, icon }) => (
+const StatCard = ({ title, value, sub, icon }) => (
   <div className="analytics-stat-card">
     <div className="analytics-stat-card-header">
       <div className="analytics-stat-text">
@@ -138,11 +178,11 @@ const StatCard = ({ title, value, trend, icon }) => (
       </div>
       <div className="analytics-stat-icon">{icon}</div>
     </div>
-    <div className="analytics-stat-trend">
-      <TrendingUp size={14} className="analytics-trend-icon" />
-      <span className="analytics-trend-val">{trend}</span>
-      <span className="analytics-trend-sub">vs last month</span>
-    </div>
+    {sub && (
+      <div className="analytics-stat-trend">
+        <span className="analytics-trend-sub">{sub}</span>
+      </div>
+    )}
   </div>
 );
 

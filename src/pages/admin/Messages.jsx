@@ -1,37 +1,102 @@
-import React, { useState } from 'react';
-import { Plus, Search, Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { adminAPI } from '../../services/api';
 import './Messages.css';
 
-const conversations = [
-  { id: 1, name: 'Ahmed Hassan', initials: 'AH', time: '10:32 AM', preview: 'Thank you for the quick response!', unread: 0, active: true },
-  { id: 2, name: 'Sara Mansour', initials: 'SM', time: '9:15 AM', preview: 'Is early check-in available?', unread: 2 },
-  { id: 3, name: 'Mohamed Ali', initials: 'MA', time: 'Yesterday', preview: 'The booking confirmation looks go', unread: 0 },
-  { id: 4, name: 'Nour Khalil', initials: 'NK', time: 'Yesterday', preview: 'I have a question about parkin', unread: 1 },
-  { id: 5, name: 'Layla Ibrahim', initials: 'LI', time: '2 days ago', preview: 'See you then!', unread: 0 },
-];
-
+/**
+ * Messages page — shows real contact form submissions saved to the DB.
+ * A real-time messaging system (WebSocket/third-party) is outside the current scope.
+ * This surfaces every inquiry submitted via the Contact Us page so the admin
+ * can see what users asked and reply to them by email.
+ */
 const Messages = () => {
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState(null);
   const [search, setSearch] = useState('');
-  const [activeChat, setActiveChat] = useState(conversations[0]);
 
-  const filteredConversations = conversations.filter(chat => 
-    chat.name.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    adminAPI.getContacts({ limit: 50 })
+      .then((res) => {
+        const contacts = res.data.contacts || [];
+        setSubmissions(contacts);
+        if (contacts.length) setActive(contacts[0]);
+      })
+      .catch(() => setSubmissions([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = submissions.filter((s) => {
+    const q = search.toLowerCase();
+    return (
+      !q ||
+      (s.name || '').toLowerCase().includes(q) ||
+      (s.email || '').toLowerCase().includes(q) ||
+      (s.message || '').toLowerCase().includes(q)
+    );
+  });
+
+  const initials = (name) =>
+    (name || 'U')
+      .split(' ')
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+  const formatTime = (dateStr) => {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return '';
+    const now = new Date();
+    const diffDays = Math.floor((now - d) / 86400000);
+    if (diffDays === 0)
+      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    if (diffDays === 1) return 'Yesterday';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  if (loading) {
+    return (
+      <div className="messages-container" style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ opacity: 0.6 }}>Loading messages...</p>
+      </div>
+    );
+  }
+
+  if (submissions.length === 0) {
+    return (
+      <div
+        className="messages-container"
+        style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}
+      >
+        <h3 style={{ color: '#112a3d' }}>No contact inquiries yet</h3>
+        <p style={{ opacity: 0.5, fontSize: '0.9rem' }}>
+          Submissions from the Contact Us form will appear here.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="messages-container">
-      {/* --- Left Sidebar: Conversation List --- */}
+      {/* ── Sidebar ── */}
       <div className="msgs-sidebar">
         <div className="msgs-sidebar-header">
-          <button className="msgs-new-btn">
-            <Plus size={20} />
-            <span>New Message</span>
-          </button>
           <div className="msgs-search-bar">
-            <Search size={18} className="msgs-search-icon" />
-            <input 
-              type="text" 
-              placeholder="Search conversations..." 
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{ flexShrink: 0, opacity: 0.5 }}
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search messages..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -39,74 +104,78 @@ const Messages = () => {
         </div>
 
         <div className="msgs-list">
-          {filteredConversations.length > 0 ? (
-            filteredConversations.map((chat) => (
-              <div 
-                key={chat.id} 
-                className={`msgs-item ${chat.id === activeChat.id ? 'active' : ''}`}
-                onClick={() => setActiveChat(chat)}
+          {filtered.length === 0 ? (
+            <p style={{ padding: '20px', opacity: 0.5, fontSize: '0.85rem' }}>No results</p>
+          ) : (
+            filtered.map((s) => (
+              <div
+                key={s.id}
+                className={`msgs-item ${active?.id === s.id ? 'active' : ''}`}
+                onClick={() => setActive(s)}
               >
-                <div className="msgs-avatar">{chat.initials}</div>
+                <div className="msgs-avatar">{initials(s.name)}</div>
                 <div className="msgs-info">
                   <div className="msgs-top-row">
-                    <span className="msgs-name">{chat.name}</span>
-                    <span className="msgs-time">{chat.time}</span>
+                    <span className="msgs-name">{s.name}</span>
+                    <span className="msgs-time">{formatTime(s.createdAt)}</span>
                   </div>
                   <div className="msgs-bottom-row">
-                    <p className="msgs-preview">{chat.preview}</p>
-                    {chat.unread > 0 && <span className="msgs-unread-badge">{chat.unread}</span>}
+                    <p className="msgs-preview">
+                      {(s.message || '').slice(0, 42)}
+                      {s.message?.length > 42 ? '…' : ''}
+                    </p>
                   </div>
                 </div>
               </div>
             ))
-          ) : (
-            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '14px' }}>
-              No matches found
-            </div>
           )}
         </div>
       </div>
 
-      {/* --- Right Section: Active Chat Window --- */}
+      {/* ── Chat window ── */}
       <div className="msgs-chat-window">
-        {activeChat ? (
+        {active ? (
           <>
             <div className="msgs-chat-header">
-              <div className="msgs-avatar msgs-header-avatar">{activeChat.initials}</div>
+              <div className="msgs-avatar msgs-header-avatar">{initials(active.name)}</div>
               <div className="msgs-header-info">
-                <h3>{activeChat.name}</h3>
-                <span className="msgs-status">Active now</span>
+                <h3>{active.name}</h3>
+                <span className="msgs-status">
+                  {active.email}
+                  {active.phone ? ` · ${active.phone}` : ''}
+                </span>
               </div>
             </div>
 
             <div className="msgs-chat-body">
               <div className="msgs-bubble-row msgs-incoming">
                 <div className="msgs-bubble">
-                  Hello! I am interested in booking the Beachfront Villa for next weekend.
-                  <span className="msgs-bubble-time">10:15 AM</span>
-                </div>
-              </div>
-
-              <div className="msgs-bubble-row msgs-outgoing">
-                <div className="msgs-bubble">
-                  Hello Ahmed! Thank you for your interest. The Beachfront Villa is available for next weekend. Would you like to proceed with the booking?
-                  <span className="msgs-bubble-time">10:18 AM</span>
+                  {active.message}
+                  <span className="msgs-bubble-time">{formatTime(active.createdAt)}</span>
                 </div>
               </div>
             </div>
 
             <div className="msgs-input-area">
-              <div className="msgs-input-wrapper">
-                <input type="text" placeholder="Type your message..." />
-                <button className="msgs-send-btn">
-                  <Send size={18} fill="currentColor" />
-                </button>
-              </div>
+              <p style={{ padding: '16px 20px', opacity: 0.5, fontSize: '0.85rem', fontStyle: 'italic' }}>
+                Reply to this inquiry by emailing{' '}
+                <a href={`mailto:${active.email}`} style={{ color: '#c4a369', fontWeight: 700 }}>
+                  {active.email}
+                </a>
+              </p>
             </div>
           </>
         ) : (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-            Select a conversation to start chatting
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 0.5,
+            }}
+          >
+            Select a message to view
           </div>
         )}
       </div>

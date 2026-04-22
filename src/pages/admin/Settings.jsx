@@ -1,84 +1,61 @@
 import React, { useState } from 'react';
-import { 
-  Building2, Bell, Users, Palette, Plug, 
-  Save, Plus, Check, Globe, Shield, MessageSquare 
-} from 'lucide-react';
+import { Building2, Users, Plug, Check, Globe, Shield, MessageSquare } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import './Settings.css';
 
+/**
+ * Settings page — only shows tabs that have actual functionality.
+ *
+ * REMOVED: Appearance (no theme system), Notifications (no notification backend).
+ *
+ * General     — read-only platform info (no settings DB table exists; editing here
+ *               would need a new backend table, which is out of current scope).
+ *               Displayed as reference info only.
+ * Team        — links to the Guests admin page where real user data lives.
+ * Integrations — shows the real services wired into the platform and their status.
+ */
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('General');
+  const navigate = useNavigate();
 
   const menuItems = [
-    { id: 'General', icon: <Building2 size={20} /> },
-    { id: 'Notifications', icon: <Bell size={20} /> },
-    { id: 'Team', icon: <Users size={20} /> },
-    { id: 'Appearance', icon: <Palette size={20} /> },
+    { id: 'General',      icon: <Building2 size={20} /> },
+    { id: 'Team',         icon: <Users size={20} /> },
     { id: 'Integrations', icon: <Plug size={20} /> },
   ];
 
   const renderContent = () => {
     switch (activeTab) {
+
       case 'General':
         return (
           <div className="settings-panel-content">
-            <h2 className="settings-panel-title">General Settings</h2>
+            <h2 className="settings-panel-title">Platform Information</h2>
+            <p className="settings-panel-desc" style={{ marginBottom: 24 }}>
+              This is the current contact and operational info for the Homys platform.
+              To update these details, change them directly in your codebase or contact page content.
+            </p>
             <div className="settings-form">
-              <div className="settings-field-group">
-                <label>Platform Name</label>
-                <input type="text" defaultValue="HOMYS" />
-              </div>
-              <div className="settings-field-group">
-                <label>Contact Email</label>
-                <input type="email" defaultValue="hello@homys.com" />
-              </div>
-              <div className="settings-field-group">
-                <label>Support Phone</label>
-                <input type="text" defaultValue="+20 123 406 789" />
-              </div>
-              <div className="settings-field-group">
-                <label>Office Address</label>
-                <input type="text" defaultValue="123 Coastal Drive, North Coast, Alexandria" />
-              </div>
-              <div className="settings-field-group">
-                <label>Working Hours</label>
-                <input type="text" defaultValue="Sat–Thu 9:00AM–6:00PM, Friday Closed" />
-              </div>
-              <div className="settings-field-group">
-                <label>Social Links</label>
-                <div className="settings-social-inputs">
-                  <input type="text" placeholder="Instagram URL" />
-                  <input type="text" placeholder="Facebook URL" />
-                  <input type="text" placeholder="LinkedIn URL" />
-                </div>
-              </div>
-              <button className="settings-save-btn">Save Changes</button>
-            </div>
-          </div>
-        );
-
-      case 'Notifications':
-        return (
-          <div className="settings-panel-content">
-            <h2 className="settings-panel-title">Notifications</h2>
-            <p className="settings-panel-desc">Configure how you receive alerts and updates.</p>
-            <div className="settings-toggle-container">
               {[
-                { t: "Email Notifications", d: "Receive daily reports and booking alerts." },
-                { t: "SMS Alerts", d: "Get text messages for urgent guest inquiries." },
-                { t: "Push Notifications", d: "Show desktop alerts for new messages." },
-                { t: "System Updates", d: "Notify me about platform maintenance." }
-              ].map((item, i) => (
-                <div className="settings-toggle-row" key={i}>
-                  <div className="settings-toggle-text">
-                    <strong>{item.t}</strong>
-                    <p>{item.d}</p>
-                  </div>
-                  <label className="settings-ios-switch">
-                    <input type="checkbox" defaultChecked={i % 2 === 0} />
-                    <span className="settings-slider round"></span>
-                  </label>
+                { label: 'Platform Name',  value: 'HOMYS' },
+                { label: 'Support Email',  value: 'hello@homys.com' },
+                { label: 'Support Phone',  value: '+20 123 456 789' },
+                { label: 'Office Address', value: '123 Coastal Drive, North Coast, Alexandria' },
+                { label: 'Working Hours',  value: 'Sat–Thu 9:00 AM – 6:00 PM  ·  Friday Closed' },
+              ].map(({ label, value }) => (
+                <div className="settings-field-group" key={label}>
+                  <label>{label}</label>
+                  <input
+                    type="text"
+                    defaultValue={value}
+                    readOnly
+                    style={{ opacity: 0.7, cursor: 'default', background: '#f5f2ec' }}
+                  />
                 </div>
               ))}
+              <p style={{ fontSize: '0.8rem', opacity: 0.5, marginTop: 8 }}>
+                A platform settings table is not yet implemented. These values are display-only.
+              </p>
             </div>
           </div>
         );
@@ -86,75 +63,99 @@ const Settings = () => {
       case 'Team':
         return (
           <div className="settings-panel-content">
-            <div className="settings-panel-header">
-              <h2 className="settings-panel-title">Team Management</h2>
-              <button className="settings-outline-btn"><Plus size={16}/> Invite Member</button>
+            <h2 className="settings-panel-title">Team Management</h2>
+            <p className="settings-panel-desc">
+              All registered users and their roles are managed in the{' '}
+              <strong>Guests</strong> section. To grant or revoke admin access,
+              update the <code>is_admin</code> flag directly in your Neon database:
+            </p>
+            <div
+              style={{
+                background: '#1b2533',
+                color: '#c4a369',
+                padding: '16px 20px',
+                borderRadius: 10,
+                fontFamily: 'monospace',
+                fontSize: '0.85rem',
+                margin: '20px 0',
+                lineHeight: 1.7,
+              }}
+            >
+              {'-- Grant admin access'}
+              <br />
+              {"UPDATE users SET is_admin = true WHERE email = 'user@email.com';"}
+              <br />
+              <br />
+              {'-- Revoke admin access'}
+              <br />
+              {"UPDATE users SET is_admin = false WHERE email = 'user@email.com';"}
             </div>
-            <div className="settings-team-grid">
-              {[
-                { n: "Admin User", r: "Super Admin", s: "Active" },
-                { n: "Sara Mansour", r: "Manager", s: "Active" },
-                { n: "Nour Khalil", r: "Support", s: "Offline" }
-              ].map((user, i) => (
-                <div className="settings-member-card" key={i}>
-                  <div className="settings-member-avatar">{user.n.charAt(0)}</div>
-                  <div className="settings-member-info">
-                    <strong>{user.n}</strong>
-                    <span>{user.r}</span>
-                  </div>
-                  <div className={`settings-status-dot ${user.s.toLowerCase()}`}>{user.s}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 'Appearance':
-        return (
-          <div className="settings-panel-content">
-            <h2 className="settings-panel-title">Appearance</h2>
-            <div className="settings-appearance-grid">
-              <div className="settings-section">
-                <label className="settings-section-label">Theme Mode</label>
-                <div className="settings-theme-options">
-                  <div className="settings-theme-box active">Light</div>
-                  <div className="settings-theme-box">Dark</div>
-                  <div className="settings-theme-box">System</div>
-                </div>
-              </div>
-              <div className="settings-section">
-                <label className="settings-section-label">Accent Color</label>
-                <div className="settings-color-swatches">
-                  <div className="settings-swatch gold active"></div>
-                  <div className="settings-swatch navy"></div>
-                  <div className="settings-swatch green"></div>
-                  <div className="settings-swatch grey"></div>
-                </div>
-              </div>
-            </div>
+            <button
+              className="settings-save-btn"
+              onClick={() => navigate('/admin/guests')}
+              style={{ marginTop: 8 }}
+            >
+              Go to Guests Page
+            </button>
           </div>
         );
 
       case 'Integrations':
         return (
           <div className="settings-panel-content">
-            <h2 className="settings-panel-title">Integrations</h2>
-            <p className="settings-panel-desc">Connect HOMYS with your favorite tools.</p>
+            <h2 className="settings-panel-title">Active Integrations</h2>
+            <p className="settings-panel-desc">
+              All third-party services currently wired into the Homys platform.
+            </p>
             <div className="settings-int-grid">
               {[
-                { name: 'Stripe', desc: 'Secure payment processing', icon: <Shield />, active: true },
-                { name: 'WhatsApp', desc: 'Guest communication', icon: <MessageSquare />, active: true },
-                { name: 'Google Cal', desc: 'Sync your bookings', icon: <Globe />, active: false },
-                { name: 'Mailchimp', desc: 'Marketing automation', icon: <Check />, active: false }
-              ].map((int, i) => (
-                <div className="settings-int-card" key={i}>
+                {
+                  name: 'Cloudinary',
+                  desc: 'Property image hosting, CDN delivery, and auto-format (WebP/AVIF). Cloud: dzpswgjsm.',
+                  icon: <Check />,
+                  active: true,
+                },
+                {
+                  name: 'Resend',
+                  desc: 'Transactional email for password reset. Awaiting custom domain verification for full send capability.',
+                  icon: <MessageSquare />,
+                  active: true,
+                  warning: true,
+                },
+                {
+                  name: 'Neon DB',
+                  desc: 'PostgreSQL serverless database via Drizzle ORM. 11 tables, fully migrated.',
+                  icon: <Shield />,
+                  active: true,
+                },
+                {
+                  name: 'Vercel',
+                  desc: 'Frontend and backend (serverless functions) deployment. Live at homys-eta.vercel.app.',
+                  icon: <Globe />,
+                  active: true,
+                },
+                {
+                  name: 'Paymob',
+                  desc: 'Payment gateway integration. Awaiting API keys from stakeholders.',
+                  icon: <Globe />,
+                  active: false,
+                },
+              ].map((int) => (
+                <div className="settings-int-card" key={int.name}>
                   <div className="settings-int-icon">{int.icon}</div>
                   <div className="settings-int-meta">
                     <strong>{int.name}</strong>
                     <p>{int.desc}</p>
                   </div>
-                  <button className={int.active ? 'settings-int-btn connected' : 'settings-int-btn'}>
-                    {int.active ? 'Connected' : 'Connect'}
+                  <button
+                    className={`settings-int-btn ${int.active ? 'connected' : ''}`}
+                    style={
+                      int.warning
+                        ? { borderColor: '#f9a825', color: '#f9a825' }
+                        : {}
+                    }
+                  >
+                    {int.active ? (int.warning ? 'Partial' : 'Active') : 'Pending'}
                   </button>
                 </div>
               ))}
@@ -162,17 +163,17 @@ const Settings = () => {
           </div>
         );
 
-      default: return null;
+      default:
+        return null;
     }
   };
 
   return (
     <div className="settings-page-wrapper">
       <div className="settings-main-container">
-        {/* Sub-Sidebar Nav */}
         <nav className="settings-subnav">
           {menuItems.map((item) => (
-            <button 
+            <button
               key={item.id}
               className={`settings-subnav-btn ${activeTab === item.id ? 'active' : ''}`}
               onClick={() => setActiveTab(item.id)}
@@ -183,10 +184,7 @@ const Settings = () => {
           ))}
         </nav>
 
-        {/* Dynamic Content Panel */}
-        <main className="settings-content-panel">
-          {renderContent()}
-        </main>
+        <main className="settings-content-panel">{renderContent()}</main>
       </div>
     </div>
   );

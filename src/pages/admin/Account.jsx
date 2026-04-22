@@ -1,54 +1,84 @@
 import React, { useState } from 'react';
-import { 
-  Camera, Mail, Phone, MapPin, Shield, 
-  Key, Globe, LogOut, CheckCircle, User
-} from 'lucide-react';
+import { Camera, Mail, Phone, MapPin, Shield, LogOut, CheckCircle, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Account.css';
 
 const Account = () => {
+  const { user, updateProfile, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Personal');
+
+  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [country, setCountry] = useState(user?.country || '');
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveMsg('');
+    try {
+      await updateProfile({ fullName, phone, country });
+      setSaveMsg('Profile updated successfully!');
+      setTimeout(() => setSaveMsg(''), 3000);
+    } catch (err) {
+      setSaveMsg(err.message || 'Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const initials = (name) =>
+    (name || 'AD')
+      .split(' ')
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
 
   return (
     <div className="profile-container">
-      {/* Hero / Cover Section */}
       <div className="profile-hero">
         <div className="cover-photo"></div>
         <div className="profile-header-main">
           <div className="avatar-wrapper">
-            <div className="main-avatar">AD</div>
-            <button className="edit-avatar-btn">
-              <Camera size={18} />
-            </button>
+            <div className="main-avatar">{initials(user?.fullName)}</div>
           </div>
           <div className="user-intro">
-            <h1 className="profile-name">Admin User</h1>
-            <p className="profile-role">Super Admin • Joined Jan 2024</p>
+            <h1 className="profile-name">{user?.fullName || 'Admin'}</h1>
+            <p className="profile-role">Super Admin · {user?.email}</p>
           </div>
           <div className="profile-actions">
-            <button className="btn-secondary">View Public Profile</button>
-            <button className="btn-primary">Save Changes</button>
+            <button className="btn-primary" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
         </div>
       </div>
 
       <div className="profile-content-grid">
-        {/* Left Sidebar: Quick Stats/Menu */}
         <aside className="profile-sidebar">
           <div className="profile-nav-card">
-            <button 
+            <button
               className={`nav-btn ${activeTab === 'Personal' ? 'active' : ''}`}
               onClick={() => setActiveTab('Personal')}
             >
               <User size={20} /> Personal Info
             </button>
-            <button 
+            <button
               className={`nav-btn ${activeTab === 'Security' ? 'active' : ''}`}
               onClick={() => setActiveTab('Security')}
             >
               <Shield size={20} /> Security
             </button>
             <hr className="nav-divider" />
-            <button className="nav-btn logout-btn">
+            <button className="nav-btn logout-btn" onClick={handleLogout}>
               <LogOut size={20} /> Sign Out
             </button>
           </div>
@@ -57,44 +87,44 @@ const Account = () => {
             <h3>Account Status</h3>
             <div className="status-item">
               <CheckCircle size={16} color="var(--color-gold)" />
-              <span>Identity Verified</span>
+              <span>Admin Verified</span>
             </div>
             <div className="status-item">
               <CheckCircle size={16} color="var(--color-gold)" />
-              <span>2FA Enabled</span>
+              <span>Account Active</span>
             </div>
           </div>
         </aside>
 
-        {/* Right Section: Forms */}
         <main className="profile-main-form">
           {activeTab === 'Personal' ? (
             <div className="form-section">
               <h2 className="section-title">Personal Information</h2>
+              {saveMsg && (
+                <p style={{ color: saveMsg.includes('success') ? '#2e7d32' : '#c0392b', fontWeight: 700, marginBottom: 16, fontSize: '0.9rem' }}>
+                  {saveMsg}
+                </p>
+              )}
               <div className="form-grid">
                 <div className="input-box">
                   <label>Full Name</label>
-                  <input type="text" defaultValue="Admin User" />
+                  <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                 </div>
                 <div className="input-box">
-                  <label>Title / Role</label>
-                  <input type="text" defaultValue="Super Admin" />
+                  <label>Role</label>
+                  <input type="text" value="Super Admin" disabled style={{ opacity: 0.5 }} />
                 </div>
                 <div className="input-box">
-                  <label><Mail size={14}/> Email Address</label>
-                  <input type="email" defaultValue="admin@homys.com" />
+                  <label><Mail size={14} /> Email Address</label>
+                  <input type="email" value={user?.email || ''} disabled style={{ opacity: 0.5 }} />
                 </div>
                 <div className="input-box">
-                  <label><Phone size={14}/> Phone Number</label>
-                  <input type="text" defaultValue="+20 123 456 789" />
+                  <label><Phone size={14} /> Phone Number</label>
+                  <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+20 123 456 789" />
                 </div>
                 <div className="input-box full-width">
-                  <label><MapPin size={14}/> Location</label>
-                  <input type="text" defaultValue="Alexandria, Egypt" />
-                </div>
-                <div className="input-box full-width">
-                  <label>Short Bio</label>
-                  <textarea rows="4" defaultValue="Managing luxury properties across the North Coast with a focus on high-end guest experiences."></textarea>
+                  <label><MapPin size={14} /> Country</label>
+                  <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Egypt" />
                 </div>
               </div>
             </div>
@@ -105,26 +135,25 @@ const Account = () => {
                 <div className="security-item">
                   <div className="sec-info">
                     <strong>Change Password</strong>
-                    <p>Last updated 3 months ago</p>
+                    <p>Use the Forgot Password flow on the login page to reset your password securely.</p>
                   </div>
-                  <button className="btn-outline">Update</button>
+                  <button className="btn-outline" onClick={() => { logout(); navigate('/forget-password'); }}>
+                    Reset Password
+                  </button>
                 </div>
                 <div className="security-item">
                   <div className="sec-info">
-                    <strong>Two-Factor Authentication</strong>
-                    <p>Add an extra layer of security to your account.</p>
+                    <strong>Admin Privileges</strong>
+                    <p>Your account has full admin access to the Homys platform.</p>
                   </div>
-                  <label className="switch">
-                    <input type="checkbox" defaultChecked />
-                    <span className="slider round"></span>
-                  </label>
+                  <span style={{ fontSize: '0.8rem', color: '#4caf82', fontWeight: 700 }}>✓ Active</span>
                 </div>
                 <div className="security-item">
                   <div className="sec-info">
-                    <strong>Connected Devices</strong>
-                    <p>You are currently logged in on 2 devices.</p>
+                    <strong>Sign Out Everywhere</strong>
+                    <p>Log out of your current session immediately.</p>
                   </div>
-                  <button className="btn-outline">Manage</button>
+                  <button className="btn-outline" onClick={handleLogout}>Sign Out</button>
                 </div>
               </div>
             </div>

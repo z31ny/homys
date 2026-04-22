@@ -47,7 +47,6 @@ export const getAdminStats = async (req: Request, res: Response, next: NextFunct
       .select({ total: count() })
       .from(contactSubmissions);
 
-    // Active bookings (confirmed or upcoming)
     const [activeBookings] = await db
       .select({ total: count() })
       .from(bookings)
@@ -168,7 +167,6 @@ export const getAdminProperties = async (req: Request, res: Response, next: Next
       .limit(limit)
       .offset(offset);
 
-    // Fetch hero images
     const propertyIds = items.map((p) => p.id);
     let images: any[] = [];
     if (propertyIds.length > 0) {
@@ -268,6 +266,39 @@ export const getAdminUsers = async (req: Request, res: Response, next: NextFunct
       status: 'success',
       data: {
         users: items,
+        pagination: { page, limit, total: Number(total), totalPages: Math.ceil(Number(total) / limit) },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/admin/contacts
+ * Admin — list all contact form submissions.
+ */
+export const getAdminContacts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 50));
+    const offset = (page - 1) * limit;
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(contactSubmissions);
+
+    const items = await db
+      .select()
+      .from(contactSubmissions)
+      .orderBy(desc(contactSubmissions.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    res.json({
+      status: 'success',
+      data: {
+        contacts: items,
         pagination: { page, limit, total: Number(total), totalPages: Math.ceil(Number(total) / limit) },
       },
     });

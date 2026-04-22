@@ -16,7 +16,7 @@ export function setOnUnauthorized(callback) {
  */
 async function request(endpoint, options = {}, retries = 1) {
   const token = localStorage.getItem('homys_token');
-  
+
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -26,7 +26,7 @@ async function request(endpoint, options = {}, retries = 1) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // Add timeout (15 seconds) — edge case 10.12
+  // 15-second timeout (edge case 10.12)
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
 
@@ -40,13 +40,11 @@ async function request(endpoint, options = {}, retries = 1) {
     clearTimeout(timeoutId);
 
     // Global 401 interceptor — edge cases 1.6, 1.7
-    // Skip for auth endpoints (login/register) — they return 401 for invalid credentials
-    const isAuthEndpoint = endpoint.startsWith('/auth/login') || endpoint.startsWith('/auth/register');
+    const isAuthEndpoint =
+      endpoint.startsWith('/auth/login') || endpoint.startsWith('/auth/register');
     if (response.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('homys_token');
-      if (onUnauthorizedCallback) {
-        onUnauthorizedCallback();
-      }
+      if (onUnauthorizedCallback) onUnauthorizedCallback();
       const error = new Error('Session expired. Please log in again.');
       error.status = 401;
       throw error;
@@ -65,19 +63,14 @@ async function request(endpoint, options = {}, retries = 1) {
   } catch (err) {
     clearTimeout(timeoutId);
 
-    // Retry on network errors (not on 4xx/5xx) — edge case 10.12
     if (err.name === 'AbortError') {
-      if (retries > 0) {
-        return request(endpoint, options, retries - 1);
-      }
+      if (retries > 0) return request(endpoint, options, retries - 1);
       const error = new Error('Request timed out. Please check your connection and try again.');
       error.status = 0;
       throw error;
     }
 
-    // Network failure (offline, DNS, etc.)
     if (!err.status && err.name === 'TypeError' && retries > 0) {
-      // Wait 1 second then retry
       await new Promise((r) => setTimeout(r, 1000));
       return request(endpoint, options, retries - 1);
     }
@@ -90,10 +83,13 @@ async function request(endpoint, options = {}, retries = 1) {
 export const authAPI = {
   register: (body) => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
   login: (body) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
-  forgotPassword: (email) => request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
-  resetPassword: (token, password) => request('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) }),
+  forgotPassword: (email) =>
+    request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (token, password) =>
+    request('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) }),
   getMe: () => request('/auth/me'),
-  updateProfile: (body) => request('/auth/profile', { method: 'PATCH', body: JSON.stringify(body) }),
+  updateProfile: (body) =>
+    request('/auth/profile', { method: 'PATCH', body: JSON.stringify(body) }),
 };
 
 // ─── Properties ──────────────────────────────────────────
@@ -105,14 +101,18 @@ export const propertiesAPI = {
   getById: (id) => request(`/properties/${id}`),
   getMine: () => request('/properties/mine'),
   create: (body) => request('/properties', { method: 'POST', body: JSON.stringify(body) }),
-  update: (id, body) => request(`/properties/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  update: (id, body) =>
+    request(`/properties/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   delete: (id) => request(`/properties/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Bookings ────────────────────────────────────────────
 export const bookingsAPI = {
   create: (body) => request('/bookings', { method: 'POST', body: JSON.stringify(body) }),
-  list: () => request('/bookings'),
+  list: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/bookings${query ? `?${query}` : ''}`);
+  },
   getById: (id) => request(`/bookings/${id}`),
   cancel: (id) => request(`/bookings/${id}/cancel`, { method: 'PATCH' }),
 };
@@ -149,10 +149,17 @@ export const adminAPI = {
     return request(`/admin/properties${query ? `?${query}` : ''}`);
   },
   updatePropertyStatus: (id, status) =>
-    request(`/admin/properties/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+    request(`/admin/properties/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
   getUsers: (params = {}) => {
     const query = new URLSearchParams(params).toString();
     return request(`/admin/users${query ? `?${query}` : ''}`);
+  },
+  getContacts: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/admin/contacts${query ? `?${query}` : ''}`);
   },
   getPendingReviews: () => request('/reviews/pending'),
   approveReview: (id) => request(`/reviews/${id}/approve`, { method: 'PATCH' }),
