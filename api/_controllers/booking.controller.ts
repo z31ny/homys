@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, sql, desc, lt, count } from 'drizzle-orm';
-import { db } from '../db';
-import { bookings, bookingAddons, properties, payments } from '../db/schema';
-import { AppError } from '../middleware/errorHandler';
-import type { CreateBookingInput } from '../validators/booking';
+import { db } from '../_db';
+import { bookings, bookingAddons, properties, payments } from '../_db/schema';
+import { AppError } from '../_middleware/errorHandler';
+import type { CreateBookingInput } from '../_validators/booking';
 
 /**
  * POST /api/bookings

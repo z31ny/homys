@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, sql, desc, and, count } from 'drizzle-orm';
-import { db } from '../db';
+import { db } from '../_db';
 import {
   users,
   properties,
@@ -8,8 +8,8 @@ import {
   bookings,
   reviews,
   contactSubmissions,
-} from '../db/schema';
-import { AppError } from '../middleware/errorHandler';
+} from '../_db/schema';
+import { AppError } from '../_middleware/errorHandler';
 
 /**
  * GET /api/admin/stats

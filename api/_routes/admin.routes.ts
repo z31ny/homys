@@ -5,9 +5,9 @@ import {
   getAdminProperties,
   updatePropertyStatus,
   getAdminUsers,
-} from '../controllers/admin.controller';
-import { authenticate } from '../middleware/auth';
-import { requireAdmin } from '../middleware/requireAdmin';
+} from '../_controllers/admin.controller';
+import { authenticate } from '../_middleware/auth';
+import { requireAdmin } from '../_middleware/requireAdmin';
 
 const router = Router();
 

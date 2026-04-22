@@ -6,17 +6,17 @@ import {
   resetPassword,
   getMe,
   updateProfile,
-} from '../controllers/auth.controller';
-import { authenticate } from '../middleware/auth';
-import { validate } from '../middleware/validate';
-import { authLimiter } from '../middleware/rateLimit';
+} from '../_controllers/auth.controller';
+import { authenticate } from '../_middleware/auth';
+import { validate } from '../_middleware/validate';
+import { authLimiter } from '../_middleware/rateLimit';
 import {
   registerSchema,
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   updateProfileSchema,
-} from '../validators/auth';
+} from '../_validators/auth';
 
 const router = Router();
 

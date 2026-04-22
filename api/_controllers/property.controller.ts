@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, gte, lte, like, sql, desc } from 'drizzle-orm';
-import { db } from '../db';
-import { properties, propertyImages, propertyFeatures, bookings } from '../db/schema';
-import { AppError } from '../middleware/errorHandler';
-import type { CreatePropertyInput, UpdatePropertyInput } from '../validators/property';
+import { db } from '../_db';
+import { properties, propertyImages, propertyFeatures, bookings } from '../_db/schema';
+import { AppError } from '../_middleware/errorHandler';
+import type { CreatePropertyInput, UpdatePropertyInput } from '../_validators/property';
 
 /**
  * POST /api/properties

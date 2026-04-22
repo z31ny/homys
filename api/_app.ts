@@ -1,9 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import { config } from './config';
-import routes from './routes';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import { sanitizeInput } from './middleware/sanitize';
+import { config } from './_config';
+import routes from './_routes';
+import { errorHandler, notFoundHandler } from './_middleware/errorHandler';
+import { sanitizeInput } from './_middleware/sanitize';
 
 const app = express();
 

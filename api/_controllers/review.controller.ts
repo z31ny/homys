@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { db } from '../db';
-import { reviews, users, properties, bookings } from '../db/schema';
-import { AppError } from '../middleware/errorHandler';
-import type { CreateReviewInput } from '../validators/review';
+import { db } from '../_db';
+import { reviews, users, properties, bookings } from '../_db/schema';
+import { AppError } from '../_middleware/errorHandler';
+import type { CreateReviewInput } from '../_validators/review';
 
 /**
  * POST /api/reviews

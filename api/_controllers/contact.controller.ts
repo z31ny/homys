@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { db } from '../db';
-import { contactSubmissions } from '../db/schema';
-import type { ContactInput } from '../validators/contact';
+import { db } from '../_db';
+import { contactSubmissions } from '../_db/schema';
+import type { ContactInput } from '../_validators/contact';
 
 /**
  * POST /api/contact

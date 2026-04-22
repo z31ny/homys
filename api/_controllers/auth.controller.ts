@@ -3,12 +3,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { eq, and, gt } from 'drizzle-orm';
-import { db } from '../db';
-import { users, passwordResetTokens } from '../db/schema';
-import { config } from '../config';
-import { AppError } from '../middleware/errorHandler';
-import type { RegisterInput, LoginInput, ResetPasswordInput } from '../validators/auth';
-import type { JwtPayload } from '../middleware/auth';
+import { db } from '../_db';
+import { users, passwordResetTokens } from '../_db/schema';
+import { config } from '../_config';
+import { AppError } from '../_middleware/errorHandler';
+import type { RegisterInput, LoginInput, ResetPasswordInput } from '../_validators/auth';
+import type { JwtPayload } from '../_middleware/auth';
 
 const SALT_ROUNDS = 12;
 

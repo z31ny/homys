@@ -6,10 +6,10 @@ import {
   getPropertyById,
   updateProperty,
   deleteProperty,
-} from '../controllers/property.controller';
-import { authenticate, optionalAuth } from '../middleware/auth';
-import { validate } from '../middleware/validate';
-import { createPropertySchema, updatePropertySchema } from '../validators/property';
+} from '../_controllers/property.controller';
+import { authenticate, optionalAuth } from '../_middleware/auth';
+import { validate } from '../_middleware/validate';
+import { createPropertySchema, updatePropertySchema } from '../_validators/property';
 
 const router = Router();
 

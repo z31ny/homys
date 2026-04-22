@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, gte, lte, like, sql, desc } from 'drizzle-orm';
-import { db } from '../db';
-import { questionnaireResponses, properties, propertyImages } from '../db/schema';
-import type { QuestionnaireInput } from '../validators/questionnaire';
+import { db } from '../_db';
+import { questionnaireResponses, properties, propertyImages } from '../_db/schema';
+import type { QuestionnaireInput } from '../_validators/questionnaire';
 
 /**
  * Map frontend budget IDs to price ranges.

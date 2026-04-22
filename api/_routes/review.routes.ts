@@ -6,10 +6,10 @@ import {
   approveReview,
   rejectReview,
   deleteMyReview,
-} from '../controllers/review.controller';
-import { authenticate } from '../middleware/auth';
-import { validate } from '../middleware/validate';
-import { createReviewSchema } from '../validators/review';
+} from '../_controllers/review.controller';
+import { authenticate } from '../_middleware/auth';
+import { validate } from '../_middleware/validate';
+import { createReviewSchema } from '../_validators/review';
 
 const router = Router();
 

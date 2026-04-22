@@ -4,10 +4,10 @@ import {
   getMyBookings,
   getBookingById,
   cancelBooking,
-} from '../controllers/booking.controller';
-import { authenticate } from '../middleware/auth';
-import { validate } from '../middleware/validate';
-import { createBookingSchema } from '../validators/booking';
+} from '../_controllers/booking.controller';
+import { authenticate } from '../_middleware/auth';
+import { validate } from '../_middleware/validate';
+import { createBookingSchema } from '../_validators/booking';
 
 const router = Router();
 

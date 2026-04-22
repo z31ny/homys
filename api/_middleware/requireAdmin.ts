@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq } from 'drizzle-orm';
-import { db } from '../db';
-import { users } from '../db/schema';
+import { db } from '../_db';
+import { users } from '../_db/schema';
 import { AppError } from './errorHandler';
 
 /**
