@@ -134,3 +134,25 @@ export const contactAPI = {
 export const questionnaireAPI = {
   submit: (body) => request('/questionnaire', { method: 'POST', body: JSON.stringify(body) }),
 };
+
+// ─── Admin ───────────────────────────────────────────────
+export const adminAPI = {
+  getStats: () => request('/admin/stats'),
+  getBookings: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/admin/bookings${query ? `?${query}` : ''}`);
+  },
+  getProperties: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/admin/properties${query ? `?${query}` : ''}`);
+  },
+  updatePropertyStatus: (id, status) =>
+    request(`/admin/properties/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  getUsers: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/admin/users${query ? `?${query}` : ''}`);
+  },
+  getPendingReviews: () => request('/reviews/pending'),
+  approveReview: (id) => request(`/reviews/${id}/approve`, { method: 'PATCH' }),
+  rejectReview: (id) => request(`/reviews/${id}/reject`, { method: 'PATCH' }),
+};

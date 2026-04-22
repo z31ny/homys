@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
 // Eagerly loaded (needed on every page)
@@ -34,17 +34,39 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Furnish = lazy(() => import('./pages/Furnish'));
 const Error = lazy(() => import('./pages/Error'));
 
-const Routing = () => {
+// Admin Dashboard (lazy-loaded — only admin users will ever download these)
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminOverview = lazy(() => import('./pages/admin/Overview'));
+const AdminBookings = lazy(() => import('./pages/admin/Bookings'));
+const AdminProperties = lazy(() => import('./pages/admin/Properties'));
+const AdminGuests = lazy(() => import('./pages/admin/Guests'));
+const AdminMessages = lazy(() => import('./pages/admin/Messages'));
+const AdminAnalytics = lazy(() => import('./pages/admin/Analytics'));
+const AdminNotifications = lazy(() => import('./pages/admin/Notifications'));
+const AdminSettings = lazy(() => import('./pages/admin/Settings'));
+const AdminAccount = lazy(() => import('./pages/admin/Account'));
+const AdminViewProperty = lazy(() => import('./pages/admin/ViewProperty'));
+const AdminEditProperty = lazy(() => import('./pages/admin/EditProperty'));
+const AdminError = lazy(() => import('./pages/admin/AdminError'));
+
+/**
+ * Wrapper that conditionally shows the main site Nav/Footer
+ * but hides them on /admin/* routes.
+ */
+const AppShell = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
   return (
-    <Router>
-      <AuthProvider>
-       <ScrollToTop />
-       <Preloader/>
-       <Nav/>
-       <ChatBot/>
-       <Whatsapp />
-       <Suspense fallback={null}>
+    <>
+      <ScrollToTop />
+      <Preloader />
+      {!isAdmin && <Nav />}
+      {!isAdmin && <ChatBot />}
+      {!isAdmin && <Whatsapp />}
+      <Suspense fallback={null}>
         <Routes>
+          {/* ─── Main Site Routes ─── */}
           <Route path="/" element={<Home />} />
           <Route path="/stays" element={<Stays />} />
           <Route path="/stays/:id" element={<PropertyDetails />} />
@@ -67,10 +89,36 @@ const Routing = () => {
           <Route path="/booknow" element={<BookNow />} />
           <Route path="/morehomes" element={<MoreHomes />} />
           <Route path="/furnish" element={<Furnish />} />
-          <Route path="*" element={<Error />} /> 
+
+          {/* ─── Admin Dashboard Routes ─── */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminOverview />} />
+            <Route path="bookings" element={<AdminBookings />} />
+            <Route path="properties" element={<AdminProperties />} />
+            <Route path="guests" element={<AdminGuests />} />
+            <Route path="messages" element={<AdminMessages />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="account" element={<AdminAccount />} />
+            <Route path="view-property" element={<AdminViewProperty />} />
+            <Route path="edit-property" element={<AdminEditProperty />} />
+            <Route path="*" element={<AdminError />} />
+          </Route>
+
+          <Route path="*" element={<Error />} />
         </Routes>
-       </Suspense>
-      <Footer />
+      </Suspense>
+      {!isAdmin && <Footer />}
+    </>
+  );
+};
+
+const Routing = () => {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppShell />
       </AuthProvider>
     </Router>
   );

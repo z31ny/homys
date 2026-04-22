@@ -120,6 +120,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
           ageRange: user.ageRange,
           country: user.country,
           profileImageUrl: user.profileImageUrl,
+          isAdmin: user.isAdmin,
           createdAt: user.createdAt,
         },
         token,

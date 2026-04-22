@@ -1,0 +1,235 @@
+.properties-container {
+  padding: 40px;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Toolbar */
+.properties-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  gap: 20px;
+}
+
+.properties-filters {
+  display: flex;
+  gap: 15px;
+  flex: 1;
+}
+
+.properties-search-wrapper {
+  position: relative;
+  width: 250px;
+}
+
+.properties-search-wrapper .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+
+.properties-search-wrapper input {
+  width: 100%;
+  padding: 12px 15px 12px 40px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  background-color: white;
+  color: var(--color-navy);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.properties-filter-dropdown {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  background-color: white;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.properties-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-gold);
+  color: var(--color-navy);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.properties-add-btn:hover { transform: translateY(-2px); }
+
+/* Grid Layout */
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+/* Property Card */
+.properties-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.properties-card-img-wrap {
+  position: relative;
+  height: 220px;
+}
+
+.properties-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.properties-status-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #4caf82;
+  color: white;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.properties-card-content {
+  padding: 25px;
+}
+
+.properties-item-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: var(--color-navy);
+  margin-bottom: 8px;
+}
+
+.properties-item-loc {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.properties-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.properties-type-badge {
+  background-color: #f5f5f5;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+.properties-price-text {
+  font-size: 14px;
+  color: var(--color-text-main);
+}
+
+.properties-occ-section {
+  margin-bottom: 25px;
+}
+
+.properties-occ-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.properties-occ-percent {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.properties-progress-bar {
+  height: 8px;
+  background-color: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.properties-progress-fill {
+  height: 100%;
+  background-color: var(--color-gold);
+  border-radius: 10px;
+}
+
+/* Buttons */
+.properties-card-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.properties-btn-view, .properties-btn-edit {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.properties-btn-view {
+  background: white;
+  border: 1px solid #eee;
+  color: var(--color-navy);
+}
+
+.properties-btn-edit {
+  background: var(--color-gold);
+  border: none;
+  color: var(--color-navy);
+}
+
+.properties-btn-view:hover { background-color: #f9f9f9; }
+.properties-btn-edit:hover { opacity: 0.9; }
+
+/* Responsiveness */
+@media (max-width: 900px) {
+  .properties-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .properties-search-wrapper {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .properties-container {
+    padding: 15px;
+  }
+  .properties-filters {
+    flex-direction: column;
+  }
+}
