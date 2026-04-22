@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getAdminStats,
   getAdminBookings,
+  updateBookingStatus,
   getAdminProperties,
   updatePropertyStatus,
   getAdminUsers,
@@ -12,13 +13,16 @@ import { requireAdmin } from '../_middleware/requireAdmin';
 
 const router = Router();
 
-// All admin routes require authentication + admin role
 router.use(authenticate, requireAdmin);
 
 router.get('/stats', getAdminStats);
+
 router.get('/bookings', getAdminBookings);
+router.patch('/bookings/:id/status', updateBookingStatus);
+
 router.get('/properties', getAdminProperties);
 router.patch('/properties/:id/status', updatePropertyStatus);
+
 router.get('/users', getAdminUsers);
 router.get('/contacts', getAdminContacts);
 

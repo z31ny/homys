@@ -10,7 +10,7 @@ import Preloader from './common/Preloader';
 import ChatBot from './common/ChatBot';
 import ScrollToTop from './common/ScrollToTop';
 
-// Lazy-loaded pages — only downloaded when the user navigates to them
+// Lazy-loaded pages
 const Home = lazy(() => import('./pages/Home'));
 const Stays = lazy(() => import('./pages/Stays'));
 const PropertyDetails = lazy(() => import('./pages/PropertyDetails'));
@@ -34,25 +34,22 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Furnish = lazy(() => import('./pages/Furnish'));
 const Error = lazy(() => import('./pages/Error'));
 
-// Admin Dashboard (lazy-loaded — only admin users will ever download these)
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
-const AdminOverview = lazy(() => import('./pages/admin/Overview'));
-const AdminBookings = lazy(() => import('./pages/admin/Bookings'));
-const AdminProperties = lazy(() => import('./pages/admin/Properties'));
-const AdminGuests = lazy(() => import('./pages/admin/Guests'));
-const AdminMessages = lazy(() => import('./pages/admin/Messages'));
-const AdminAnalytics = lazy(() => import('./pages/admin/Analytics'));
+// Admin Dashboard
+const AdminLayout        = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminOverview      = lazy(() => import('./pages/admin/Overview'));
+const AdminBookings      = lazy(() => import('./pages/admin/Bookings'));
+const AdminProperties    = lazy(() => import('./pages/admin/Properties'));
+const AdminReviews       = lazy(() => import('./pages/admin/Reviews'));
+const AdminGuests        = lazy(() => import('./pages/admin/Guests'));
+const AdminMessages      = lazy(() => import('./pages/admin/Messages'));
+const AdminAnalytics     = lazy(() => import('./pages/admin/Analytics'));
 const AdminNotifications = lazy(() => import('./pages/admin/Notifications'));
-const AdminSettings = lazy(() => import('./pages/admin/Settings'));
-const AdminAccount = lazy(() => import('./pages/admin/Account'));
-const AdminViewProperty = lazy(() => import('./pages/admin/ViewProperty'));
-const AdminEditProperty = lazy(() => import('./pages/admin/EditProperty'));
-const AdminError = lazy(() => import('./pages/admin/AdminError'));
+const AdminSettings      = lazy(() => import('./pages/admin/Settings'));
+const AdminAccount       = lazy(() => import('./pages/admin/Account'));
+const AdminViewProperty  = lazy(() => import('./pages/admin/ViewProperty'));
+const AdminEditProperty  = lazy(() => import('./pages/admin/EditProperty'));
+const AdminError         = lazy(() => import('./pages/admin/AdminError'));
 
-/**
- * Wrapper that conditionally shows the main site Nav/Footer
- * but hides them on /admin/* routes.
- */
 const AppShell = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
@@ -95,6 +92,7 @@ const AppShell = () => {
             <Route index element={<AdminOverview />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="properties" element={<AdminProperties />} />
+            <Route path="reviews" element={<AdminReviews />} />
             <Route path="guests" element={<AdminGuests />} />
             <Route path="messages" element={<AdminMessages />} />
             <Route path="analytics" element={<AdminAnalytics />} />
@@ -114,14 +112,12 @@ const AppShell = () => {
   );
 };
 
-const Routing = () => {
-  return (
-    <Router>
-      <AuthProvider>
-        <AppShell />
-      </AuthProvider>
-    </Router>
-  );
-};
+const Routing = () => (
+  <Router>
+    <AuthProvider>
+      <AppShell />
+    </AuthProvider>
+  </Router>
+);
 
 export default Routing;

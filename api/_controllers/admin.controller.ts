@@ -13,7 +13,6 @@ import { AppError } from '../_middleware/errorHandler';
 
 /**
  * GET /api/admin/stats
- * Admin — aggregated dashboard statistics.
  */
 export const getAdminStats = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -34,9 +33,7 @@ export const getAdminStats = async (req: Request, res: Response, next: NextFunct
       .from(properties)
       .where(eq(properties.status, 'pending_review'));
 
-    const [userStats] = await db
-      .select({ total: count() })
-      .from(users);
+    const [userStats] = await db.select({ total: count() }).from(users);
 
     const [pendingReviews] = await db
       .select({ total: count() })
@@ -72,7 +69,6 @@ export const getAdminStats = async (req: Request, res: Response, next: NextFunct
 
 /**
  * GET /api/admin/bookings
- * Admin — list ALL bookings with guest and property info.
  */
 export const getAdminBookings = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -80,9 +76,7 @@ export const getAdminBookings = async (req: Request, res: Response, next: NextFu
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
     const offset = (page - 1) * limit;
 
-    const [{ total }] = await db
-      .select({ total: count() })
-      .from(bookings);
+    const [{ total }] = await db.select({ total: count() }).from(bookings);
 
     const items = await db
       .select({
@@ -122,22 +116,57 @@ export const getAdminBookings = async (req: Request, res: Response, next: NextFu
 };
 
 /**
+ * PATCH /api/admin/bookings/:id/status
+ * Admin — update any booking's status directly.
+ */
+export const updateBookingStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const { status } = req.body;
+
+    const validStatuses = ['pending', 'confirmed', 'upcoming', 'completed', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      throw new AppError(`Invalid status. Must be one of: ${validStatuses.join(', ')}.`, 400);
+    }
+
+    const [booking] = await db
+      .select({ id: bookings.id })
+      .from(bookings)
+      .where(eq(bookings.id, id))
+      .limit(1);
+
+    if (!booking) {
+      throw new AppError('Booking not found.', 404);
+    }
+
+    const [updated] = await db
+      .update(bookings)
+      .set({ status: status as any })
+      .where(eq(bookings.id, id))
+      .returning();
+
+    res.json({
+      status: 'success',
+      message: `Booking status updated to "${status}".`,
+      data: { booking: updated },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * GET /api/admin/properties
- * Admin — list ALL properties (all statuses) with owner info.
  */
 export const getAdminProperties = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
     const offset = (page - 1) * limit;
-
     const statusFilter = req.query.status as string | undefined;
 
     const conditions: any[] = [];
-    if (statusFilter) {
-      conditions.push(eq(properties.status, statusFilter as any));
-    }
-
+    if (statusFilter) conditions.push(eq(properties.status, statusFilter as any));
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const [{ total }] = await db
@@ -196,7 +225,6 @@ export const getAdminProperties = async (req: Request, res: Response, next: Next
 
 /**
  * PATCH /api/admin/properties/:id/status
- * Admin — approve or reject a property.
  */
 export const updatePropertyStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -213,9 +241,7 @@ export const updatePropertyStatus = async (req: Request, res: Response, next: Ne
       .where(eq(properties.id, id))
       .limit(1);
 
-    if (!property) {
-      throw new AppError('Property not found.', 404);
-    }
+    if (!property) throw new AppError('Property not found.', 404);
 
     const [updated] = await db
       .update(properties)
@@ -235,7 +261,6 @@ export const updatePropertyStatus = async (req: Request, res: Response, next: Ne
 
 /**
  * GET /api/admin/users
- * Admin — list all users.
  */
 export const getAdminUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -243,9 +268,7 @@ export const getAdminUsers = async (req: Request, res: Response, next: NextFunct
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
     const offset = (page - 1) * limit;
 
-    const [{ total }] = await db
-      .select({ total: count() })
-      .from(users);
+    const [{ total }] = await db.select({ total: count() }).from(users);
 
     const items = await db
       .select({
@@ -276,7 +299,6 @@ export const getAdminUsers = async (req: Request, res: Response, next: NextFunct
 
 /**
  * GET /api/admin/contacts
- * Admin — list all contact form submissions.
  */
 export const getAdminContacts = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -284,9 +306,7 @@ export const getAdminContacts = async (req: Request, res: Response, next: NextFu
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 50));
     const offset = (page - 1) * limit;
 
-    const [{ total }] = await db
-      .select({ total: count() })
-      .from(contactSubmissions);
+    const [{ total }] = await db.select({ total: count() }).from(contactSubmissions);
 
     const items = await db
       .select()
