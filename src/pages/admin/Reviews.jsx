@@ -161,7 +161,7 @@ const Reviews = () => {
               <Star size={40} style={{ opacity: 0.2, marginBottom: 12 }} />
               <p>
                 {filter === 'pending'
-                  ? 'No pending reviews — you're all caught up!'
+                  ? "No pending reviews — you're all caught up!"
                   : 'No reviews in this category.'}
               </p>
             </div>
