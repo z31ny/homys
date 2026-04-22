@@ -40,7 +40,9 @@ async function request(endpoint, options = {}, retries = 1) {
     clearTimeout(timeoutId);
 
     // Global 401 interceptor — edge cases 1.6, 1.7
-    if (response.status === 401) {
+    // Skip for auth endpoints (login/register) — they return 401 for invalid credentials
+    const isAuthEndpoint = endpoint.startsWith('/auth/login') || endpoint.startsWith('/auth/register');
+    if (response.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('homys_token');
       if (onUnauthorizedCallback) {
         onUnauthorizedCallback();
