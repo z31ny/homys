@@ -202,7 +202,7 @@ export const getAdminProperties = async (req: Request, res: Response, next: Next
  */
 export const updatePropertyStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { status } = req.body;
 
     if (!['approved', 'rejected', 'pending_review', 'archived'].includes(status)) {
@@ -221,7 +221,7 @@ export const updatePropertyStatus = async (req: Request, res: Response, next: Ne
 
     const [updated] = await db
       .update(properties)
-      .set({ status, updatedAt: new Date() })
+      .set({ status: status as any, updatedAt: new Date() })
       .where(eq(properties.id, id))
       .returning();
 

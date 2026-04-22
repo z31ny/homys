@@ -208,7 +208,7 @@ export const getMyProperties = async (req: Request, res: Response, next: NextFun
  */
 export const getPropertyById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const [property] = await db
       .select()
@@ -265,7 +265,7 @@ export const updateProperty = async (req: Request, res: Response, next: NextFunc
       throw new AppError('Not authenticated.', 401);
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { features: featuresList, ...updates } = req.body as UpdatePropertyInput & { features?: string[] };
 
     // Verify ownership
@@ -326,7 +326,7 @@ export const deleteProperty = async (req: Request, res: Response, next: NextFunc
       throw new AppError('Not authenticated.', 401);
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Verify ownership
     const [existing] = await db

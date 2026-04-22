@@ -201,7 +201,7 @@ export const getBookingById = async (req: Request, res: Response, next: NextFunc
       throw new AppError('Not authenticated.', 401);
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const [booking] = await db
       .select()
@@ -269,7 +269,7 @@ export const cancelBooking = async (req: Request, res: Response, next: NextFunct
       throw new AppError('Not authenticated.', 401);
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const [booking] = await db
       .select()

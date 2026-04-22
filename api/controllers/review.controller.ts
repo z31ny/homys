@@ -88,7 +88,7 @@ export const createReview = async (req: Request, res: Response, next: NextFuncti
  */
 export const getPropertyReviews = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { propertyId } = req.params;
+    const propertyId = req.params.propertyId as string;
 
     const propertyReviews = await db
       .select({
@@ -194,7 +194,7 @@ export const approveReview = async (req: Request, res: Response, next: NextFunct
       throw new AppError('Admin access required.', 403);
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Check current status — make idempotent (edge case 4.5)
     const [existingReview] = await db
@@ -267,7 +267,7 @@ export const rejectReview = async (req: Request, res: Response, next: NextFuncti
       throw new AppError('Admin access required.', 403);
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Check current status — make idempotent (edge case 4.6)
     const [existingReview] = await db
@@ -314,7 +314,7 @@ export const deleteMyReview = async (req: Request, res: Response, next: NextFunc
       throw new AppError('Not authenticated.', 401);
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Find the review
     const [review] = await db
