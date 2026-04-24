@@ -1,55 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle, XCircle, Star } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Trash2, Star } from 'lucide-react';
 import { adminAPI } from '../../services/api';
-import './Bookings.css'; // reuse same table styles
+import './Bookings.css';
 
 const renderStars = (rating) =>
   Array.from({ length: 5 }, (_, i) => (
-    <Star
-      key={i}
-      size={13}
-      fill={i < rating ? '#c4a369' : 'none'}
-      stroke={i < rating ? '#c4a369' : '#ccc'}
-    />
+    <Star key={i} size={13} fill={i < rating ? '#c4a369' : 'none'} stroke={i < rating ? '#c4a369' : '#ccc'} />
   ));
 
-const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
+const ConfirmModal = ({ message, onConfirm, onCancel, loading, danger }) => (
   <div
-    style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
-    }}
+    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}
     onClick={onCancel}
   >
     <div
-      style={{
-        background: '#fff', borderRadius: 16, padding: '32px 36px',
-        maxWidth: 420, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-      }}
+      style={{ background: '#fff', borderRadius: 16, padding: '32px 36px', maxWidth: 420, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
       onClick={(e) => e.stopPropagation()}
     >
-      <p style={{ fontSize: '1rem', color: '#112a3d', marginBottom: 24, lineHeight: 1.6 }}>
-        {message}
-      </p>
+      <p style={{ fontSize: '1rem', color: '#112a3d', marginBottom: 24, lineHeight: 1.6 }}>{message}</p>
       <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-        <button
-          onClick={onCancel}
-          disabled={loading}
-          style={{
-            padding: '10px 22px', borderRadius: 8, border: '1px solid #ddd',
-            background: '#fff', cursor: 'pointer', fontWeight: 600, color: '#666',
-          }}
-        >
+        <button onClick={onCancel} disabled={loading}
+          style={{ padding: '10px 22px', borderRadius: 8, border: '1px solid #ddd', background: '#fff', cursor: 'pointer', fontWeight: 600, color: '#666' }}>
           Cancel
         </button>
-        <button
-          onClick={onConfirm}
-          disabled={loading}
-          style={{
-            padding: '10px 22px', borderRadius: 8, border: 'none',
-            background: '#112a3d', color: '#f6f3eb', cursor: 'pointer', fontWeight: 700,
-          }}
-        >
+        <button onClick={onConfirm} disabled={loading}
+          style={{ padding: '10px 22px', borderRadius: 8, border: 'none', background: danger ? '#ef4444' : '#112a3d', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
           {loading ? 'Processing…' : 'Confirm'}
         </button>
       </div>
@@ -57,19 +32,20 @@ const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
   </div>
 );
 
+const FILTERS = ['pending', 'approved', 'rejected', 'all'];
+
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('pending'); // default to pending — most useful view
+  const [filter, setFilter] = useState('pending');
   const [actionLoading, setActionLoading] = useState(null);
-  const [confirm, setConfirm] = useState(null); // { id, action: 'approve' | 'reject' }
+  const [confirm, setConfirm] = useState(null); // { id, action: 'approve'|'reject'|'delete' }
 
   const fetchReviews = () => {
     setLoading(true);
-    // The existing endpoint only returns pending reviews.
-    // We hit it and then optionally filter client-side.
-    adminAPI.getPendingReviews()
+    // Fetch all reviews so all filter tabs work without re-fetching
+    adminAPI.getAllReviews()
       .then((res) => setReviews(res.data?.reviews || []))
       .catch(() => setReviews([]))
       .finally(() => setLoading(false));
@@ -84,10 +60,13 @@ const Reviews = () => {
     try {
       if (action === 'approve') {
         await adminAPI.approveReview(id);
-        setReviews((prev) => prev.map((r) => r.id === id ? { ...r, _localStatus: 'approved' } : r));
-      } else {
+        setReviews((prev) => prev.map((r) => r.id === id ? { ...r, status: 'approved' } : r));
+      } else if (action === 'reject') {
         await adminAPI.rejectReview(id);
-        setReviews((prev) => prev.map((r) => r.id === id ? { ...r, _localStatus: 'rejected' } : r));
+        setReviews((prev) => prev.map((r) => r.id === id ? { ...r, status: 'rejected' } : r));
+      } else if (action === 'delete') {
+        await adminAPI.deleteReview(id);
+        setReviews((prev) => prev.filter((r) => r.id !== id));
       }
     } catch (err) {
       alert(err.message || 'Action failed.');
@@ -97,11 +76,15 @@ const Reviews = () => {
     }
   };
 
-  // Reviews that have been acted on in this session get a _localStatus
-  // Filter based on that + the current filter tab
+  const counts = {
+    pending:  reviews.filter((r) => r.status === 'pending').length,
+    approved: reviews.filter((r) => r.status === 'approved').length,
+    rejected: reviews.filter((r) => r.status === 'rejected').length,
+    all:      reviews.length,
+  };
+
   const filtered = reviews.filter((r) => {
-    const effectiveStatus = r._localStatus || 'pending';
-    const matchesFilter = filter === 'all' || effectiveStatus === filter;
+    const matchesFilter = filter === 'all' || r.status === filter;
     const q = search.toLowerCase();
     const matchesSearch =
       !q ||
@@ -111,16 +94,15 @@ const Reviews = () => {
     return matchesFilter && matchesSearch;
   });
 
-  const pendingCount = reviews.filter((r) => !r._localStatus).length;
-
   return (
     <div className="bookings-page">
       {confirm && (
         <ConfirmModal
+          danger={confirm.action === 'delete'}
           message={
-            confirm.action === 'approve'
-              ? 'Approve this review? It will become publicly visible on the property page.'
-              : 'Reject this review? It will remain hidden from the public.'
+            confirm.action === 'approve' ? 'Approve this review? It will become publicly visible on the property page.' :
+            confirm.action === 'reject'  ? 'Reject this review? It will be hidden from the public.' :
+            'Permanently delete this review? This cannot be undone. The guest will be able to submit a new review.'
           }
           onConfirm={handleConfirm}
           onCancel={() => setConfirm(null)}
@@ -129,6 +111,25 @@ const Reviews = () => {
       )}
 
       <div className="bookings-card">
+        {/* Filter tabs */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              style={{
+                padding: '8px 18px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                fontWeight: 700, fontSize: '0.82rem', textTransform: 'capitalize',
+                background: filter === f ? '#112a3d' : '#f5f2ec',
+                color: filter === f ? '#f6f3eb' : '#112a3d',
+                transition: 'all 0.2s',
+              }}
+            >
+              {f} ({counts[f]})
+            </button>
+          ))}
+        </div>
+
         <div className="bookings-toolbar">
           <div className="bookings-toolbar-left">
             <div className="bookings-search-box">
@@ -140,16 +141,6 @@ const Reviews = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <select
-              className="bookings-filter-select"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            >
-              <option value="pending">Pending ({pendingCount})</option>
-              <option value="approved">Approved this session</option>
-              <option value="rejected">Rejected this session</option>
-              <option value="all">All</option>
-            </select>
           </div>
         </div>
 
@@ -158,12 +149,7 @@ const Reviews = () => {
             <p style={{ padding: '40px', opacity: 0.6 }}>Loading reviews...</p>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 20px', color: '#8b8b8b' }}>
-              <Star size={40} style={{ opacity: 0.2, marginBottom: 12 }} />
-              <p>
-                {filter === 'pending'
-                  ? "No pending reviews — you're all caught up!"
-                  : 'No reviews in this category.'}
-              </p>
+              <p>{filter === 'pending' ? 'No pending reviews — you\'re all caught up!' : `No ${filter} reviews.`}</p>
             </div>
           ) : (
             <table className="bookings-table">
@@ -180,92 +166,66 @@ const Reviews = () => {
               </thead>
               <tbody>
                 {filtered.map((r, idx) => {
-                  const effectiveStatus = r._localStatus || 'pending';
                   const isActing = actionLoading === r.id;
-
                   return (
                     <tr key={r.id} className={idx % 2 !== 0 ? 'bookings-row-alt' : ''}>
                       <td style={{ fontWeight: 600 }}>
                         {r.userName || 'Guest'}
-                        {r.userEmail && (
-                          <div style={{ fontSize: '0.74rem', color: '#8b8b8b', fontWeight: 400 }}>
-                            {r.userEmail}
-                          </div>
-                        )}
+                        {r.userEmail && <div style={{ fontSize: '0.74rem', color: '#8b8b8b', fontWeight: 400 }}>{r.userEmail}</div>}
                       </td>
                       <td>{r.propertyTitle || '—'}</td>
                       <td>
                         <div style={{ display: 'flex', gap: 2 }}>{renderStars(r.rating)}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#8b8b8b', marginTop: 2 }}>
-                          {r.rating}/5
-                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#8b8b8b', marginTop: 2 }}>{r.rating}/5</div>
                       </td>
-                      <td
-                        style={{
-                          maxWidth: 260, fontSize: '0.83rem', color: '#334155',
-                          whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-                        }}
-                      >
+                      <td style={{ maxWidth: 220, fontSize: '0.83rem', color: '#334155', wordBreak: 'break-word' }}>
                         {r.comment || <em style={{ opacity: 0.4 }}>No comment</em>}
                       </td>
                       <td style={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
-                        {new Date(r.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric', month: 'short', day: 'numeric',
-                        })}
+                        {new Date(r.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                       </td>
                       <td>
-                        <span
-                          style={{
-                            padding: '3px 10px', borderRadius: 20, fontSize: '0.75rem',
-                            fontWeight: 700,
-                            background:
-                              effectiveStatus === 'approved' ? '#e8f5e9' :
-                              effectiveStatus === 'rejected' ? '#fdeaea' : '#fff8e1',
-                            color:
-                              effectiveStatus === 'approved' ? '#2e7d32' :
-                              effectiveStatus === 'rejected' ? '#c0392b' : '#f57f17',
-                          }}
-                        >
-                          {effectiveStatus}
+                        <span style={{
+                          padding: '3px 10px', borderRadius: 20, fontSize: '0.75rem', fontWeight: 700,
+                          background: r.status === 'approved' ? '#e8f5e9' : r.status === 'rejected' ? '#fdeaea' : '#fff8e1',
+                          color: r.status === 'approved' ? '#2e7d32' : r.status === 'rejected' ? '#c0392b' : '#f57f17',
+                        }}>
+                          {r.status}
                         </span>
                       </td>
                       <td>
-                        {effectiveStatus === 'pending' ? (
-                          <div style={{ display: 'flex', gap: 8, flexWrap: 'nowrap' }}>
-                            <button
-                              disabled={isActing}
-                              onClick={() => setConfirm({ id: r.id, action: 'approve' })}
-                              style={{
-                                display: 'flex', alignItems: 'center', gap: 5,
-                                padding: '7px 14px', borderRadius: 8, border: '1.5px solid #4caf82',
-                                background: '#fff', color: '#4caf82', fontWeight: 700,
-                                fontSize: '0.78rem', cursor: 'pointer',
-                                opacity: isActing ? 0.5 : 1,
-                              }}
-                            >
-                              <CheckCircle size={14} />
-                              Approve
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'nowrap', alignItems: 'center' }}>
+                          {r.status === 'pending' && (
+                            <>
+                              <button disabled={isActing} onClick={() => setConfirm({ id: r.id, action: 'approve' })}
+                                style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #4caf82', background: '#fff', color: '#4caf82', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: isActing ? 0.5 : 1 }}>
+                                <CheckCircle size={13} /> Approve
+                              </button>
+                              <button disabled={isActing} onClick={() => setConfirm({ id: r.id, action: 'reject' })}
+                                style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #ef4444', background: '#fff', color: '#ef4444', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: isActing ? 0.5 : 1 }}>
+                                <XCircle size={13} /> Reject
+                              </button>
+                            </>
+                          )}
+                          {r.status === 'approved' && (
+                            <button disabled={isActing} onClick={() => setConfirm({ id: r.id, action: 'reject' })}
+                              style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #ef4444', background: '#fff', color: '#ef4444', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: isActing ? 0.5 : 1 }}>
+                              <XCircle size={13} /> Revoke
                             </button>
-                            <button
-                              disabled={isActing}
-                              onClick={() => setConfirm({ id: r.id, action: 'reject' })}
-                              style={{
-                                display: 'flex', alignItems: 'center', gap: 5,
-                                padding: '7px 14px', borderRadius: 8, border: '1.5px solid #ef4444',
-                                background: '#fff', color: '#ef4444', fontWeight: 700,
-                                fontSize: '0.78rem', cursor: 'pointer',
-                                opacity: isActing ? 0.5 : 1,
-                              }}
-                            >
-                              <XCircle size={14} />
-                              Reject
+                          )}
+                          {r.status === 'rejected' && (
+                            <button disabled={isActing} onClick={() => setConfirm({ id: r.id, action: 'approve' })}
+                              style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #4caf82', background: '#fff', color: '#4caf82', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: isActing ? 0.5 : 1 }}>
+                              <CheckCircle size={13} /> Restore
                             </button>
-                          </div>
-                        ) : (
-                          <span style={{ fontSize: '0.8rem', opacity: 0.5, fontStyle: 'italic' }}>
-                            Done
-                          </span>
-                        )}
+                          )}
+                          {/* Delete available on ALL statuses */}
+                          <button disabled={isActing} onClick={() => setConfirm({ id: r.id, action: 'delete' })}
+                            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 8, border: '1.5px solid #ddd', background: '#fff', color: '#8b8b8b', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: isActing ? 0.5 : 1 }}
+                            title="Delete review (allows guest to re-submit)">
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -277,7 +237,7 @@ const Reviews = () => {
 
         <div className="bookings-footer">
           <p className="bookings-results-count">
-            {filtered.length} review{filtered.length !== 1 ? 's' : ''} · {pendingCount} pending
+            {filtered.length} review{filtered.length !== 1 ? 's' : ''} · {counts.pending} pending
           </p>
         </div>
       </div>

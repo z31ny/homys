@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { propertiesAPI } from '../services/api';
 import './MoreHomes.css';
 
@@ -7,7 +8,6 @@ import fallbackImg from '../imgs/Frame 125.png';
 
 const PropertyCard = ({ home }) => {
   const navigate = useNavigate();
-
   return (
     <div className="m-home-card" onClick={() => navigate(`/stays/${home.id}`)}>
       <div className="m-img-container">
@@ -36,11 +36,11 @@ const PropertyCard = ({ home }) => {
 
 const MoreHomes = () => {
   const navigate = useNavigate();
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [properties, setProperties]   = useState([]);
+  const [loading, setLoading]         = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages]   = useState(1);
+  const [total, setTotal]             = useState(0);
   const limit = 6;
 
   useEffect(() => {
@@ -57,17 +57,19 @@ const MoreHomes = () => {
 
   return (
     <div className="more-homes-page">
-      <button className="back-btn-global" onClick={() => navigate('/stays')}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
+
+      {/* Clean back button — same style as the rest of the site */}
+      <button className="mh-back-btn" onClick={() => navigate('/stays')}>
+        <ArrowLeft size={18} />
         Back to Stays
       </button>
 
       <header className="mh-header">
         <h1 className="libre">All Sanctuaries</h1>
         <p className="encode">
-          {loading ? 'Loading properties…' : `Showing ${total} premium propert${total !== 1 ? 'ies' : 'y'} available for your stay.`}
+          {loading
+            ? 'Loading properties…'
+            : `Showing ${total} premium propert${total !== 1 ? 'ies' : 'y'} available for your stay.`}
         </p>
       </header>
 
@@ -83,19 +85,19 @@ const MoreHomes = () => {
         </p>
       ) : (
         <div className="mh-grid">
-          {properties.map(home => <PropertyCard key={home.id} home={home} />)}
+          {properties.map((home) => <PropertyCard key={home.id} home={home} />)}
         </div>
       )}
 
       {totalPages > 1 && (
         <div className="pagination">
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>Prev</button>
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage((prev) => prev - 1)}>Prev</button>
           {[...Array(totalPages)].map((_, i) => (
             <button key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => setCurrentPage(i + 1)}>
               {i + 1}
             </button>
           ))}
-          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>Next</button>
+          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage((prev) => prev + 1)}>Next</button>
         </div>
       )}
     </div>
