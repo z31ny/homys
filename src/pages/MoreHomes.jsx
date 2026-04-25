@@ -8,16 +8,24 @@ import fallbackImg from '../imgs/Frame 125.png';
 
 const PropertyCard = ({ home }) => {
   const navigate = useNavigate();
+  const hasDiscount = !!home.discountPercent && parseFloat(home.discountPercent) > 0;
+
   return (
     <div className="m-home-card" onClick={() => navigate(`/stays/${home.id}`)}>
       <div className="m-img-container">
         <img
           src={home.heroImageUrl || fallbackImg}
           alt={home.title}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           onError={(e) => { e.target.src = fallbackImg; }}
         />
+        {/* Discount badge on image */}
+        {hasDiscount && (
+          <span className="m-discount-badge">
+            {parseFloat(home.discountPercent).toFixed(0)}% OFF
+          </span>
+        )}
       </div>
+
       <div className="m-info">
         <h3 className="libre">{home.title}</h3>
         <p className="encode loc">📍 {home.locationName}</p>
@@ -26,9 +34,24 @@ const PropertyCard = ({ home }) => {
           {home.sizeSqft && <span>{home.sizeSqft} sqft</span>}
         </div>
         <div className="m-footer">
-          <span className="m-price">${home.pricePerNight}/night</span>
+          {/* Price: slashed original + discounted */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+            {hasDiscount && home.originalPricePerNight && (
+              <span style={{ fontSize: '0.85rem', color: '#999', textDecoration: 'line-through', fontWeight: 600, fontFamily: 'inherit' }}>
+                ${parseFloat(home.originalPricePerNight).toFixed(0)}
+              </span>
+            )}
+            <span className="m-price" style={hasDiscount ? { color: '#c0392b' } : {}}>
+              ${parseFloat(home.pricePerNight).toFixed(0)}/night
+            </span>
+          </div>
           <button className="m-view-btn encode">Check Out</button>
         </div>
+        {hasDiscount && home.discountLabel && (
+          <p style={{ fontSize: '0.72rem', color: '#c0392b', fontWeight: 700, margin: '4px 0 0', fontFamily: 'inherit' }}>
+            {home.discountLabel}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -57,8 +80,6 @@ const MoreHomes = () => {
 
   return (
     <div className="more-homes-page">
-
-      {/* Clean back button — same style as the rest of the site */}
       <button className="mh-back-btn" onClick={() => navigate('/stays')}>
         <ArrowLeft size={18} />
         Back to Stays
@@ -91,13 +112,13 @@ const MoreHomes = () => {
 
       {totalPages > 1 && (
         <div className="pagination">
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage((prev) => prev - 1)}>Prev</button>
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>Prev</button>
           {[...Array(totalPages)].map((_, i) => (
             <button key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => setCurrentPage(i + 1)}>
               {i + 1}
             </button>
           ))}
-          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage((prev) => prev + 1)}>Next</button>
+          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>Next</button>
         </div>
       )}
     </div>

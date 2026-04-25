@@ -34,17 +34,9 @@
   transition: box-shadow 0.3s ease;
 }
 
-.home-card:nth-child(3n+1) {
-  border-radius: 80px 0 0 80px;
-}
-
-.home-card:nth-child(3n) {
-  border-radius: 0 80px 80px 0;
-}
-
-.home-card:hover {
-  box-shadow: 0 15px 40px rgba(17, 42, 61, 0.12);
-}
+.home-card:nth-child(3n+1) { border-radius: 80px 0 0 80px; }
+.home-card:nth-child(3n)   { border-radius: 0 80px 80px 0; }
+.home-card:hover { box-shadow: 0 15px 40px rgba(17, 42, 61, 0.12); }
 
 .home-img-wrapper {
   position: relative;
@@ -69,9 +61,7 @@
   transition: transform 0.8s ease;
 }
 
-.home-card:hover .home-main-img {
-  transform: scale(1.1);
-}
+.home-card:hover .home-main-img { transform: scale(1.1); }
 
 .nav-arrow {
   position: absolute;
@@ -92,17 +82,10 @@
   color: #112a3d;
 }
 
-.nav-arrow.left { left: 15px; }
+.nav-arrow.left  { left: 15px; }
 .nav-arrow.right { right: 15px; }
-
-.home-card:hover .nav-arrow {
-  opacity: 1;
-}
-
-.nav-arrow:hover {
-  background: white;
-  transform: translateY(-50%) scale(1.1);
-}
+.home-card:hover .nav-arrow { opacity: 1; }
+.nav-arrow:hover { background: white; transform: translateY(-50%) scale(1.1); }
 
 .carousel-dots {
   position: absolute;
@@ -122,10 +105,24 @@
   transition: all 0.3s ease;
 }
 
-.dot.active {
-  background: white;
-  width: 18px;
-  border-radius: 10px;
+.dot.active { background: white; width: 18px; border-radius: 10px; }
+
+/* ── Discount badge — top-left corner of image ── */
+.home-discount-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: #c0392b;
+  color: #fff;
+  font-family: 'Encode Sans Expanded', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  padding: 5px 12px;
+  border-radius: 50px;
+  z-index: 12;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  pointer-events: none;
 }
 
 .check-house-btn {
@@ -147,15 +144,8 @@
   z-index: 11;
 }
 
-.home-card:hover .check-house-btn {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.check-house-btn:hover {
-  background-color: #112a3d;
-  color: white;
-}
+.home-card:hover .check-house-btn { opacity: 1; transform: translateY(0); }
+.check-house-btn:hover { background-color: #112a3d; color: white; }
 
 .home-card-content {
   padding: 45px;
@@ -196,10 +186,33 @@
   opacity: 0.8;
 }
 
+/* ── Price row: slashed original + discounted ── */
+.home-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.home-price-original {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #999;
+  text-decoration: line-through;
+}
+
 .home-price {
   font-weight: 700;
   font-size: 1.1rem;
-  margin-top: auto;
+}
+
+.home-discount-label {
+  font-size: 0.72rem;
+  color: #c0392b;
+  font-weight: 700;
+  margin: 4px 0 0;
+  letter-spacing: 0.3px;
 }
 
 .explore-more-homes {
@@ -216,35 +229,17 @@
   transition: all 0.3s ease;
 }
 
-.explore-more-homes:hover {
-  background-color: #112a3d;
-  color: #f6f3eb;
-}
+.explore-more-homes:hover { background-color: #112a3d; color: #f6f3eb; }
 
 @media (max-width: 1024px) {
-  .homes-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .home-card:nth-child(n) {
-    border-radius: 40px;
-  }
+  .homes-grid { grid-template-columns: repeat(2, 1fr); }
+  .home-card:nth-child(n) { border-radius: 40px; }
 }
 
 @media (max-width: 768px) {
-  .homes-section {
-    padding: 50px 20px;
-  }
-  .homes-grid {
-    grid-template-columns: 1fr;
-  }
-  .homes-count-title {
-    font-size: 2rem;
-  }
-  .home-card:nth-child(n) {
-    border-radius: 30px;
-  }
-  .explore-more-homes {
-    width: 100%;
-    padding: 18px 0;
-  }
+  .homes-section { padding: 50px 20px; }
+  .homes-grid { grid-template-columns: 1fr; }
+  .homes-count-title { font-size: 2rem; }
+  .home-card:nth-child(n) { border-radius: 30px; }
+  .explore-more-homes { width: 100%; padding: 18px 0; }
 }

@@ -11,49 +11,42 @@ const HomeCard = ({ home }) => {
 
   const images = home.heroImageUrl ? [home.heroImageUrl] : [fallbackImg];
 
-  const nextSlide = (e) => {
-    e.stopPropagation();
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
-  const prevSlide = (e) => {
-    e.stopPropagation();
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
+  const nextSlide = (e) => { e.stopPropagation(); setCurrentIndex((p) => (p === images.length - 1 ? 0 : p + 1)); };
+  const prevSlide = (e) => { e.stopPropagation(); setCurrentIndex((p) => (p === 0 ? images.length - 1 : p - 1)); };
+
+  const hasDiscount = !!home.discountPercent && parseFloat(home.discountPercent) > 0;
 
   return (
     <div className="home-card">
       <div className="home-img-wrapper">
-        <div
-          className="carousel-track"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-        >
+        <div className="carousel-track" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
           {images.map((img, index) => (
             <img key={index} src={img} alt={home.title} className="home-main-img" loading="lazy"
-              onError={(e) => { e.target.src = fallbackImg; }}
-            />
+              onError={(e) => { e.target.src = fallbackImg; }} />
           ))}
         </div>
 
         {images.length > 1 && (
           <>
             <button className="nav-arrow left" onClick={prevSlide}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
             </button>
             <button className="nav-arrow right" onClick={nextSlide}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
             </button>
           </>
         )}
 
         <div className="carousel-dots">
-          {images.map((_, idx) => (
-            <span key={idx} className={`dot ${currentIndex === idx ? 'active' : ''}`} />
-          ))}
+          {images.map((_, idx) => <span key={idx} className={`dot ${currentIndex === idx ? 'active' : ''}`} />)}
         </div>
+
+        {/* Discount badge on the image */}
+        {hasDiscount && (
+          <div className="home-discount-badge">
+            {parseFloat(home.discountPercent).toFixed(0)}% OFF
+          </div>
+        )}
 
         <button className="check-house-btn" onClick={() => navigate(`/stays/${home.id}`)}>
           Check Out House
@@ -90,7 +83,20 @@ const HomeCard = ({ home }) => {
           {home.sizeSqft && <div className="spec-item">{home.sizeSqft} sqft</div>}
         </div>
 
-        <div className="home-price">${home.pricePerNight}/night</div>
+        {/* Price row — slashed original + discounted */}
+        <div className="home-price-row">
+          {hasDiscount && home.originalPricePerNight && (
+            <span className="home-price-original">
+              ${parseFloat(home.originalPricePerNight).toFixed(0)}
+            </span>
+          )}
+          <span className="home-price" style={hasDiscount ? { color: '#c0392b' } : {}}>
+            ${parseFloat(home.pricePerNight).toFixed(0)}/night
+          </span>
+        </div>
+        {hasDiscount && home.discountLabel && (
+          <p className="home-discount-label">{home.discountLabel}</p>
+        )}
       </div>
     </div>
   );
@@ -129,9 +135,7 @@ const Homes = () => {
     return (
       <section className="homes-section">
         <h2 className="homes-count-title">No properties available yet</h2>
-        <p style={{ textAlign: 'center', opacity: 0.6, padding: '40px 0' }}>
-          Check back soon for new listings.
-        </p>
+        <p style={{ textAlign: 'center', opacity: 0.6, padding: '40px 0' }}>Check back soon for new listings.</p>
       </section>
     );
   }
@@ -140,15 +144,10 @@ const Homes = () => {
     <section className="homes-section">
       <h2 className="homes-count-title">{total} Home{total !== 1 ? 's' : ''}</h2>
       <div className="homes-grid">
-        {properties.map((home) => (
-          <HomeCard key={home.id} home={home} />
-        ))}
+        {properties.map((home) => <HomeCard key={home.id} home={home} />)}
       </div>
-
       {total > 9 && (
-        <button className="explore-more-homes" onClick={() => navigate('/morehomes')}>
-          Explore More
-        </button>
+        <button className="explore-more-homes" onClick={() => navigate('/morehomes')}>Explore More</button>
       )}
     </section>
   );

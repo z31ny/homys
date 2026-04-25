@@ -15,22 +15,19 @@ const AllStays = () => {
   const [total, setTotal] = useState(0);
   const limit = 12;
 
-  // Mobile filter toggle (edge case 10.4)
   const [filtersOpen, setFiltersOpen] = useState(false);
-
-  // Read initial filter state from URL params (edge case 10.10)
   const [propertyType, setPropertyType] = useState(searchParams.get('propertyType') || '');
-  const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
+  const [location, setLocation]         = useState(searchParams.get('location') || '');
+  const [minPrice, setMinPrice]         = useState(searchParams.get('minPrice') || '');
+  const [maxPrice, setMaxPrice]         = useState(searchParams.get('maxPrice') || '');
 
   const fetchProperties = useCallback((page = 1) => {
     setLoading(true);
     const params = { page, limit };
     if (propertyType) params.propertyType = propertyType;
-    if (location) params.location = location;
-    if (minPrice) params.minPrice = minPrice;
-    if (maxPrice) params.maxPrice = maxPrice;
+    if (location)     params.location     = location;
+    if (minPrice)     params.minPrice     = minPrice;
+    if (maxPrice)     params.maxPrice     = maxPrice;
 
     propertiesAPI.list(params)
       .then((res) => {
@@ -43,17 +40,15 @@ const AllStays = () => {
       .finally(() => setLoading(false));
   }, [propertyType, location, minPrice, maxPrice]);
 
-  // Sync filters to URL params (edge case 10.10)
   const syncFiltersToUrl = useCallback(() => {
     const params = {};
     if (propertyType) params.propertyType = propertyType;
-    if (location) params.location = location;
-    if (minPrice) params.minPrice = minPrice;
-    if (maxPrice) params.maxPrice = maxPrice;
+    if (location)     params.location     = location;
+    if (minPrice)     params.minPrice     = minPrice;
+    if (maxPrice)     params.maxPrice     = maxPrice;
     setSearchParams(params, { replace: true });
   }, [propertyType, location, minPrice, maxPrice, setSearchParams]);
 
-  // Restore filters from URL on mount & browser back/forward (edge case 10.10)
   useEffect(() => {
     setPropertyType(searchParams.get('propertyType') || '');
     setLocation(searchParams.get('location') || '');
@@ -61,9 +56,7 @@ const AllStays = () => {
     setMaxPrice(searchParams.get('maxPrice') || '');
   }, [searchParams]);
 
-  useEffect(() => {
-    fetchProperties(1);
-  }, [fetchProperties]);
+  useEffect(() => { fetchProperties(1); }, [fetchProperties]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -73,17 +66,14 @@ const AllStays = () => {
   };
 
   const handleClearFilters = () => {
-    setPropertyType('');
-    setLocation('');
-    setMinPrice('');
-    setMaxPrice('');
+    setPropertyType(''); setLocation(''); setMinPrice(''); setMaxPrice('');
     setSearchParams({}, { replace: true });
   };
 
   return (
     <div className="all-stays-page">
       <button className="back-btn-global" onClick={() => navigate(-1)}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
         Back
       </button>
 
@@ -93,14 +83,11 @@ const AllStays = () => {
           {loading ? 'Loading...' : `${total} propert${total !== 1 ? 'ies' : 'y'} available`}
         </p>
 
-        {/* Mobile Filter Toggle (edge case 10.4) */}
-        <button
-          className="as-filter-toggle encode"
-          onClick={() => setFiltersOpen(!filtersOpen)}
-        >
+        {/* Mobile filter toggle */}
+        <button className="as-filter-toggle encode" onClick={() => setFiltersOpen(!filtersOpen)}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
-            <circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/>
+            <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
+            <circle cx="8" cy="6" r="2" fill="currentColor" /><circle cx="16" cy="12" r="2" fill="currentColor" /><circle cx="10" cy="18" r="2" fill="currentColor" />
           </svg>
           {filtersOpen ? 'Hide Filters' : 'Show Filters'}
         </button>
@@ -109,13 +96,7 @@ const AllStays = () => {
         <form className={`as-filter-bar ${filtersOpen ? 'open' : ''}`} onSubmit={handleSearch}>
           <div className="as-filter-item">
             <label className="encode">Location</label>
-            <input
-              type="text"
-              className="encode"
-              placeholder="e.g. Sahel, Cairo..."
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
+            <input type="text" className="encode" placeholder="e.g. Sahel, Cairo..." value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
           <div className="as-filter-item">
             <label className="encode">Property Type</label>
@@ -129,23 +110,11 @@ const AllStays = () => {
           </div>
           <div className="as-filter-item">
             <label className="encode">Min Price</label>
-            <input
-              type="number"
-              className="encode"
-              placeholder="$0"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-            />
+            <input type="number" className="encode" placeholder="$0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
           </div>
           <div className="as-filter-item">
             <label className="encode">Max Price</label>
-            <input
-              type="number"
-              className="encode"
-              placeholder="$1000"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-            />
+            <input type="number" className="encode" placeholder="$1000" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
           </div>
           <button type="submit" className="as-search-btn encode">Search</button>
         </form>
@@ -162,66 +131,77 @@ const AllStays = () => {
             <p className="encode" style={{ opacity: 0.6, fontSize: '1.1rem', marginBottom: '20px' }}>
               No properties match your search criteria.
             </p>
-            <button className="as-search-btn encode" onClick={handleClearFilters}>
-              Clear Filters
-            </button>
+            <button className="as-search-btn encode" onClick={handleClearFilters}>Clear Filters</button>
           </div>
         ) : (
           <div className="stays-grid-container">
-            {properties.map(stay => (
-              <div key={stay.id} className="stay-card-v2" onClick={() => navigate(`/stays/${stay.id}`)}>
-                <div className="stay-img-box">
-                  <img
-                    src={stay.heroImageUrl || fallbackImg}
-                    alt={stay.title}
-                    onError={(e) => { e.target.src = fallbackImg; }}
-                  />
-                </div>
-                <div className="stay-info-box">
-                  <h3 className="libre">{stay.title}</h3>
-                  <p className="encode" style={{ opacity: 0.7, fontSize: '0.85rem' }}>📍 {stay.locationName}</p>
-                  <div className="encode" style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', opacity: 0.5, marginTop: '4px' }}>
-                    {stay.bedrooms && <span>{stay.bedrooms} Bed{stay.bedrooms !== 1 ? 's' : ''}</span>}
-                    {stay.bathrooms && <span>{stay.bathrooms} Bath{stay.bathrooms !== 1 ? 's' : ''}</span>}
-                    {stay.propertyType && <span style={{ textTransform: 'capitalize' }}>{stay.propertyType}</span>}
+            {properties.map((stay) => {
+              const hasDiscount = !!stay.discountPercent && parseFloat(stay.discountPercent) > 0;
+              return (
+                <div
+                  key={stay.id}
+                  className="stay-card-v2"
+                  onClick={() => navigate(`/stays/${stay.id}`)}
+                >
+                  {/* Image with discount badge */}
+                  <div className="stay-img-box">
+                    <img
+                      src={stay.heroImageUrl || fallbackImg}
+                      alt={stay.title}
+                      onError={(e) => { e.target.src = fallbackImg; }}
+                    />
+                    {hasDiscount && (
+                      <span className="as-discount-badge">
+                        {parseFloat(stay.discountPercent).toFixed(0)}% OFF
+                      </span>
+                    )}
                   </div>
-                  <p className="encode" style={{ fontWeight: '800', color: '#112a3d', marginTop: '8px', fontSize: '1rem' }}>
-                    ${stay.pricePerNight}/night
-                  </p>
+
+                  <div className="stay-info-box">
+                    <h3 className="libre">{stay.title}</h3>
+                    <p className="encode" style={{ opacity: 0.7, fontSize: '0.85rem' }}>
+                      📍 {stay.locationName}
+                    </p>
+                    <div className="encode" style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', opacity: 0.5, marginTop: '4px' }}>
+                      {stay.bedrooms  && <span>{stay.bedrooms} Bed{stay.bedrooms !== 1 ? 's' : ''}</span>}
+                      {stay.bathrooms && <span>{stay.bathrooms} Bath{stay.bathrooms !== 1 ? 's' : ''}</span>}
+                      {stay.propertyType && <span style={{ textTransform: 'capitalize' }}>{stay.propertyType}</span>}
+                    </div>
+
+                    {/* Price row */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                      {hasDiscount && stay.originalPricePerNight && (
+                        <span className="encode" style={{ fontSize: '0.85rem', color: '#999', textDecoration: 'line-through', fontWeight: 600 }}>
+                          ${parseFloat(stay.originalPricePerNight).toFixed(0)}
+                        </span>
+                      )}
+                      <span className="encode" style={{ fontWeight: 800, color: hasDiscount ? '#c0392b' : '#112a3d', fontSize: '1rem' }}>
+                        ${parseFloat(stay.pricePerNight).toFixed(0)}/night
+                      </span>
+                    </div>
+
+                    {hasDiscount && stay.discountLabel && (
+                      <p className="encode" style={{ fontSize: '0.72rem', color: '#c0392b', fontWeight: 700, margin: '3px 0 0' }}>
+                        {stay.discountLabel}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div style={{
-            display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '50px',
-          }}>
-            <button
-              className="as-page-btn encode"
-              disabled={currentPage === 1}
-              onClick={() => fetchProperties(currentPage - 1)}
-            >
-              ← Prev
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '50px' }}>
+            <button className="as-page-btn encode" disabled={currentPage === 1} onClick={() => fetchProperties(currentPage - 1)}>← Prev</button>
             {[...Array(totalPages)].map((_, i) => (
-              <button
-                key={i}
-                className={`as-page-btn encode ${currentPage === i + 1 ? 'active' : ''}`}
-                onClick={() => fetchProperties(i + 1)}
-              >
+              <button key={i} className={`as-page-btn encode ${currentPage === i + 1 ? 'active' : ''}`} onClick={() => fetchProperties(i + 1)}>
                 {i + 1}
               </button>
             ))}
-            <button
-              className="as-page-btn encode"
-              disabled={currentPage === totalPages}
-              onClick={() => fetchProperties(currentPage + 1)}
-            >
-              Next →
-            </button>
+            <button className="as-page-btn encode" disabled={currentPage === totalPages} onClick={() => fetchProperties(currentPage + 1)}>Next →</button>
           </div>
         )}
       </section>

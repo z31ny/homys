@@ -5,7 +5,7 @@
   color: #112a3d;
 }
 
-/* ── Clean back button (replaces .back-btn-global) ── */
+/* ── Clean back button ── */
 .mh-back-btn {
   display: inline-flex;
   align-items: center;
@@ -23,10 +23,7 @@
   transition: background 0.2s, transform 0.15s;
   letter-spacing: 0.3px;
 }
-.mh-back-btn:hover {
-  background: #ede9e0;
-  transform: translateX(-3px);
-}
+.mh-back-btn:hover { background: #ede9e0; transform: translateX(-3px); }
 
 .mh-header { text-align: center; margin-bottom: 80px; }
 .mh-header h1 { font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 15px; }
@@ -61,6 +58,24 @@
   border-bottom: 1.5px solid #112a3d;
 }
 
+/* Discount badge on image */
+.m-discount-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #c0392b;
+  color: #fff;
+  font-family: 'Encode Sans Expanded', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  padding: 5px 12px;
+  border-radius: 50px;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  pointer-events: none;
+}
+
 .m-img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
 .m-home-card:hover .m-img-container img { transform: scale(1.05); }
 
@@ -78,8 +93,9 @@
   font-weight: 600;
 }
 
-.m-footer { display: flex; justify-content: space-between; align-items: center; }
+.m-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
 .m-price { font-weight: 800; font-size: 1.1rem; }
+
 .m-view-btn {
   background: none;
   border: 1px solid #112a3d;
