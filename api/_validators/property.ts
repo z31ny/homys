@@ -9,10 +9,13 @@ export const createPropertySchema = z.object({
   sqft: z.number().int().positive().optional(),
   pricePerNight: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, 'Price must be a valid decimal')
+    .regex(/^\d+(\.\d{1,2})?$/, 'Price must be a valid number (e.g. 250 or 250.00)')
     .refine((val) => parseFloat(val) > 0, 'Price must be greater than zero'),
   isFurnished: z.boolean().default(false),
+  // description: newline-separated bullet points (each line = one bullet)
   description: z.string().max(5000).optional(),
+  // houseRules: array of rule strings selected/entered by the owner
+  houseRules: z.array(z.string().max(200)).default([]),
   locationName: z.string().max(255).optional(),
   latitude: z.string().optional(),
   longitude: z.string().optional(),
@@ -34,6 +37,7 @@ export const updatePropertySchema = z.object({
   pricePerNight: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
   isFurnished: z.boolean().optional(),
   description: z.string().max(5000).optional(),
+  houseRules: z.array(z.string().max(200)).optional(),
   locationName: z.string().max(255).optional(),
   latitude: z.string().optional(),
   longitude: z.string().optional(),

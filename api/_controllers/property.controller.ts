@@ -1,9 +1,49 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, gte, lte, ilike, sql, desc } from 'drizzle-orm';
 import { db } from '../_db';
-import { properties, propertyImages, propertyFeatures, bookings } from '../_db/schema';
+import {
+  properties,
+  propertyImages,
+  propertyFeatures,
+  bookings,
+  locationDiscounts,
+} from '../_db/schema';
 import { AppError } from '../_middleware/errorHandler';
 import type { CreatePropertyInput, UpdatePropertyInput } from '../_validators/property';
+
+/** Apply any active discount whose keyword matches the location string. */
+function applyDiscount(pricePerNight: string, locationName: string | null, discounts: any[]): {
+  originalPrice: number;
+  discountedPrice: number;
+  discountPercent: number | null;
+  discountLabel: string | null;
+} {
+  const original = parseFloat(pricePerNight || '0');
+  if (!locationName || !discounts.length) {
+    return { originalPrice: original, discountedPrice: original, discountPercent: null, discountLabel: null };
+  }
+
+  const now = new Date();
+  const match = discounts.find((d) => {
+    if (!d.isActive) return false;
+    if (d.startsAt && new Date(d.startsAt) > now) return false;
+    if (d.endsAt && new Date(d.endsAt) < now) return false;
+    return locationName.toLowerCase().includes(d.locationKeyword.toLowerCase());
+  });
+
+  if (!match) {
+    return { originalPrice: original, discountedPrice: original, discountPercent: null, discountLabel: null };
+  }
+
+  const pct = parseFloat(match.discountPercent);
+  const discounted = Math.round(original * (1 - pct / 100) * 100) / 100;
+  return {
+    originalPrice: original,
+    discountedPrice: discounted,
+    discountPercent: pct,
+    discountLabel: match.label || null,
+  };
+}
 
 export const createProperty = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -54,11 +94,8 @@ export const getProperties = async (req: Request, res: Response, next: NextFunct
     const offset = (pageNum - 1) * limitNum;
 
     const conditions: any[] = [eq(properties.status, 'approved')];
-
     if (propertyType) conditions.push(eq(properties.propertyType, propertyType as any));
     if (viewType) conditions.push(eq(properties.viewType, viewType as any));
-
-    // Case-insensitive location search (ilike instead of like — fixes case sensitivity bug)
     if (location) conditions.push(ilike(properties.locationName, `%${location}%`));
 
     let effectiveMinPrice = minPrice;
@@ -91,10 +128,28 @@ export const getProperties = async (req: Request, res: Response, next: NextFunct
       images = await db.select().from(propertyImages).where(sql`${propertyImages.propertyId} IN ${propertyIds}`);
     }
 
+    // Fetch all currently-active discounts once and apply in memory
+    const now = new Date();
+    const activeDiscounts = await db
+      .select()
+      .from(locationDiscounts)
+      .where(eq(locationDiscounts.isActive, true));
+
     const propertiesWithImages = items.map((prop) => {
       const propImages = images.filter((img) => img.propertyId === prop.id);
       const heroImage = propImages.find((img) => img.isHero) || propImages[0];
-      return { ...prop, heroImageUrl: heroImage?.imageUrl || null, imageCount: propImages.length };
+      const discount = applyDiscount(prop.pricePerNight, prop.locationName, activeDiscounts);
+
+      return {
+        ...prop,
+        heroImageUrl: heroImage?.imageUrl || null,
+        imageCount: propImages.length,
+        // Expose discount info to the frontend
+        originalPricePerNight: discount.discountPercent ? discount.originalPrice : null,
+        pricePerNight: discount.discountedPrice.toFixed(2),
+        discountPercent: discount.discountPercent,
+        discountLabel: discount.discountLabel,
+      };
     });
 
     res.json({
@@ -132,30 +187,36 @@ export const getPropertyById = async (req: Request, res: Response, next: NextFun
     const images = await db.select().from(propertyImages).where(eq(propertyImages.propertyId, id)).orderBy(propertyImages.displayOrder);
     const features = await db.select().from(propertyFeatures).where(eq(propertyFeatures.propertyId, id));
 
+    // Apply active discounts to single property view too
+    const activeDiscounts = await db.select().from(locationDiscounts).where(eq(locationDiscounts.isActive, true));
+    const discount = applyDiscount(property.pricePerNight, property.locationName, activeDiscounts);
+
     res.json({
       status: 'success',
-      data: { property: { ...property, images, features: features.map((f) => f.featureName) } },
+      data: {
+        property: {
+          ...property,
+          images,
+          features: features.map((f) => f.featureName),
+          originalPricePerNight: discount.discountPercent ? discount.originalPrice : null,
+          pricePerNight: discount.discountedPrice.toFixed(2),
+          discountPercent: discount.discountPercent,
+          discountLabel: discount.discountLabel,
+        },
+      },
     });
   } catch (error) {
     next(error);
   }
 };
 
-/**
- * GET /api/properties/:id/availability
- * Public — returns array of booked date ranges for this property.
- * Used by the frontend to show unavailable dates without waiting for checkout.
- */
 export const getPropertyAvailability = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id as string;
     const today = new Date().toISOString().split('T')[0];
 
     const bookedRanges = await db
-      .select({
-        checkIn: bookings.checkIn,
-        checkOut: bookings.checkOut,
-      })
+      .select({ checkIn: bookings.checkIn, checkOut: bookings.checkOut })
       .from(bookings)
       .where(
         and(
@@ -165,10 +226,7 @@ export const getPropertyAvailability = async (req: Request, res: Response, next:
         )
       );
 
-    res.json({
-      status: 'success',
-      data: { bookedRanges },
-    });
+    res.json({ status: 'success', data: { bookedRanges } });
   } catch (error) {
     next(error);
   }

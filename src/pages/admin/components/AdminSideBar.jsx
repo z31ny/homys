@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutGrid, Calendar, Home, Users,
   MessageSquare, BarChart3, Bell, Settings,
-  Star, Menu, X,
+  Star, Tag, Menu, X,
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import './AdminSideBar.css';
@@ -13,24 +13,20 @@ const AdminSideBar = () => {
   const { user } = useAuth();
 
   const menuItems = [
-    { name: 'Overview',      icon: <LayoutGrid   size={22} />, path: '/admin' },
-    { name: 'Bookings',      icon: <Calendar     size={22} />, path: '/admin/bookings' },
-    { name: 'Properties',    icon: <Home         size={22} />, path: '/admin/properties' },
-    { name: 'Reviews',       icon: <Star         size={22} />, path: '/admin/reviews' },
-    { name: 'Guests',        icon: <Users        size={22} />, path: '/admin/guests' },
+    { name: 'Overview',      icon: <LayoutGrid    size={22} />, path: '/admin' },
+    { name: 'Bookings',      icon: <Calendar      size={22} />, path: '/admin/bookings' },
+    { name: 'Properties',    icon: <Home          size={22} />, path: '/admin/properties' },
+    { name: 'Reviews',       icon: <Star          size={22} />, path: '/admin/reviews' },
+    { name: 'Discounts',     icon: <Tag           size={22} />, path: '/admin/discounts' },
+    { name: 'Guests',        icon: <Users         size={22} />, path: '/admin/guests' },
     { name: 'Messages',      icon: <MessageSquare size={22} />, path: '/admin/messages' },
-    { name: 'Analytics',     icon: <BarChart3    size={22} />, path: '/admin/analytics' },
-    { name: 'Notifications', icon: <Bell         size={22} />, path: '/admin/notifications' },
-    { name: 'Settings',      icon: <Settings     size={22} />, path: '/admin/settings' },
+    { name: 'Analytics',     icon: <BarChart3     size={22} />, path: '/admin/analytics' },
+    { name: 'Notifications', icon: <Bell          size={22} />, path: '/admin/notifications' },
+    { name: 'Settings',      icon: <Settings      size={22} />, path: '/admin/settings' },
   ];
 
   const initials = (name) =>
-    (name || 'AD')
-      .split(' ')
-      .map((w) => w[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    (name || 'AD').split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
 
   return (
     <>
@@ -77,9 +73,7 @@ const AdminSideBar = () => {
         </div>
       </aside>
 
-      {isOpen && (
-        <div className="admin-sidebar-overlay" onClick={() => setIsOpen(false)} />
-      )}
+      {isOpen && <div className="admin-sidebar-overlay" onClick={() => setIsOpen(false)} />}
     </>
   );
 };
