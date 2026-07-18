@@ -1,0 +1,66 @@
+.furnish-page {
+    background-color: #f6f3eb;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding-top: 5%;
+    align-items: center;
+    text-align: center;
+    background-image: url('https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/bg.jpg');
+    background-size: cover;
+}
+
+.coming-soon-container {
+    max-width: 600px;
+    padding: 40px;
+}
+
+.tag {
+    color: #d1a67a;
+    letter-spacing: 3px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.furnish-page h1 {
+    font-size: 4rem;
+    color: #112a3d;
+    margin-bottom: 20px;
+}
+
+.furnish-page p {
+    color: #112a3d;
+    opacity: 0.7;
+    line-height: 1.8;
+    margin-bottom: 40px;
+}
+
+.coming-badge {
+    display: inline-block;
+    padding: 15px 40px;
+    border: 1.5px solid #112a3d;
+    color: #112a3d;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-style: italic;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .furnish-page { height: auto; min-height: 100vh; padding: 120px 20px 60px; align-items: flex-start; }
+  .coming-soon-container { padding: 20px; }
+  .furnish-page h1 { font-size: 2.5rem; }
+}
+
+@media (max-width: 480px) {
+  .furnish-page h1 { font-size: 2rem; }
+  .coming-badge { padding: 12px 28px; font-size: 1rem; }
+}

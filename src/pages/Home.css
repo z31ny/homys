@@ -1,0 +1,27 @@
+:root {
+    --bg: #eee9d5;
+    --blue: #123042;
+    --main-font: 'Encode Sans Expanded', sans-serif;
+}
+
+
+body {
+    margin: 0;
+    font-family: var(--main-font);
+    background-image: url('https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/bg.jpg');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--bg);
+}
+
+/* background-attachment:fixed is broken on iOS/Android mobile — falls back to scroll */
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+        background-size: cover;
+        background-position: center top;
+    }
+}
+

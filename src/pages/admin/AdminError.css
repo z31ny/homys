@@ -1,0 +1,129 @@
+.error-page-container {
+  height: 100vh;
+  width: 100%;
+  background-color: var(--color-bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+.error-content {
+  text-align: center;
+  z-index: 10;
+  max-width: 500px;
+  padding: 40px;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.error-icon-wrap {
+  color: var(--color-gold);
+  margin-bottom: 20px;
+}
+
+.error-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 120px;
+  line-height: 1;
+  margin: 0;
+  color: var(--color-navy);
+  letter-spacing: -5px;
+}
+
+.error-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  color: var(--color-navy);
+  margin: 10px 0 20px 0;
+}
+
+.error-text {
+  color: var(--color-text-muted);
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.error-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.error-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-decoration: none;
+  border: none;
+}
+
+.error-btn.primary {
+  background-color: var(--color-gold);
+  color: var(--color-navy);
+}
+
+.error-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(197, 163, 103, 0.4);
+}
+
+.error-btn.secondary {
+  background-color: var(--color-cream);
+  color: var(--color-navy);
+}
+
+.error-btn.secondary:hover {
+  background-color: var(--color-beige);
+}
+
+.error-bg-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.deco-item {
+  font-family: 'Playfair Display', serif;
+  font-size: 40vw;
+  color: rgba(0,0,0,0.02);
+  position: absolute;
+  font-weight: 900;
+}
+
+.deco-item.thin {
+  font-size: 60vw;
+  top: -10vw;
+  left: -10vw;
+  color: rgba(22, 30, 43, 0.015);
+}
+
+@media (max-width: 600px) {
+  .error-content { margin: 20px; padding: 30px; }
+  .error-title { font-size: 80px; }
+  .error-subtitle { font-size: 24px; }
+  .error-actions { flex-direction: column; }
+}

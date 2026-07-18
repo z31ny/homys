@@ -1,0 +1,126 @@
+
+/* ─────────────────────────────────────────────────
+   FEATURED UNITS SECTION
+   Card styles come from Homes.css — we only add the
+   section wrapper, header, and button.
+───────────────────────────────────────────────── */
+
+.featured-section {
+  padding: 100px 40px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Header ── */
+.featured-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.featured-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #d1a67a;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+}
+
+.featured-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  color: #112a3d;
+  margin: 0;
+  line-height: 1.15;
+}
+
+/* ── Grid override — max 3 cols like Stays, centred ── */
+.featured-grid {
+  max-width: 1300px;
+  width: 100%;
+}
+
+/* Apply the same rounded-corner pattern as Stays (3-col row) */
+.featured-grid .home-card:nth-child(3n+1) { border-radius: 80px 0 0 80px; }
+.featured-grid .home-card:nth-child(3n+2) { border-radius: 0; }
+.featured-grid .home-card:nth-child(3n)   { border-radius: 0 80px 80px 0; }
+/* If only 1 or 2 cards, give them rounded corners */
+.featured-grid .home-card:only-child      { border-radius: 40px; }
+.featured-grid .home-card:first-child:nth-last-child(2)       { border-radius: 80px 0 0 80px; }
+.featured-grid .home-card:last-child:nth-child(2)             { border-radius: 0 80px 80px 0; }
+
+/* ── Explore button ── */
+.featured-explore-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 60px;
+  padding: 16px 48px;
+  background: transparent;
+  color: #112a3d;
+  border: 1.5px solid #112a3d;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.2s;
+  font-family: 'Encode Sans Expanded', sans-serif;
+}
+
+.featured-explore-btn:hover {
+  background: #112a3d;
+  color: #f6f3eb;
+  transform: translateY(-2px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .featured-section { padding: 80px 30px 60px; }
+  /* 2-col grid at tablet — override homes-grid */
+  .featured-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .featured-grid .home-card:nth-child(n) { border-radius: 40px; }
+}
+
+@media (max-width: 768px) {
+  /* No overflow: hidden on section — would clip the carousel's leading edge */
+  .featured-section { padding: 60px 0 50px; }
+  .featured-section .featured-header { padding: 0 20px; margin-bottom: 32px; }
+  .featured-section .featured-explore-btn { margin-right: auto; margin-left: auto; }
+
+  /* ── Horizontal scroll carousel ── */
+  .featured-grid {
+    display: flex !important;
+    grid-template-columns: unset !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 20px; /* first card snaps flush with padding */
+    -webkit-overflow-scrolling: touch;
+    gap: 14px !important;
+    /* Left padding shows the first card fully; right padding peeks the next */
+    padding: 4px 20px 20px !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .featured-grid::-webkit-scrollbar { display: none; }
+
+  .featured-grid .home-card {
+    flex-shrink: 0 !important;
+    width: 78vw !important;
+    max-width: 320px !important;
+    border-radius: 24px !important;
+    scroll-snap-align: start;
+  }
+
+  .featured-explore-btn { padding: 14px 36px; font-size: 0.84rem; margin-top: 32px; }
+}
+
+@media (max-width: 480px) {
+  .featured-section { padding: 44px 0 40px; }
+  .featured-grid .home-card { width: 82vw !important; }
+  .featured-explore-btn { width: calc(100% - 40px); justify-content: center; }
+}

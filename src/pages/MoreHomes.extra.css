@@ -1,0 +1,24 @@
+
+/* Append to MoreHomes.css */
+.mh-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f2ec;
+  border: 1.5px solid #e0d9ce;
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-family: 'Encode Sans Expanded', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #112a3d;
+  cursor: pointer;
+  margin-bottom: 40px;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.3px;
+}
+
+.mh-back-btn:hover {
+  background: #ede9e0;
+  transform: translateX(-3px);
+}

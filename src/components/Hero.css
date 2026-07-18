@@ -1,0 +1,276 @@
+
+.hero-section {
+  width: 100%;
+  padding-top: 9%;
+  box-sizing: border-box;
+}
+
+/* ── Hero background (desktop) ───────────────────────────────────────────
+   background-size: 100% auto — always fills by width, never zooms beyond it.
+   background-position: top center — shows the upper (most important) part.
+   background-color fills any gap at the bottom on wide/short viewports.   */
+.hero-bg {
+  width: 100%;
+  height: 85vh;
+  background-size: 100% auto;
+  background-position: top center;
+  background-color: #0b2d3d;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Desktop: CSS background handles the image — hide the img tag */
+.hero-mobile-img {
+  display: none;
+}
+
+/* ── Overlay buttons ─────────────────────────────────────────────────────── */
+.list-property-btn {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  display: flex;
+  align-items: center;
+  background-color: #34495e;
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+
+.list-property-btn .hover-text {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.4s ease;
+  font-family: 'Encode Sans Expanded', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.list-property-btn:hover { padding: 12px 20px; }
+.list-property-btn:hover .hover-text { max-width: 200px; margin-right: 15px; }
+
+.icon-box svg { width: 24px; height: 24px; }
+
+/* ── Booking bar (desktop — flex child at bottom) ───────────────────────── */
+.booking-bar {
+  width: calc(100% - 80px);
+  max-width: 1300px;
+  background: #123042b5;
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 25px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-family: 'Encode Sans Expanded', sans-serif;
+  margin-bottom: 40px;
+  box-sizing: border-box;
+}
+
+.booking-item {
+  position: relative;
+  flex: 1;
+  padding: 10px 25px;
+  cursor: pointer;
+}
+
+.white-icon { width: 20px; height: 20px; stroke: #ffffff; }
+
+.hover-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 90%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  background: white;
+  border-radius: 10px;
+  border: none;
+  padding-left: 15px;
+  transition: opacity 0.3s ease;
+  color: #123042;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 5;
+  outline: none;
+}
+
+.booking-item:hover .hover-input,
+.hover-input:focus,
+.booking-item.has-value .hover-input {
+  opacity: 1;
+}
+
+.item-label { display: flex; align-items: center; gap: 12px; }
+.item-label h3 { font-size: 18px; margin: 0; font-weight: 600; color: #ffffff; }
+
+.item-sub {
+  font-size: 12px;
+  margin: 5px 0 0 32px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-btn {
+  background: white;
+  border: none;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 20px;
+  transition: transform 0.2s ease;
+}
+.search-btn:hover { transform: scale(1.05); }
+.search-btn svg { width: 24px; height: 24px; stroke: #123042; }
+
+/* ── Tablet ─────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .booking-bar { flex-wrap: wrap; padding: 20px; }
+  .booking-item { width: 50%; flex: none; }
+  .list-property-btn { top: 24px; right: 24px; }
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────
+   Show the FULL wide hero image (both panels) at natural aspect ratio,
+   exactly like the desktop. The booking bar is pinned to the bottom.
+   ───────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero-section {
+    width: 100%;
+    margin: 120px 0 0; /* top-tier 48px + main-tier 72px = 120px */
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* Let the container height be driven by the image's natural aspect ratio */
+  .hero-bg {
+    background-image: none !important;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    position: relative;
+    display: block;
+    background-color: #0b2d3d;
+    overflow: visible;
+  }
+
+  /* Full image — both panels visible, no cropping */
+  .hero-mobile-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 0;
+  }
+
+  /* Booking bar sits just below the image, full width */
+  .booking-bar {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    z-index: 2;
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(18, 48, 66, 0.95);
+    border-radius: 0;
+    padding: 0;
+    overflow: hidden;
+    margin-bottom: 0;
+    backdrop-filter: none;
+  }
+
+  .booking-item {
+    width: auto;
+    flex: none;
+    background: rgba(18, 48, 66, 0.95);
+    backdrop-filter: blur(14px);
+    padding: 18px 16px 16px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: background 0.2s;
+    border-radius: 0;
+  }
+  .booking-item:active { background: rgba(18, 48, 66, 1); }
+
+  .booking-item:nth-child(1) { border-radius: 0; }
+  .booking-item:nth-child(2) { border-radius: 0; }
+  .booking-item:nth-child(3) { border-radius: 0; }
+  .booking-item:nth-child(4) { border-radius: 0; }
+
+  .item-label h3 { font-size: 14px; font-weight: 700; }
+  .item-sub { font-size: 11px; margin: 0; }
+
+  .search-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 52px;
+    border-radius: 0;
+    background: #c5a367;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Encode Sans Expanded', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #0b2033;
+    transition: background 0.2s;
+  }
+  .search-btn::after { content: 'SEARCH'; }
+  .search-btn:hover { background: #b8924e; transform: none; }
+  .search-btn svg { stroke: #0b2033; width: 18px; height: 18px; }
+
+  .hover-input {
+    position: static;
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    border-radius: 0;
+    padding: 4px 0 2px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'Encode Sans Expanded', sans-serif;
+  }
+  .hover-input::placeholder { color: rgba(255,255,255,0.45); }
+  .hover-input:focus { outline: none; border-bottom-color: rgba(255,255,255,0.8); }
+  .item-sub { display: none; }
+  .hover-input option { color: #123042; background: #fff; }
+
+  .list-property-btn { top: 14px; right: 14px; padding: 10px; z-index: 2; }
+  .list-property-btn .hover-text { display: none; }
+}
+
+@media (max-width: 480px) {
+  .hero-section { margin-top: 64px; } /* top-tier hidden at this size, only main-tier 64px */
+  .booking-bar { width: 100%; border-radius: 0; }
+  .booking-item { padding: 15px 14px 13px; }
+  .search-btn { height: 50px; font-size: 12px; }
+  .item-label h3 { font-size: 13px; }
+  .white-icon { width: 16px; height: 16px; }
+}

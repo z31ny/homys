@@ -1,0 +1,154 @@
+
+.stay-section {
+  padding: 120px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stay-header {
+  max-width: 900px;
+  margin-bottom: 60px;
+}
+
+.stay-main-title {
+  font-family: "Libre Baskerville", serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 300;
+  color: #112a3d;
+  line-height: 1.2;
+  margin-bottom: 25px;
+}
+
+.stay-description {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.7;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.stay-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 1300px;
+}
+
+.stay-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stay-image-container {
+  width: 100%;
+  aspect-ratio: 2/3;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #112a3d;
+}
+
+.stay-image-container img.bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.stay-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.4s ease;
+}
+
+.destination-name {
+  font-family: 'Encode Sans Expanded', sans-serif;
+  color: #E7C437;
+  font-size: clamp(1.2rem, 1.8vw, 2rem);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 2.3px;
+  padding: 0 10px;
+  pointer-events: none;
+  font-weight: 1200;
+}
+
+.stay-footer {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.house-icon-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.home-count {
+  font-family: 'Encode Sans Expanded', sans-serif;
+  color: #112a3d;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.stay-card:hover img.bg-img {
+  transform: scale(1.1);
+}
+
+.stay-card:hover .stay-overlay {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.explore-button {
+  margin-top: 60px;
+  padding: 16px 70px;
+  font-family: 'Encode Sans Expanded', sans-serif;
+  font-size: 1.1rem;
+  color: #112a3d;
+  background: transparent;
+  border: 1.2px solid #112a3d;
+  border-radius: 60px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 400;
+}
+
+.explore-button:hover {
+  background-color: #112a3d;
+  color: #f6f3eb;
+}
+
+@media (max-width: 1024px) {
+  .stay-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .stay-section { padding: 60px 24px; }
+}
+
+@media (max-width: 600px) {
+  .stay-section { padding: 80px 20px; }
+  .stay-header { margin-bottom: 40px; }
+  .stay-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .stay-image-container { aspect-ratio: 1 / 1; }
+  .stay-main-title { font-size: 1.9rem; }
+  .destination-name { font-size: 1rem; letter-spacing: 1.5px; }
+  .explore-button { padding: 14px 30px; font-size: 0.95rem; width: 100%; max-width: 360px; }
+}
+
+@media (max-width: 480px) {
+  .stay-section { padding: 60px 16px; }
+  .stay-main-title { font-size: 1.6rem; }
+  .stay-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .destination-name { font-size: 0.9rem; letter-spacing: 1px; }
+}

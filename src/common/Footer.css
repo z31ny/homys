@@ -1,0 +1,224 @@
+.footer {
+  background-color: #0B2D3D;
+  color: #FFFFFF;
+  font-family: 'Encode Sans Expanded', sans-serif;
+  padding: 120px 40px 0 40px;
+  position: relative;
+  overflow: hidden;
+  background-image: url('https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/footer.png');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.footer-container {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 85px;
+}
+
+.footer-logo {
+  height: 35px;
+  filter: brightness(0) invert(1); 
+}
+
+.footer-links-grid {
+  display: flex;
+  gap: 100px;
+}
+
+.footer-column h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  text-transform: capitalize;
+}
+
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-column ul li {
+  margin-bottom: 12px;
+}
+
+.footer-column ul li a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.3s;
+}
+
+.footer-column ul li a:hover {
+  color: #FFFFFF;
+}
+
+.get-touch-btn {
+  background: transparent;
+  border: 1px solid #FFFFFF;
+  color: #FFFFFF;
+  padding: 10px 40px;
+  border-radius: 50px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.get-touch-btn:hover {
+  background: #FFFFFF;
+  color: #0B2D3D;
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 140px;
+}
+
+.footer-socials {
+  display: flex;
+  gap: 15px;
+}
+
+.social-icon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.social-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.social-icon:hover {
+  border-color: #FFFFFF;
+}
+
+.footer-contact p {
+  margin: 5px 0;
+  font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.contact-link {
+  text-decoration: none !important;
+}
+
+.footer-copyright {
+  text-align: right;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.6;
+}
+
+
+
+@media (max-width: 1024px) {
+  .footer-top {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .footer-links-grid {
+    gap: 50px;
+    flex-wrap: wrap;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 30px;
+  }
+  .footer-copyright {
+    text-align: left;
+  }
+}
+@media (max-width: 768px) {
+  .footer {
+    padding: 90px 24px 0;
+    text-align: center;
+    /* background-attachment:fixed is broken on iOS — switch to scroll */
+    background-attachment: scroll;
+    background-size: cover;
+    /* Push watermark text to lower portion so it doesn't bleed behind the logo */
+    background-position: center 80%;
+  }
+
+  .footer-logo-section {
+    display: none;
+  }
+
+  .footer-top {
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 32px;       /* override the base 85px */
+  }
+
+  .footer-links-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 32px 48px;
+    width: 100%;
+  }
+
+  .footer-column { min-width: 120px; }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 48px;      /* override the base 140px */
+    gap: 18px;
+  }
+
+  .footer-copyright { text-align: center; order: 3; }
+  .footer-socials { order: 1; }
+  .footer-contact { order: 2; }
+
+  .get-touch-btn { width: 100%; max-width: 280px; }
+}
+
+@media (max-width: 480px) {
+  .footer { padding: 80px 18px 0; }
+
+  .footer-top { gap: 24px; margin-bottom: 24px; }
+
+  .footer-links-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 24px 20px;
+  }
+
+  .footer-column { min-width: 110px; text-align: left; }
+  .footer-column h3 { font-size: 12px; margin-bottom: 10px; }
+  .footer-column ul li { margin-bottom: 8px; }
+  .footer-column ul li a { font-size: 13px; }
+
+  .footer-bottom { padding-bottom: 36px; gap: 14px; }
+  .footer-logo { height: 26px; }
+
+  .footer-contact p { font-size: 13px; }
+  .footer-copyright { font-size: 11px; }
+  .social-icon { width: 34px; height: 34px; }
+  .social-icon svg { width: 15px; height: 15px; }
+}

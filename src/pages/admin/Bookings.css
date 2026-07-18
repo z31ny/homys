@@ -1,0 +1,308 @@
+.bookings-page {
+  padding: 40px;
+  min-height: 100vh;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+}
+
+.bookings-card {
+  background: white;
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Toolbar Controls */
+.bookings-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.bookings-toolbar-left {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.bookings-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bookings-search-box svg {
+  position: absolute;
+  left: 12px;
+  color: var(--color-text-muted);
+}
+
+.bookings-search-box input {
+  padding: 12px 15px 12px 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  width: 220px;
+  font-size: 14px;
+  outline: none;
+}
+
+.bookings-filter-select {
+  padding: 10px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: var(--color-cream);
+  color: var(--color-navy);
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.bookings-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-gold);
+  color: var(--color-navy);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.bookings-export-btn:hover { opacity: 0.9; }
+
+/* Table Styling */
+.bookings-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 25px;
+}
+
+.bookings-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.bookings-table th {
+  text-align: left;
+  padding: 15px 20px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-bottom: var(--border-light);
+}
+
+.bookings-table td {
+  padding: 20px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.bookings-id-cell {
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.bookings-row-alt {
+  background-color: var(--color-beige);
+}
+
+/* Footer & Pagination */
+.bookings-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+}
+
+.bookings-results-count {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.bookings-pagination {
+  display: flex;
+  gap: 8px;
+}
+
+.bookings-page-btn {
+  padding: 8px 16px;
+  border: var(--border-light);
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bookings-page-btn:hover { background-color: #f8fafc; }
+
+.bookings-page-btn.active {
+  background-color: var(--color-gold);
+  border-color: var(--color-gold);
+  color: var(--color-navy);
+}
+
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+  .bookings-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .bookings-export-btn {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .bookings-page { padding: 12px; }
+  .bookings-card {
+    padding: 14px;
+    box-sizing: border-box;
+    border-radius: 20px;
+  }
+
+  /* Toolbar: stack inputs/filters cleanly + force the inline-styled
+     "Block / Book Dates" button (which sets marginLeft:auto in JSX) to be
+     a full-width mobile CTA below the filters */
+  .bookings-toolbar { gap: 12px; margin-bottom: 18px; }
+  .bookings-toolbar-left {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+  .bookings-search-box { flex: 1 1 100%; }
+  .bookings-search-box input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .bookings-filter-select {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .bookings-toolbar > button {
+    margin-left: 0 !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .bookings-footer {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Turn the wide table into a list of polished mobile cards */
+  .bookings-table-wrapper { overflow-x: visible; }
+  .bookings-table { min-width: 0; width: 100%; }
+  .bookings-table thead { display: none; }
+  .bookings-table, .bookings-table tbody, .bookings-table tr, .bookings-table td { display: block; width: 100%; box-sizing: border-box; }
+
+  .bookings-table tr {
+    border: 1px solid #ece6db;
+    border-radius: 16px;
+    padding: 4px 16px;
+    margin-bottom: 14px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(17, 30, 43, 0.05);
+    transition: box-shadow 0.2s ease;
+  }
+  .bookings-table tr.bookings-row-alt { background: #fff; }
+
+  .bookings-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    text-align: right;
+    padding: 12px 0;
+    border: none;
+    border-bottom: 1px solid #f2eee6;
+    font-size: 13.5px;
+    color: #161e2b;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    min-width: 0;
+    line-height: 1.4;
+  }
+  .bookings-table td:last-child { border-bottom: none; }
+
+  .bookings-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    color: #9aa1a8;
+    text-align: left;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* Value side (single-line cells): align right, wrap if long */
+  .bookings-table td > span,
+  .bookings-table td > div {
+    text-align: right;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* GUEST + PROPERTY cells have multiple pieces (name/phone/email,
+     title/location). Stack them vertically on the right of the label
+     so they don't compete for the same row. */
+  .bookings-table td[data-label="Guest"],
+  .bookings-table td[data-label="Property"] {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 14px 0;
+  }
+  .bookings-table td[data-label="Guest"]::before,
+  .bookings-table td[data-label="Property"]::before {
+    align-self: flex-start;
+    padding-top: 3px;
+  }
+  /* Primary value (the bare text node — guest name / property title) */
+  .bookings-table td[data-label="Guest"],
+  .bookings-table td[data-label="Property"] {
+    font-weight: 700;
+    color: #161e2b;
+    font-size: 14px;
+  }
+  /* Supporting blocks below the primary value, full-width and muted */
+  .bookings-table td[data-label="Guest"] > div,
+  .bookings-table td[data-label="Property"] > div {
+    flex-basis: 100%;
+    text-align: right;
+    color: #8b8b8b;
+    font-weight: 500;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bookings-page { padding: 8px; }
+  .bookings-card { padding: 12px; border-radius: 16px; }
+  .bookings-toolbar { margin-bottom: 14px; }
+  .bookings-filter-select { font-size: 13px; padding: 10px 14px; }
+  .bookings-search-box input { font-size: 13px; padding: 10px 12px 10px 36px; }
+  .bookings-search-box svg { left: 10px; }
+  .bookings-pagination { flex-wrap: wrap; justify-content: center; }
+  .bookings-table tr { padding: 4px 14px; border-radius: 14px; }
+  .bookings-table td { padding: 11px 0; font-size: 12.5px; gap: 10px; }
+  .bookings-table td::before { font-size: 0.62rem; }
+  .bookings-table td[data-label="Guest"],
+  .bookings-table td[data-label="Property"] { font-size: 13.5px; padding: 13px 0; }
+  .bookings-table td[data-label="Guest"] > div,
+  .bookings-table td[data-label="Property"] > div { font-size: 11.5px; }
+}

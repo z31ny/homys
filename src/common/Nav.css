@@ -1,0 +1,235 @@
+
+:root {
+    --blue: #123042;
+    --bg: #f6f3eb;
+    --main-font: 'Encode Sans Expanded', sans-serif;
+}
+
+.nav-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 2000;
+    transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    background-image: url('https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/bg.jpg');
+    background-attachment: fixed;
+    background-size: cover;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.top-tier {
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid rgba(18, 48, 66, 0.1);
+}
+
+.mode-switcher {
+    display: flex;
+    padding: 4px;
+    border-radius: 50px;
+    gap: 5px;
+    border: 1px solid rgba(18, 48, 66, 0.15);
+}
+
+.mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 22px;
+    text-decoration: none;
+    color: var(--blue);
+    font-family: var(--main-font);
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 50px;
+    transition: 0.3s;
+}
+
+.mode-btn svg { width: 16px; height: 16px; }
+.mode-btn.active { background: var(--blue); color: #fff; }
+
+.main-tier {
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 60px;
+}
+
+.nav-left, .nav-right { flex: 1; display: flex; align-items: center; }
+.nav-right { justify-content: flex-end; }
+.nav-center { flex: 2; display: flex; justify-content: center; transition: all 0.4s ease; }
+
+.nav-center.hide, .nav-actions.hide {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    pointer-events: none;
+}
+
+.nav-logo img { height: 35px; }
+.nav-links { display: flex; gap: 50px; }
+.nav-links a {
+    text-decoration: none;
+    color: var(--blue);
+    font-weight: 600;
+    font-size: 15px;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s;
+    display: inline-block;
+}
+.nav-links a:hover {
+    transform: scale(1.12);
+    color: #1a3a52;
+}
+
+.nav-actions { display: flex; align-items: center; gap: 25px; }
+
+.book-btn {
+    background: transparent;
+    border: 1.5px solid var(--blue);
+    color: var(--blue);
+    padding: 10px 30px;
+    border-radius: 50px;
+    font-family: var(--main-font);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.book-btn:hover { background-color: var(--blue); color: var(--bg); }
+
+.profile-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1.5px solid var(--blue);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.profile-circle:hover { background-color: var(--blue); }
+.user-icon { width: 20px; height: 20px; stroke: var(--blue); transition: 0.3s; }
+.profile-circle:hover .user-icon { stroke: var(--bg); }
+
+/* SCROLL LOGIC */
+.nav-wrapper.scrolled { transform: translateY(-60px); }
+
+/* BURGER MENU ORIGINAL DESIGN */
+.menu-hover-area { display: none; position: relative; padding: 10px; }
+.menu-hover-area.show { display: block; }
+.hamburger-container { cursor: pointer; }
+.burger-lines { width: 30px; height: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+.burger-lines span { display: block; width: 100%; height: 2px; background-color: var(--blue); transition: all 0.4s ease; }
+
+.burger-lines.open span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+.burger-lines.open span:nth-child(2) { opacity: 0; }
+.burger-lines.open span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+.dropdown-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 300px;
+    background-color: var(--bg);
+    background-image: url('https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/bg.jpg');
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    pointer-events: none;
+}
+
+.dropdown-panel.active { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+.dropdown-links { display: flex; flex-direction: column; gap: 20px; }
+.dropdown-links a {
+    text-decoration: none;
+    color: var(--blue);
+    font-size: 18px;
+    font-weight: 500;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s;
+    display: inline-block;
+    transform-origin: left center;
+}
+.dropdown-links a:hover {
+    transform: scale(1.1);
+    color: #1a3a52;
+}
+
+.dropdown-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid rgba(18, 48, 66, 0.1);
+}
+
+@media (max-width: 1024px) {
+    .nav-center, .nav-actions { display: none !important; }
+    .menu-hover-area { display: block !important; }
+    .main-tier { padding: 0 30px; }
+}
+
+@media (max-width: 768px) {
+    /* background-attachment:fixed broken on iOS — switch to scroll */
+    .nav-wrapper { background-attachment: scroll; background-position: center center; }
+    .top-tier { height: 48px; }
+    .mode-btn { padding: 6px 14px; font-size: 12px; }
+    .main-tier { height: 72px; padding: 0 18px; }
+    .nav-logo img { height: 28px; }
+    /* Use fixed positioning so the dropdown is always relative to the viewport,
+       not the right-side hamburger container — prevents left-clipping */
+    .dropdown-panel {
+        position: fixed;
+        top: 120px; /* 48px top-tier + 72px main-tier */
+        left: 16px;
+        right: 16px;
+        width: auto;
+        border-radius: 20px;
+        padding: 28px 28px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .nav-wrapper.scrolled { transform: translateY(-48px); }
+    /* When nav scrolls up 48px the fixed dropdown also shifts up with the
+       transformed parent — lands at top: 72px which is exactly correct */
+}
+
+@media (max-width: 480px) {
+    .top-tier { display: none; }
+    .main-tier { height: 64px; padding: 0 16px; }
+    .nav-wrapper.scrolled { transform: translateY(0); }
+    .dropdown-panel {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 0 0 20px 20px;
+        padding: 28px 24px 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .dropdown-links { gap: 16px; }
+    .dropdown-links a { font-size: 20px; }
+    .dropdown-actions {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding-top: 18px;
+        margin-top: 4px;
+    }
+    .dropdown-actions .book-btn { flex: 1; text-align: center; }
+    .dropdown-actions .profile-circle { width: 42px; height: 42px; flex-shrink: 0; }
+}
