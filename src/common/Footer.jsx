@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCMS } from '../useCMS';
+import { staticUrl } from '../staticAssets';
 import './Footer.css';
 import logo from '../imgs/logowhite.png';
-const footerBg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/footer.png';
+const footerBg = staticUrl('footer.png', 'f_auto,q_auto,w_1920');
 
 const DEFAULTS = {
   phone: '+20 127 584 3440',

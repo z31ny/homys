@@ -6,28 +6,14 @@ import {
 import { contentAPI, adminAPI } from '../../services/api';
 import { invalidateCache } from '../../useCMS';
 
-const CLOUDINARY_CLOUD_NAME = 'dzpswgjsm';
-const CLOUDINARY_UPLOAD_PRESET = 'homys_unsigned';
-
-// ── Cloudinary uploader ────────────────────────────────────────────────────
+// ── R2 image uploader ──────────────────────────────────────────────────────
 async function uploadImage(file) {
   if (file.size > 10 * 1024 * 1024) {
     throw new Error('Image is over 10MB — please use a smaller file.');
   }
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  fd.append('folder', 'homys/site-content');
-  const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-    { method: 'POST', body: fd }
-  );
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    // Surface Cloudinary's actual reason (e.g. file too large, HEIC unsupported)
-    throw new Error(data?.error?.message || `Image upload failed (HTTP ${res.status})`);
-  }
-  return data.secure_url;
+  // Import at top won't work for this pattern, so inline-import
+  const { uploadImageToR2 } = await import('../../services/api');
+  return uploadImageToR2(file, 'site-content');
 }
 
 // ── Shared tiny components ─────────────────────────────────────────────────

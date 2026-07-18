@@ -1,20 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { bookingsAPI } from '../services/api';
+import { bookingsAPI, uploadImageToR2 } from '../services/api';
 import './BookingDocs.css';
 
-const CLOUDINARY_CLOUD_NAME = 'dzpswgjsm';
-const CLOUDINARY_UPLOAD_PRESET = 'homys_unsigned';
 
-const uploadToCloudinary = async (file) => {
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  fd.append('folder', 'homys/booking-docs');
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-  if (!res.ok) throw new Error('Upload failed');
-  return (await res.json()).secure_url;
-};
 
 const DocUploadSlot = ({ label, description, required, file, preview, onFileChange, onRemove }) => (
   <div style={{ background: '#f9f6f1', border: `1.5px solid ${file ? '#4caf82' : '#e8e0d4'}`, borderRadius: 14, padding: '20px', transition: 'border-color 0.2s' }}>
@@ -172,20 +161,20 @@ const BookingDocs = () => {
       const uploadedDocs = [];
 
       // Upload primary ID
-      const primaryUrl = await uploadToCloudinary(primaryId.file);
+      const primaryUrl = await uploadImageToR2(primaryId.file, 'booking-docs');
       uploadedDocs.push({ type: 'national_id', owner: 'primary', label: 'Primary Guest ID', url: primaryUrl });
 
       // Upload each extra guest ID
       for (let i = 0; i < guestIds.length; i++) {
         if (guestIds[i].file) {
-          const url = await uploadToCloudinary(guestIds[i].file);
+          const url = await uploadImageToR2(guestIds[i].file, 'booking-docs');
           uploadedDocs.push({ type: 'national_id', owner: `guest_${i + 2}`, label: `Guest ${i + 2} ID`, url });
         }
       }
 
       // Upload certificate if couple
       if (isCouple && certDoc.file) {
-        const certUrl = await uploadToCloudinary(certDoc.file);
+        const certUrl = await uploadImageToR2(certDoc.file, 'booking-docs');
         uploadedDocs.push({ type: 'marriage_cert', owner: 'primary', label: 'Marriage Certificate', url: certUrl });
       }
 

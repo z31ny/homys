@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCMS } from '../useCMS';
+import { staticUrl } from '../staticAssets';
 import './AboutUs.css';
 
-const missionImg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_800/homys-static/Group_14.png';
-const reccc = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1200/homys-static/recc.png';
+const missionImg = staticUrl('Group_14.png', 'f_auto,q_auto,w_800');
+const reccc = staticUrl('recc.png', 'f_auto,q_auto,w_1200');
 import team1 from '../imgs/Rectangle 6.png';
 import team2 from '../imgs/Rectangle 9.png';
 import team3 from '../imgs/Rectangle 10.png';

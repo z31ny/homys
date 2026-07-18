@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCMS } from '../useCMS';
 import { propertiesAPI } from '../services/api';
+import { staticUrl } from '../staticAssets';
 import './Hero.css';
 
 const DEFAULTS = {
-  backgroundImage: 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/hero.png',
+  backgroundImage: staticUrl('hero.png', 'f_auto,q_auto,w_1920'),
   showListPropertyButton: true,
 };
 

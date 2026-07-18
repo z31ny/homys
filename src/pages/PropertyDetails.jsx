@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { propertiesAPI, reviewsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCMS } from '../useCMS';
+import { staticUrl } from '../staticAssets';
 import './PropertyDetails.css';
 
 // ─── Homys Rules CMS defaults ─────────────────────────────────────────────
@@ -37,7 +38,7 @@ const HOMYS_RULES_DEFAULTS = {
   ],
 };
 
-const fallbackImg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_800/homys-static/StaysHero.png';
+const fallbackImg = staticUrl('StaysHero.png', 'f_auto,q_auto,w_800');
 
 // ─── Label badge styles ───────────────────────────────────────────────────
 const LABEL_META = {

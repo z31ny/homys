@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useCMS } from '../useCMS';
 import './StaysHero.css';
+import { staticUrl } from '../staticAssets';
 import separator2 from '../imgs/separator2.png';
-const StaysHeroImg = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1920/homys-static/StaysHero.png';
+const StaysHeroImg = staticUrl('StaysHero.png', 'f_auto,q_auto,w_1920');
 import star from '../imgs/star.png';
 
 const DEFAULTS = {

@@ -1,11 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { propertiesAPI } from '../services/api';
+import { propertiesAPI, uploadImageToR2 } from '../services/api';
 import './ListProperty.css';
 
-const CLOUDINARY_CLOUD_NAME = 'dzpswgjsm';
-const CLOUDINARY_UPLOAD_PRESET = 'homys_unsigned';
 
 // Google Maps Places API (New) key (browser/HTTP-referrer restricted) — gives
 // Google-quality POI/place names (e.g. "Fouka Bay"). Falls back to OSM/Nominatim
@@ -260,13 +258,7 @@ const ListProperty = () => {
   };
   const removeImage = (index) => { URL.revokeObjectURL(previewUrls[index]); setSelectedFiles((prev) => prev.filter((_, i) => i !== index)); setPreviewUrls((prev) => prev.filter((_, i) => i !== index)); };
 
-  const uploadToCloudinary = async (file) => {
-    const fd = new FormData();
-    fd.append('file', file); fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET); fd.append('folder', 'homys/properties');
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-    if (!res.ok) throw new Error('Failed to upload image');
-    return (await res.json()).secure_url;
-  };
+
 
   const essentials = ['Pharmacy','Supermarket','Hospital','Beach Access','Gym','Restaurant','Shopping Mall','ATM / Bank','Public Transport','Cinema','Park','Security Hub'];
   const handleNearbyChange = (item) => setNearby((prev) => prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]);
@@ -286,7 +278,7 @@ const ListProperty = () => {
       let imageUrls = [];
       for (let i = 0; i < selectedFiles.length; i++) {
         setUploadProgress(`Uploading images (${i + 1}/${selectedFiles.length})…`);
-        imageUrls.push(await uploadToCloudinary(selectedFiles[i]));
+        imageUrls.push(await uploadImageToR2(selectedFiles[i], 'properties'));
       }
       setUploadProgress('');
       const description = bullets.filter((b) => b.trim()).join('\n');

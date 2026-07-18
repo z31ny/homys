@@ -1,7 +1,8 @@
 import React from 'react';
 import { useCMS } from '../useCMS';
+import { staticUrl } from '../staticAssets';
 import './Partners.css';
-const group14 = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_800/homys-static/Group_14.png';
+const group14 = staticUrl('Group_14.png', 'f_auto,q_auto,w_800');
 import rect9  from '../imgs/Rectangle 9.png';
 import rect10 from '../imgs/Rectangle 10.png';
 import rect11 from '../imgs/Rectangle 11.png';

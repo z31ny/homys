@@ -5,9 +5,6 @@ import { bookings, bookingAddons, properties, payments } from '../_db/schema';
 import { AppError } from '../_middleware/errorHandler';
 import type { CreateBookingInput } from '../_validators/booking';
 
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dzpswgjsm';
-const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UNSIGNED_PRESET || 'homys_unsigned';
-
 /**
  * Cancels every 'pending' booking that is older than 10 minutes AND has not
  * paid its deposit — globally, not just for one property. Deposit-paid bookings
@@ -166,7 +163,7 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
 /**
  * POST /api/bookings/:id/docs
  * Authenticated — upload identity documents for a booking.
- * Accepts pre-uploaded Cloudinary URLs + metadata.
+ * Accepts pre-uploaded image URLs + metadata.
  */
 export const submitBookingDocs = async (req: Request, res: Response, next: NextFunction) => {
   try {

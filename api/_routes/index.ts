@@ -9,6 +9,7 @@ import adminRoutes from './admin.routes';
 import paymentRoutes from './payment.routes';
 import discountRoutes from './discount.routes';
 import contentRoutes from './content.routes';
+import uploadRoutes from './upload.routes';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use('/admin', adminRoutes);
 router.use('/admin/discounts', discountRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/content', contentRoutes);
+router.use('/uploads', uploadRoutes);
 
 export default router;

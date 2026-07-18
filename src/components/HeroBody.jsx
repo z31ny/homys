@@ -1,7 +1,8 @@
 import React from 'react';
 import { useCMS } from '../useCMS';
+import { staticUrl } from '../staticAssets';
 import './HeroBody.css';
-const frame1 = 'https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_600/homys-static/Frame_1.png';
+const frame1 = staticUrl('Frame_1.png', 'f_auto,q_auto,w_600');
 import frame2 from '../imgs/Frame 2.png';
 import frame3 from '../imgs/Frame 3.png';
 

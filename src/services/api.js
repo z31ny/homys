@@ -180,6 +180,32 @@ export const adminAPI = {
   deletePropertyImage: (propertyId, imageId) => request(`/admin/properties/${propertyId}/images/${imageId}`, { method: 'DELETE' }),
 };
 
+export const uploadsAPI = {
+  getPresignedUrl: (body) => request('/uploads/presign', { method: 'POST', body: JSON.stringify(body) }),
+  deleteFile: (key) => request(`/uploads/${encodeURIComponent(key)}`, { method: 'DELETE' }),
+};
+
+/**
+ * Upload a file to R2 via presigned URL.
+ * 1. Gets a presigned PUT URL from the backend
+ * 2. PUTs the file directly to R2
+ * 3. Returns the public URL
+ */
+export const uploadImageToR2 = async (file, folder = 'general') => {
+  const { data } = await uploadsAPI.getPresignedUrl({
+    filename: file.name,
+    contentType: file.type,
+    folder,
+  });
+  const putRes = await fetch(data.uploadUrl, {
+    method: 'PUT',
+    body: file,
+    headers: { 'Content-Type': file.type },
+  });
+  if (!putRes.ok) throw new Error('Failed to upload file to storage.');
+  return data.publicUrl;
+};
+
 export const paymentAPI = {
   initiate: (bookingId) => request('/payments/initiate', { method: 'POST', body: JSON.stringify({ bookingId }) }),
   initiateRemaining: (bookingId) => request('/payments/initiate-remaining', { method: 'POST', body: JSON.stringify({ bookingId }) }),

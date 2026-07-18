@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Save, X, ChevronLeft, Tag, Percent, Star } from 'lucide-react';
-import { adminAPI } from '../../services/api';
+import { adminAPI, uploadImageToR2 } from '../../services/api';
 import './EditProperty.css';
 
-const CLOUDINARY_CLOUD_NAME = 'dzpswgjsm';
-const CLOUDINARY_UPLOAD_PRESET = 'homys_unsigned';
+
 
 const AMENITIES_LIST = [
   'WiFi','Air Conditioning','Heating','Washer','Dryer','Dishwasher',
@@ -26,15 +25,7 @@ const LABEL_OPTIONS = [
   { value: 'new',            label: 'New' },
 ];
 
-const uploadToCloudinary = async (file) => {
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  fd.append('folder', 'homys/properties');
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-  if (!res.ok) throw new Error('Image upload failed');
-  return (await res.json()).secure_url;
-};
+
 
 const SectionCard = ({ title, children }) => (
   <div style={{ background: '#fff', border: '1.5px solid #e8e0d4', borderRadius: 16, padding: '24px 28px', marginBottom: 20 }}>
@@ -163,7 +154,7 @@ const EditProperty = () => {
       if (newImages.length > 0) {
         for (let i = 0; i < newImages.length; i++) {
           setUploading(`Uploading image ${i + 1}/${newImages.length}…`);
-          uploadedUrls.push(await uploadToCloudinary(newImages[i]));
+          uploadedUrls.push(await uploadImageToR2(newImages[i], 'properties'));
         }
         setUploading('');
       }

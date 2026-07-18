@@ -110,8 +110,8 @@ const Settings = () => {
             <div className="settings-int-grid">
               {[
                 {
-                  name: 'Cloudinary',
-                  desc: 'Property image hosting, CDN delivery, and auto-format (WebP/AVIF). Cloud: dzpswgjsm.',
+                  name: 'Cloudflare R2',
+                  desc: 'Image storage on Cloudflare R2 with presigned uploads and global CDN delivery.',
                   icon: <Check />,
                   active: true,
                 },
