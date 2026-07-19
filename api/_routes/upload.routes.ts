@@ -5,6 +5,6 @@ import { authenticate } from '../_middleware/auth';
 const router = Router();
 
 router.post('/presign', authenticate, getPresignedUrl);
-router.delete('/:key(*)', authenticate, deleteUpload);
+router.delete('/{*key}', authenticate, deleteUpload);
 
 export default router;
