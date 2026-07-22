@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCMS } from '../useCMS';
 import { propertiesAPI } from '../services/api';
-import { staticUrl } from '../staticAssets';
+import { staticUrl, optimizedUrl, responsiveProps } from '../staticAssets';
 import './Hero.css';
 
 const DEFAULTS = {
-  backgroundImage: staticUrl('hero.png', 'f_auto,q_auto,w_1920'),
+  backgroundImage: staticUrl('hero.png'),
   showListPropertyButton: true,
 };
 
@@ -21,6 +21,10 @@ const Hero = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const locationRef = useRef(null);
   const checkOutRef = useRef(null);
+
+  const rawBg = c.backgroundImage || DEFAULTS.backgroundImage;
+  const desktopBg = optimizedUrl(rawBg, 'lg');
+  const mobileProps = responsiveProps(rawBg, '100vw');
 
   // Fetch the distinct project names across live properties (destination list)
   useEffect(() => {
@@ -61,15 +65,17 @@ const Hero = () => {
 
   return (
     <section className="hero-section">
-      <div className="hero-bg" style={{ backgroundImage: `url(${c.backgroundImage || DEFAULTS.backgroundImage})` }}>
+      <div className="hero-bg" style={{ backgroundImage: `url(${desktopBg})` }}>
 
         {/* Mobile-only img — replaces CSS background on portrait screens so the
             full villa side of the landscape image is visible without extreme zoom */}
         <img
           className="hero-mobile-img"
-          src={c.backgroundImage || DEFAULTS.backgroundImage}
-          alt=""
+          {...mobileProps}
+          alt="Homys Featured Villa"
           aria-hidden="true"
+          fetchPriority="high"
+          decoding="async"
           style={{ width: '100%' }}
         />
 

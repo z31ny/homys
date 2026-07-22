@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { propertiesAPI, reviewsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCMS } from '../useCMS';
-import { staticUrl } from '../staticAssets';
+import { staticUrl, responsiveProps } from '../staticAssets';
 import './PropertyDetails.css';
 
 // ─── Homys Rules CMS defaults ─────────────────────────────────────────────
@@ -336,30 +336,35 @@ const PropertyDetails = () => {
       {/* ── HERO: full-width image slider ── */}
       <section className="pd-hero">
         <div className="pd-hero-track" ref={heroTrackRef} onScroll={handleHeroScroll}>
-          {heroImages.map((imgUrl, index) => (
-            <div key={index} className="pd-hero-slide">
-              <img
-                src={imgUrl}
-                alt={property.title}
-                className="pd-hero-img"
-                loading={index === 0 ? 'eager' : 'lazy'}
-                onError={(e) => { e.target.src = fallbackImg; }}
-              />
-              <div className="pd-hero-gradient" />
+          {heroImages.map((imgUrl, index) => {
+            const imgProps = responsiveProps(imgUrl, '100vw');
+            return (
+              <div key={index} className="pd-hero-slide">
+                <img
+                  {...imgProps}
+                  alt={property.title}
+                  className="pd-hero-img"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                  decoding="async"
+                  onError={(e) => { e.target.src = fallbackImg; }}
+                />
+                <div className="pd-hero-gradient" />
 
-              {/* Title + badge — top-left (only show on the first slide to avoid duplication) */}
-              {index === 0 && (
-                <div className="pd-hero-overlay">
-                  {labelMeta && (
-                    <span className={`pd-hero-label-badge lbl-${property.propertyLabel?.replace('_','')}`}>
-                      {labelMeta.text}
-                    </span>
-                  )}
-                  <h1 className="pd-hero-title">{property.title}</h1>
-                </div>
-              )}
-            </div>
-          ))}
+                {/* Title + badge — top-left (only show on the first slide to avoid duplication) */}
+                {index === 0 && (
+                  <div className="pd-hero-overlay">
+                    {labelMeta && (
+                      <span className={`pd-hero-label-badge lbl-${property.propertyLabel?.replace('_','')}`}>
+                        {labelMeta.text}
+                      </span>
+                    )}
+                    <h1 className="pd-hero-title">{property.title}</h1>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Show all photos — bottom-left */}
@@ -485,7 +490,7 @@ const PropertyDetails = () => {
 
           {/* Sticky right image */}
           <div className="pd-overview-img">
-            <img src={heroImages[0]} alt={property.title} onError={(e) => { e.target.src = fallbackImg; }} />
+            <img {...responsiveProps(heroImages[0], '(max-width: 768px) 100vw, 500px')} alt={property.title} loading="lazy" decoding="async" onError={(e) => { e.target.src = fallbackImg; }} />
           </div>
         </div>
 
@@ -493,7 +498,7 @@ const PropertyDetails = () => {
         {(property.amenities?.length > 0 || property.features?.length > 0) && (
           <div className="pd-amenities-row">
             <div className="pd-amenities-img">
-              <img src={heroImages[1] || heroImages[0]} alt="Interior" onError={(e) => { e.target.src = fallbackImg; }} />
+              <img {...responsiveProps(heroImages[1] || heroImages[0], '(max-width: 768px) 100vw, 500px')} alt="Interior" loading="lazy" decoding="async" onError={(e) => { e.target.src = fallbackImg; }} />
             </div>
             <div className="pd-amenities-col">
               <h2 className="pd-section-title">Amenities</h2>

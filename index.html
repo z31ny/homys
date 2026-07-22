@@ -12,10 +12,10 @@
 
     <!-- Open Graph (Facebook, WhatsApp, LinkedIn previews) -->
     <meta property="og:type"        content="website" />
-    <meta property="og:url"         content="https://homys.com/" />
+    <meta property="og:url"         content="https://homyshospitality.com/" />
     <meta property="og:title"       content="Homys — Premium Vacation Rentals in Egypt" />
     <meta property="og:description" content="Hand-picked, hotel-grade stays across Egypt's finest destinations. Sahel, Gouna, Cairo, Red Sea." />
-    <meta property="og:image"       content="https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1200/homys-static/hero.png" />
+    <meta property="og:image"       content="https://pub-e3137287694c4a558826795bcba3ed1d.r2.dev/static/hero.webp" />
     <meta property="og:image:width"  content="1200" />
     <meta property="og:image:height" content="630" />
 
@@ -23,11 +23,15 @@
     <meta name="twitter:card"        content="summary_large_image" />
     <meta name="twitter:title"       content="Homys — Premium Vacation Rentals in Egypt" />
     <meta name="twitter:description" content="Hand-picked, hotel-grade stays across Egypt's finest destinations." />
-    <meta name="twitter:image"       content="https://res.cloudinary.com/dzpswgjsm/image/upload/f_auto,q_auto,w_1200/homys-static/hero.png" />
+    <meta name="twitter:image"       content="https://pub-e3137287694c4a558826795bcba3ed1d.r2.dev/static/hero.webp" />
 
-    <!-- Preconnect to Google Fonts for faster font loading -->
+    <!-- Preconnect to CDN & Fonts -->
+    <link rel="preconnect" href="https://pub-e3137287694c4a558826795bcba3ed1d.r2.dev" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Preload Hero Mobile Image for Fast LCP -->
+    <link rel="preload" as="image" href="https://pub-e3137287694c4a558826795bcba3ed1d.r2.dev/static/hero_sm.webp" type="image/webp" media="(max-width: 768px)" />
 
     <!-- Single consolidated Google Fonts load (replaces 21 duplicate @import calls) -->
     <link

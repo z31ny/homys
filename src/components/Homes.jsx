@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { propertiesAPI } from '../services/api';
 import './Homes.css';
 
+import { responsiveProps } from '../staticAssets';
 import fallbackImg from '../imgs/Frame 125.png';
 
 /* ── Single card ── */
@@ -53,16 +54,20 @@ export const HomeCard = ({ home }) => {
     <div className="home-card" onClick={() => navigate(`/stays/${home.id}`)} style={{ cursor: 'pointer' }}>
       <div className="home-img-wrapper" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <div className="carousel-track" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-          {images.map((img, index) => (
-            <img
-              key={index}
-              src={img}
-              alt={home.title}
-              className="home-main-img"
-              loading="lazy"
-              onError={(e) => { e.target.src = fallbackImg; }}
-            />
-          ))}
+          {images.map((img, index) => {
+            const imgProps = responsiveProps(img, '(max-width: 768px) 100vw, 400px');
+            return (
+              <img
+                key={index}
+                {...imgProps}
+                alt={home.title}
+                className="home-main-img"
+                loading="lazy"
+                decoding="async"
+                onError={(e) => { e.target.src = fallbackImg; }}
+              />
+            );
+          })}
         </div>
 
         {images.length > 1 && (

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCMS } from '../useCMS';
-import { staticUrl } from '../staticAssets';
+import { staticUrl, responsiveProps } from '../staticAssets';
 import './AboutUs.css';
 
-const missionImg = staticUrl('Group_14.png', 'f_auto,q_auto,w_800');
-const reccc = staticUrl('recc.png', 'f_auto,q_auto,w_1200');
+const missionImg = staticUrl('Group_14.png');
+const reccc = staticUrl('recc.png');
 import team1 from '../imgs/Rectangle 6.png';
 import team2 from '../imgs/Rectangle 9.png';
 import team3 from '../imgs/Rectangle 10.png';
@@ -99,7 +99,7 @@ const AboutUs = () => {
       {/* Split */}
       <section className="about-split">
         <div className="split-img">
-          <img src={mission.splitImage || missionImg} alt="Mission" />
+          <img {...responsiveProps(mission.splitImage || missionImg, '(max-width: 768px) 100vw, 600px')} alt="Mission" loading="lazy" decoding="async" />
         </div>
         <div className="split-text">
           <h3 className="libre">{mission.splitTitle}</h3>
@@ -149,7 +149,7 @@ const AboutUs = () => {
           {founders.map((f, i) => (
             <div key={i} className="founder-card">
               <div className="founder-img">
-                <img src={f.image || FALLBACK_TEAM[i] || team1} alt={f.name} />
+                <img {...responsiveProps(f.image || FALLBACK_TEAM[i] || team1, '(max-width: 768px) 100vw, 400px')} alt={f.name} loading="lazy" decoding="async" />
               </div>
               <div className="founder-info">
                 <h4 className="libre">{f.name}</h4>
@@ -173,15 +173,15 @@ const AboutUs = () => {
         <div className="mosaic-container">
           <div className="mosaic-top-grid">
             <div className="mosaic-item tall">
-              <img src={gallery[0] || FALLBACK_GALLERY[0]} alt="Gallery 1" />
+              <img {...responsiveProps(gallery[0] || FALLBACK_GALLERY[0], '50vw')} alt="Gallery 1" loading="lazy" decoding="async" />
             </div>
             <div className="mosaic-right-column">
-              <div className="mosaic-item small"><img src={gallery[1] || FALLBACK_GALLERY[1]} alt="Gallery 2" /></div>
-              <div className="mosaic-item small"><img src={gallery[2] || FALLBACK_GALLERY[2]} alt="Gallery 3" /></div>
+              <div className="mosaic-item small"><img {...responsiveProps(gallery[1] || FALLBACK_GALLERY[1], '25vw')} alt="Gallery 2" loading="lazy" decoding="async" /></div>
+              <div className="mosaic-item small"><img {...responsiveProps(gallery[2] || FALLBACK_GALLERY[2], '25vw')} alt="Gallery 3" loading="lazy" decoding="async" /></div>
             </div>
           </div>
           <div className="mosaic-item wide">
-            <img src={gallery[3] || FALLBACK_GALLERY[3]} alt="Gallery 4" />
+            <img {...responsiveProps(gallery[3] || FALLBACK_GALLERY[3], '100vw')} alt="Gallery 4" loading="lazy" decoding="async" />
           </div>
         </div>
 
@@ -189,7 +189,7 @@ const AboutUs = () => {
         <div className="gallery-mobile-carousel">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="gallery-mobile-slide">
-              <img src={gallery[i] || FALLBACK_GALLERY[i]} alt={`Gallery ${i + 1}`} />
+              <img {...responsiveProps(gallery[i] || FALLBACK_GALLERY[i], '80vw')} alt={`Gallery ${i + 1}`} loading="lazy" decoding="async" />
             </div>
           ))}
         </div>

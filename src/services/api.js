@@ -1,4 +1,5 @@
 import { tokenStorage } from './tokenStorage';
+import { compressImage } from '../utils/imageCompressor';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -192,15 +193,16 @@ export const uploadsAPI = {
  * 3. Returns the public URL
  */
 export const uploadImageToR2 = async (file, folder = 'general') => {
+  const compressedFile = await compressImage(file);
   const { data } = await uploadsAPI.getPresignedUrl({
-    filename: file.name,
-    contentType: file.type,
+    filename: compressedFile.name,
+    contentType: compressedFile.type,
     folder,
   });
   const putRes = await fetch(data.uploadUrl, {
     method: 'PUT',
-    body: file,
-    headers: { 'Content-Type': file.type },
+    body: compressedFile,
+    headers: { 'Content-Type': compressedFile.type },
   });
   if (!putRes.ok) throw new Error('Failed to upload file to storage.');
   return data.publicUrl;
