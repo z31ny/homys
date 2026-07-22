@@ -64,7 +64,15 @@ export const HomeCard = ({ home }) => {
                 className="home-main-img"
                 loading="lazy"
                 decoding="async"
-                onError={(e) => { e.target.src = fallbackImg; }}
+                onError={(e) => {
+                  if (e.target.srcset) {
+                    e.target.removeAttribute('srcset');
+                    e.target.removeAttribute('sizes');
+                    e.target.src = img;
+                  } else {
+                    e.target.src = fallbackImg;
+                  }
+                }}
               />
             );
           })}

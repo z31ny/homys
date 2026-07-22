@@ -65,7 +65,7 @@ const Hero = () => {
 
   return (
     <section className="hero-section">
-      <div className="hero-bg" style={{ backgroundImage: `url(${desktopBg})` }}>
+      <div className="hero-bg" style={{ backgroundImage: `url(${desktopBg}), url(${rawBg})` }}>
 
         {/* Mobile-only img — replaces CSS background on portrait screens so the
             full villa side of the landscape image is visible without extreme zoom */}
@@ -76,6 +76,13 @@ const Hero = () => {
           aria-hidden="true"
           fetchPriority="high"
           decoding="async"
+          onError={(e) => {
+            if (e.target.srcset) {
+              e.target.removeAttribute('srcset');
+              e.target.removeAttribute('sizes');
+              e.target.src = rawBg;
+            }
+          }}
           style={{ width: '100%' }}
         />
 
